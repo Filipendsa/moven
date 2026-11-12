@@ -1,10 +1,14 @@
 import { createClient } from "@supabase/supabase-js";
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://placeholder-moven.supabase.co";
-// Usa SERVICE_ROLE_KEY no servidor para contornar RLS em gravações seguras, ou faz fallback p/ ANON
+const supabaseUrl =
+  process.env.NEXT_PUBLIC_SUPABASE_URL ||
+  "https://ciqerfzvuaypnwecesah.supabase.co";
+
 const supabaseKey =
+  process.env.SUPABASE_SECRET_KEY ||
   process.env.SUPABASE_SERVICE_ROLE_KEY ||
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
+  process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ||
   "placeholder-key";
 
 export const supabaseServer = createClient(supabaseUrl, supabaseKey, {
@@ -13,4 +17,3 @@ export const supabaseServer = createClient(supabaseUrl, supabaseKey, {
     autoRefreshToken: false,
   },
 });
-

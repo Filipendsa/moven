@@ -1,8 +1,13 @@
 import { createClient } from "@supabase/supabase-js";
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://placeholder-moven.supabase.co";
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "placeholder-anon-key";
+const supabaseUrl =
+  process.env.NEXT_PUBLIC_SUPABASE_URL ||
+  "https://ciqerfzvuaypnwecesah.supabase.co";
 
-// Cliente público para o navegador (Auth do painel Admin)
-export const supabaseBrowser = createClient(supabaseUrl, supabaseAnonKey);
+const supabaseKey =
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
+  process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ||
+  "placeholder-key";
 
+// Browser client for Admin Auth & public interactions
+export const supabaseBrowser = createClient(supabaseUrl, supabaseKey);
