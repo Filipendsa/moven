@@ -19,12 +19,14 @@ export default function AdminLoginPage() {
     setErrorMessage(null);
 
     try {
-      // Se estiver usando credenciais reais do Supabase Auth
+      let mustChangePassword = false;
+
+      // Autenticação com Supabase Auth
       if (
         process.env.NEXT_PUBLIC_SUPABASE_URL &&
         !process.env.NEXT_PUBLIC_SUPABASE_URL.includes("placeholder")
       ) {
-        const { error } = await supabaseBrowser.auth.signInWithPassword({
+        const { data, error } = await supabaseBrowser.auth.signInWithPassword({
           email,
           password,
         });
@@ -32,13 +34,23 @@ export default function AdminLoginPage() {
         if (error) {
           throw error;
         }
+
+        // Verifica se é primeiro acesso (senha não alterada pelo usuário)
+        const hasChangedPassword = Boolean(data.user?.user_metadata?.password_changed);
+        if (!hasChangedPassword) {
+          mustChangePassword = true;
+        }
       }
 
-      // Define token simulado local para ambiente de desenvolvimento/liderança
       sessionStorage.setItem("moven_admin_logged", "true");
       sessionStorage.setItem("moven_admin_email", email);
+      sessionStorage.setItem("moven_password_changed", mustChangePassword ? "false" : "true");
 
-      router.push("/admin");
+      if (mustChangePassword) {
+        router.push("/admin/change-password?first_access=true");
+      } else {
+        router.push("/admin");
+      }
     } catch (err: any) {
       setErrorMessage(
         err.message || "E-mail ou senha incorretos. Acesso restrito à liderança."
@@ -130,4 +142,3 @@ export default function AdminLoginPage() {
     </div>
   );
 }
-

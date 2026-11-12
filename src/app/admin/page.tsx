@@ -13,8 +13,9 @@ import {
   LogOut,
   RefreshCw,
   Anchor,
-  TrendingUp,
+  KeyRound,
 } from "lucide-react";
+import { supabaseBrowser } from "@/shared/infrastructure/supabase/client";
 
 interface RegistrationItem {
   id: string;
@@ -23,7 +24,7 @@ interface RegistrationItem {
   phoneFormatted: string;
   whatsAppUrl: string;
   cpf: string;
-  modality: "ESCOLA" | "MISSAO" | "AMBOS";
+  modality: "SCHOOL" | "MISSION" | "BOTH";
   modalityTitle: string;
   amountFormatted: string;
   paymentProvider: string;
@@ -79,13 +80,37 @@ export default function AdminDashboardPage() {
   }, [search, modalityFilter, statusFilter]);
 
   useEffect(() => {
-    // Verificação de autenticação de sessão simples
-    const logged = sessionStorage.getItem("moven_admin_logged");
-    if (!logged) {
-      router.push("/admin/login");
-      return;
-    }
-    loadData();
+    const checkAuth = async () => {
+      const logged = sessionStorage.getItem("moven_admin_logged");
+      if (!logged) {
+        router.push("/admin/login");
+        return;
+      }
+
+      // Verifica se precisa trocar a senha no primeiro acesso
+      const passwordChanged = sessionStorage.getItem("moven_password_changed");
+      if (passwordChanged === "false") {
+        router.push("/admin/change-password?first_access=true");
+        return;
+      }
+
+      // Verificação com Supabase session
+      if (
+        process.env.NEXT_PUBLIC_SUPABASE_URL &&
+        !process.env.NEXT_PUBLIC_SUPABASE_URL.includes("placeholder")
+      ) {
+        const { data } = await supabaseBrowser.auth.getUser();
+        if (data.user && !data.user.user_metadata?.password_changed) {
+          sessionStorage.setItem("moven_password_changed", "false");
+          router.push("/admin/change-password?first_access=true");
+          return;
+        }
+      }
+
+      loadData();
+    };
+
+    checkAuth();
   }, [loadData, router]);
 
   const handleToggleStatus = async (
@@ -107,9 +132,16 @@ export default function AdminDashboardPage() {
     }
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    if (
+      process.env.NEXT_PUBLIC_SUPABASE_URL &&
+      !process.env.NEXT_PUBLIC_SUPABASE_URL.includes("placeholder")
+    ) {
+      await supabaseBrowser.auth.signOut();
+    }
     sessionStorage.removeItem("moven_admin_logged");
     sessionStorage.removeItem("moven_admin_email");
+    sessionStorage.removeItem("moven_password_changed");
     router.push("/admin/login");
   };
 
@@ -130,13 +162,21 @@ export default function AdminDashboardPage() {
             </span>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2.5">
+            <Link
+              href="/admin/change-password"
+              className="inline-flex items-center gap-1.5 text-xs text-[#cfc9b8] hover:text-[#e9e1d0] px-3 py-2 rounded-full border border-white/10 hover:border-white/30 transition-colors"
+              title="Alterar senha de acesso"
+            >
+              <KeyRound className="w-3.5 h-3.5 text-[#8fa66a]" />
+              Alterar Senha
+            </Link>
             <a
               href="/api/admin/registrations?action=csv"
               className="inline-flex items-center gap-2 bg-[#8fa66a] text-[#072119] text-xs font-semibold px-4 py-2 rounded-full hover:bg-[#e9e1d0] transition-colors"
             >
               <Download className="w-3.5 h-3.5" />
-              Exportar CSV (Excel)
+              Exportar CSV
             </a>
             <button
               onClick={handleLogout}
@@ -154,7 +194,6 @@ export default function AdminDashboardPage() {
         {/* Cards de Métricas / KPIs */}
         {metrics && (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {/* Total Inscritos */}
             <div className="bg-[var(--card)] p-5 rounded-2xl border border-[var(--terra)]/20 shadow-sm flex items-center justify-between">
               <div>
                 <span className="text-xs text-[var(--mut)] font-semibold uppercase tracking-wider block mb-1">
@@ -172,7 +211,6 @@ export default function AdminDashboardPage() {
               </div>
             </div>
 
-            {/* Controle de Vagas Missão Amazonas */}
             <div className="bg-[var(--card)] p-5 rounded-2xl border border-[var(--terra)]/20 shadow-sm flex items-center justify-between">
               <div className="w-full pr-2">
                 <span className="text-xs text-[var(--mut)] font-semibold uppercase tracking-wider block mb-1">
@@ -186,7 +224,6 @@ export default function AdminDashboardPage() {
                     / {metrics.missaoMaxSlots} confirmadas
                   </span>
                 </div>
-                {/* Barra de progresso */}
                 <div className="w-full bg-black/10 dark:bg-white/10 h-2 rounded-full mt-2 overflow-hidden">
                   <div
                     className="bg-[#8fa66a] h-full rounded-full transition-all"
@@ -204,7 +241,6 @@ export default function AdminDashboardPage() {
               </div>
             </div>
 
-            {/* Pagamentos Confirmados */}
             <div className="bg-[var(--card)] p-5 rounded-2xl border border-[var(--terra)]/20 shadow-sm flex items-center justify-between">
               <div>
                 <span className="text-xs text-[var(--mut)] font-semibold uppercase tracking-wider block mb-1">
@@ -222,7 +258,6 @@ export default function AdminDashboardPage() {
               </div>
             </div>
 
-            {/* Inscrições Pendentes */}
             <div className="bg-[var(--card)] p-5 rounded-2xl border border-[var(--terra)]/20 shadow-sm flex items-center justify-between">
               <div>
                 <span className="text-xs text-[var(--mut)] font-semibold uppercase tracking-wider block mb-1">
@@ -262,9 +297,9 @@ export default function AdminDashboardPage() {
               className="bg-white/70 dark:bg-black/30 border border-black/10 dark:border-white/10 rounded-xl px-3 py-2 text-sm focus:outline-none"
             >
               <option value="">Todas Modalidades</option>
-              <option value="ESCOLA">Escola de Missões</option>
-              <option value="MISSAO">Missão Amazonas</option>
-              <option value="AMBOS">Ambos (Combo)</option>
+              <option value="SCHOOL">Escola de Missões</option>
+              <option value="MISSION">Missão Amazonas</option>
+              <option value="BOTH">Ambos (Combo)</option>
             </select>
 
             <select
@@ -396,4 +431,3 @@ export default function AdminDashboardPage() {
     </div>
   );
 }
-
