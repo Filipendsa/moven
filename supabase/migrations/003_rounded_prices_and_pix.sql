@@ -15,3 +15,4 @@ ALTER TABLE registrations
 ALTER TABLE registrations
   ADD CONSTRAINT registrations_payment_provider_check
   CHECK (payment_provider IN ('EVEN3', 'INFINITEPAY', 'PIX'));
+
