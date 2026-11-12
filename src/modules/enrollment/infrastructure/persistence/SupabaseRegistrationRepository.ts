@@ -8,16 +8,12 @@ import { RegistrationMapper, RegistrationPersistenceRow } from "./RegistrationMa
 import { supabaseServer } from "@/shared/infrastructure/supabase/server";
 
 export class SupabaseRegistrationRepository implements IRegistrationRepository {
-  // Cache em memória para desenvolvimento/demonstração quando Supabase não estiver configurado com credenciais reais
   private static inMemoryStore = new Map<string, RegistrationPersistenceRow>();
 
   async save(registration: Registration): Promise<void> {
     const row = RegistrationMapper.toPersistence(registration);
-
-    // Salva sempre no fallback em memória
     SupabaseRegistrationRepository.inMemoryStore.set(row.id, row);
 
-    // Se houver conexão configurada, grava no Supabase
     if (
       process.env.NEXT_PUBLIC_SUPABASE_URL &&
       !process.env.NEXT_PUBLIC_SUPABASE_URL.includes("placeholder")
@@ -95,7 +91,6 @@ export class SupabaseRegistrationRepository implements IRegistrationRepository {
       }
     }
 
-    // Se o banco externo não retornou nada ou estiver em desenvolvimento local
     if (rows.length === 0 && SupabaseRegistrationRepository.inMemoryStore.size > 0) {
       rows = Array.from(SupabaseRegistrationRepository.inMemoryStore.values());
       if (filters?.status) {
@@ -110,7 +105,6 @@ export class SupabaseRegistrationRepository implements IRegistrationRepository {
       );
     }
 
-    // Filtro de busca textual (Nome, CPF, Email)
     if (filters?.search) {
       const q = filters.search.toLowerCase().trim();
       rows = rows.filter(
@@ -180,7 +174,6 @@ export class SupabaseRegistrationRepository implements IRegistrationRepository {
         totalPaid++;
         totalRevenueCents += reg.amount.amountCents;
 
-        // Regra alinhada com o usuário: Vagas da Missão Amazonas ocupadas apenas com pagamento confirmado
         if (reg.modality.includesAmazonasMission) {
           missaoPaidSlots++;
         }
@@ -191,9 +184,9 @@ export class SupabaseRegistrationRepository implements IRegistrationRepository {
         totalCanceled++;
       }
 
-      if (reg.modality.type === "ESCOLA") escolaTotal++;
-      if (reg.modality.type === "MISSAO") missaoTotal++;
-      if (reg.modality.type === "AMBOS") ambosTotal++;
+      if (reg.modality.type === "SCHOOL") escolaTotal++;
+      if (reg.modality.type === "MISSION") missaoTotal++;
+      if (reg.modality.type === "BOTH") ambosTotal++;
     }
 
     return {
@@ -205,10 +198,9 @@ export class SupabaseRegistrationRepository implements IRegistrationRepository {
       missaoTotal,
       ambosTotal,
       missaoPaidSlots,
-      missaoMaxSlots: 28, // Limite oficial do projeto MOVEN
+      missaoMaxSlots: 28,
       totalRevenueCents,
       pendingRevenueCents,
     };
   }
 }
-

@@ -6,10 +6,9 @@ import { Money } from "../domain/value-objects/Money";
 export class SupabaseEventOfferingRepository
   implements IEventOfferingRepository
 {
-  // Catálogo inicial em memória com os valores oficiais do MOVEN
   private static catalog: EventOffering[] = [
     EventOffering.create({
-      modality: "ESCOLA",
+      modality: "SCHOOL",
       title: "Escola de Missões",
       price: (Money.fromCents(16842) as any).value,
       maxSlots: null,
@@ -18,7 +17,7 @@ export class SupabaseEventOfferingRepository
       isActive: true,
     }),
     EventOffering.create({
-      modality: "MISSAO",
+      modality: "MISSION",
       title: "Missão Amazonas 2027",
       price: (Money.fromCents(246316) as any).value,
       maxSlots: 28,
@@ -27,7 +26,7 @@ export class SupabaseEventOfferingRepository
       isActive: true,
     }),
     EventOffering.create({
-      modality: "AMBOS",
+      modality: "BOTH",
       title: "Escola de Missões + Missão Amazonas",
       price: (Money.fromCents(263158) as any).value,
       maxSlots: 28,

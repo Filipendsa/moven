@@ -1,21 +1,20 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, CheckCircle2, ShieldCheck, AlertCircle, Loader2 } from "lucide-react";
+import { ArrowLeft, CheckCircle2, AlertCircle, Loader2 } from "lucide-react";
 
 export default function EnrollmentForm() {
   const searchParams = useSearchParams();
   const router = useRouter();
 
-  const initialModality = searchParams.get("modalidade")?.toUpperCase() || "ESCOLA";
+  const rawModality = (searchParams.get("modality") || searchParams.get("modalidade") || "").toUpperCase();
+  let defaultModality = "SCHOOL";
+  if (rawModality === "MISSION" || rawModality === "MISSAO") defaultModality = "MISSION";
+  if (rawModality === "BOTH" || rawModality === "AMBOS") defaultModality = "BOTH";
 
-  const [modality, setModality] = useState(
-    ["ESCOLA", "MISSAO", "AMBOS"].includes(initialModality)
-      ? initialModality
-      : "ESCOLA"
-  );
+  const [modality, setModality] = useState(defaultModality);
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
@@ -25,7 +24,6 @@ export default function EnrollmentForm() {
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  // Máscaras de entrada (Clean UX)
   const handleCpfChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     let v = e.target.value.replace(/\D/g, "");
     if (v.length > 11) v = v.slice(0, 11);
@@ -83,17 +81,14 @@ export default function EnrollmentForm() {
         throw new Error(data.error || "Erro ao processar inscrição.");
       }
 
-      // Redirecionamento inteligente
       const checkout = data.checkout;
       if (checkout.isMultipleStep) {
-        // Modo AMBOS no Even3: direciona para página de instruções com os dois botões
         router.push(
-          `/inscricao/sucesso?order_id=${data.registrationId}&multi=true&escola_url=${encodeURIComponent(
+          `/enrollment/success?order_id=${data.registrationId}&multi=true&school_url=${encodeURIComponent(
             checkout.checkoutUrl
-          )}&missao_url=${encodeURIComponent(checkout.extraCheckoutUrl || "")}`
+          )}&mission_url=${encodeURIComponent(checkout.extraCheckoutUrl || "")}`
         );
       } else {
-        // Redireciona diretamente para o Even3 ou InfinitePay
         window.location.href = checkout.checkoutUrl;
       }
     } catch (err: any) {
@@ -127,7 +122,7 @@ export default function EnrollmentForm() {
         )}
 
         <form onSubmit={handleSubmit} className="space-y-5">
-          {/* Seleção de Modalidade */}
+          {/* Modality Selection */}
           <div>
             <label className="block text-sm font-semibold mb-2">
               Escolha a Modalidade:
@@ -135,7 +130,7 @@ export default function EnrollmentForm() {
             <div className="grid grid-cols-1 gap-2.5">
               <label
                 className={`flex items-center justify-between p-3.5 rounded-xl border-2 cursor-pointer transition-all ${
-                  modality === "ESCOLA"
+                  modality === "SCHOOL"
                     ? "border-[#8fa66a] bg-[#8fa66a]/15"
                     : "border-black/10 dark:border-white/10 hover:border-[#8fa66a]/50"
                 }`}
@@ -144,8 +139,8 @@ export default function EnrollmentForm() {
                   <input
                     type="radio"
                     name="modality"
-                    value="ESCOLA"
-                    checked={modality === "ESCOLA"}
+                    value="SCHOOL"
+                    checked={modality === "SCHOOL"}
                     onChange={(e) => setModality(e.target.value)}
                     className="accent-[#8fa66a]"
                   />
@@ -165,7 +160,7 @@ export default function EnrollmentForm() {
 
               <label
                 className={`flex items-center justify-between p-3.5 rounded-xl border-2 cursor-pointer transition-all ${
-                  modality === "MISSAO"
+                  modality === "MISSION"
                     ? "border-[#8fa66a] bg-[#8fa66a]/15"
                     : "border-black/10 dark:border-white/10 hover:border-[#8fa66a]/50"
                 }`}
@@ -174,8 +169,8 @@ export default function EnrollmentForm() {
                   <input
                     type="radio"
                     name="modality"
-                    value="MISSAO"
-                    checked={modality === "MISSAO"}
+                    value="MISSION"
+                    checked={modality === "MISSION"}
                     onChange={(e) => setModality(e.target.value)}
                     className="accent-[#8fa66a]"
                   />
@@ -195,7 +190,7 @@ export default function EnrollmentForm() {
 
               <label
                 className={`flex items-center justify-between p-3.5 rounded-xl border-2 cursor-pointer transition-all ${
-                  modality === "AMBOS"
+                  modality === "BOTH"
                     ? "border-[#8fa66a] bg-[#8fa66a]/15"
                     : "border-black/10 dark:border-white/10 hover:border-[#8fa66a]/50"
                 }`}
@@ -204,8 +199,8 @@ export default function EnrollmentForm() {
                   <input
                     type="radio"
                     name="modality"
-                    value="AMBOS"
-                    checked={modality === "AMBOS"}
+                    value="BOTH"
+                    checked={modality === "BOTH"}
                     onChange={(e) => setModality(e.target.value)}
                     className="accent-[#8fa66a]"
                   />
@@ -225,7 +220,7 @@ export default function EnrollmentForm() {
             </div>
           </div>
 
-          {/* Nome Completo */}
+          {/* Full Name */}
           <div>
             <label className="block text-xs font-semibold uppercase tracking-wider mb-1">
               Nome Completo *
@@ -240,7 +235,7 @@ export default function EnrollmentForm() {
             />
           </div>
 
-          {/* E-mail */}
+          {/* Email */}
           <div>
             <label className="block text-xs font-semibold uppercase tracking-wider mb-1">
               E-mail *
@@ -255,7 +250,7 @@ export default function EnrollmentForm() {
             />
           </div>
 
-          {/* Telefone e CPF em duas colunas */}
+          {/* Phone & CPF */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-semibold uppercase tracking-wider mb-1">
@@ -285,7 +280,7 @@ export default function EnrollmentForm() {
             </div>
           </div>
 
-          {/* Aceite LGPD */}
+          {/* LGPD Consent */}
           <div className="pt-2">
             <label className="flex items-start gap-3 cursor-pointer">
               <input
@@ -298,7 +293,7 @@ export default function EnrollmentForm() {
               <span className="text-xs text-[var(--mut)] leading-relaxed">
                 Li e concordo com os{" "}
                 <Link
-                  href="/termos"
+                  href="/terms"
                   target="_blank"
                   className="text-[#8fa66a] underline hover:text-[var(--ink)]"
                 >
@@ -306,7 +301,7 @@ export default function EnrollmentForm() {
                 </Link>{" "}
                 e com o tratamento dos meus dados conforme a{" "}
                 <Link
-                  href="/privacidade"
+                  href="/privacy"
                   target="_blank"
                   className="text-[#8fa66a] underline hover:text-[var(--ink)]"
                 >
@@ -317,7 +312,7 @@ export default function EnrollmentForm() {
             </label>
           </div>
 
-          {/* Botão de Envio */}
+          {/* Submit Button */}
           <button
             type="submit"
             disabled={loading}
@@ -340,4 +335,3 @@ export default function EnrollmentForm() {
     </div>
   );
 }
-

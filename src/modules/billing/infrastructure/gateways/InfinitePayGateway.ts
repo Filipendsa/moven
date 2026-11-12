@@ -13,12 +13,9 @@ export class InfinitePayGateway implements IPaymentGateway {
     const webhookUrl =
       process.env.NEXT_PUBLIC_APP_URL || "https://moven.vercel.app";
 
-    // Estrutura preparada para a API de checkout do InfinitePay
-    // Se a chave não estiver presente no ambiente (ex: modo de teste ou Even3 ativo),
-    // gera um link simulado seguro com o orderId
     if (!apiKey) {
       return {
-        checkoutUrl: `${webhookUrl}/inscricao/sucesso?order_id=${registration.id}&provider=INFINITEPAY_SIMULATED`,
+        checkoutUrl: `${webhookUrl}/enrollment/success?order_id=${registration.id}&provider=INFINITEPAY_SIMULATED`,
         provider: this.providerName,
         orderId: registration.id,
         isMultipleStep: false,
@@ -26,7 +23,6 @@ export class InfinitePayGateway implements IPaymentGateway {
     }
 
     try {
-      // Exemplo de payload oficial InfinitePay / Smart Checkout
       const response = await fetch(
         "https://api.infinitepay.io/v2/transactions/checkout",
         {
@@ -68,9 +64,8 @@ export class InfinitePayGateway implements IPaymentGateway {
         isMultipleStep: false,
       };
     } catch {
-      // Fallback gracioso
       return {
-        checkoutUrl: `${webhookUrl}/inscricao/sucesso?order_id=${registration.id}&provider=INFINITEPAY_PENDING`,
+        checkoutUrl: `${webhookUrl}/enrollment/success?order_id=${registration.id}&provider=INFINITEPAY_PENDING`,
         provider: this.providerName,
         orderId: registration.id,
         isMultipleStep: false,
@@ -78,4 +73,3 @@ export class InfinitePayGateway implements IPaymentGateway {
     }
   }
 }
-

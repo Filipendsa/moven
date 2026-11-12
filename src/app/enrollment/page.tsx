@@ -2,7 +2,7 @@ import { Suspense } from "react";
 import EnrollmentForm from "@/components/enrollment/EnrollmentForm";
 import { Loader2 } from "lucide-react";
 
-export default function InscricaoPage() {
+export default function EnrollmentPage() {
   return (
     <Suspense
       fallback={
@@ -15,4 +15,3 @@ export default function InscricaoPage() {
     </Suspense>
   );
 }
-

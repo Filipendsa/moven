@@ -5,10 +5,9 @@ import { EventOffering } from "@/modules/mission-catalog/domain/entities/EventOf
 export class Even3RedirectGateway implements IPaymentGateway {
   readonly providerName = "EVEN3" as const;
 
-  // URLs oficiais de referência do Even3/Evento da Igreja para o MOVEN
-  private readonly escolaUrl =
+  private readonly schoolUrl =
     "https://ingressos.eventodaigreja.com.br/moven-nucleo-de-missoes-igreja-unasp-ht-404c03a0";
-  private readonly missaoUrl =
+  private readonly missionUrl =
     "https://ingressos.eventodaigreja.com.br/missao-salva-vidas-amazonia-julho-2027-034970c3";
 
   async createCheckoutSession(
@@ -17,11 +16,10 @@ export class Even3RedirectGateway implements IPaymentGateway {
   ): Promise<CheckoutResult> {
     const modality = registration.modality.type;
 
-    if (modality === "AMBOS") {
-      // Como ainda não há um link combo único no Even3, fornecemos ambos os links
+    if (modality === "BOTH") {
       return {
-        checkoutUrl: this.escolaUrl,
-        extraCheckoutUrl: this.missaoUrl,
+        checkoutUrl: this.schoolUrl,
+        extraCheckoutUrl: this.missionUrl,
         provider: this.providerName,
         orderId: registration.id,
         isMultipleStep: true,
@@ -29,7 +27,7 @@ export class Even3RedirectGateway implements IPaymentGateway {
     }
 
     const primaryUrl =
-      modality === "MISSAO" ? this.missaoUrl : this.escolaUrl;
+      modality === "MISSION" ? this.missionUrl : this.schoolUrl;
 
     return {
       checkoutUrl: offering.even3CheckoutUrl || primaryUrl,
@@ -39,4 +37,3 @@ export class Even3RedirectGateway implements IPaymentGateway {
     };
   }
 }
-

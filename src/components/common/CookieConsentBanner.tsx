@@ -41,7 +41,7 @@ export default function CookieConsentBanner() {
         central de inscrições e preferências de navegação, em total conformidade
         com a LGPD. Saiba mais na nossa{" "}
         <Link
-          href="/privacidade"
+          href="/privacy"
           className="text-[#8fa66a] underline hover:text-[#e9e1d0]"
         >
           Política de Privacidade
@@ -59,4 +59,3 @@ export default function CookieConsentBanner() {
     </div>
   );
 }
-

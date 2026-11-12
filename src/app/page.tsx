@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import { MessageCircle, ShieldCheck, HeartHandshake, Compass, Users } from "lucide-react";
+import { MessageCircle, ShieldCheck, Compass, Users } from "lucide-react";
 
 export default function HomePage() {
   const whatsappCommunityUrl =
@@ -8,7 +8,7 @@ export default function HomePage() {
 
   return (
     <div className="flex flex-col min-h-screen">
-      {/* Navegação Fixa com Blur */}
+      {/* Fixed Navigation with Blur */}
       <nav className="sticky top-0 z-30 bg-[#072119]/95 backdrop-blur-md border-b border-[#8fa66a]/20">
         <div className="max-w-5xl mx-auto px-5 min-h-[58px] flex items-center justify-between overflow-x-auto whitespace-nowrap">
           <Link
@@ -22,37 +22,37 @@ export default function HomePage() {
           </Link>
           <div className="flex items-center gap-5 text-sm font-heading font-medium">
             <Link
-              href="#sobre"
+              href="#about"
               className="text-[#e9e1d0]/85 hover:text-[#8fa66a] transition-colors"
             >
               Sobre
             </Link>
             <Link
-              href="#escola"
+              href="#school"
               className="text-[#e9e1d0]/85 hover:text-[#8fa66a] transition-colors"
             >
               Escola
             </Link>
             <Link
-              href="#datas"
+              href="#dates"
               className="text-[#e9e1d0]/85 hover:text-[#8fa66a] transition-colors"
             >
               Datas
             </Link>
             <Link
-              href="#valores"
+              href="#pricing"
               className="text-[#e9e1d0]/85 hover:text-[#8fa66a] transition-colors"
             >
               Valores
             </Link>
             <Link
-              href="#amazonas"
+              href="#amazon"
               className="text-[#e9e1d0]/85 hover:text-[#8fa66a] transition-colors"
             >
               Missão Amazonas
             </Link>
             <Link
-              href="/inscricao"
+              href="/enrollment"
               className="bg-[#8fa66a] text-[#072119] px-4 py-1.5 rounded-full font-semibold hover:bg-[#e9e1d0] transition-colors text-xs uppercase tracking-wide"
             >
               Inscrição
@@ -85,13 +85,13 @@ export default function HomePage() {
 
           <div className="flex flex-wrap items-center justify-center gap-4 mb-12">
             <Link
-              href="/inscricao?modalidade=ESCOLA"
+              href="/enrollment?modality=SCHOOL"
               className="inline-block bg-[#8fa66a] text-[#072119] font-heading font-semibold px-7 py-3.5 rounded-full border-2 border-[#8fa66a] hover:bg-[#e9e1d0] hover:border-[#e9e1d0] transition-colors shadow-lg"
             >
               Inscrever na Escola de Missões
             </Link>
             <Link
-              href="/inscricao?modalidade=MISSAO"
+              href="/enrollment?modality=MISSION"
               className="inline-block text-[#e9e1d0] font-heading font-semibold px-7 py-3.5 rounded-full border-2 border-[#8fa66a] hover:bg-[#8fa66a] hover:text-[#072119] transition-colors"
             >
               Inscrever na Missão Amazonas
@@ -107,7 +107,7 @@ export default function HomePage() {
             </a>
           </div>
 
-          {/* Fatos em Destaque */}
+          {/* Key Facts */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-[1px] bg-[#e9e1d0]/20 rounded-2xl overflow-hidden border border-[#e9e1d0]/20 text-left">
             <div className="bg-[#072119] p-4 sm:p-5">
               <b className="block text-xl sm:text-2xl font-heading text-[#8fa66a]">
@@ -145,8 +145,8 @@ export default function HomePage() {
         </div>
       </header>
 
-      {/* Seção 1: O que é o MOVEN */}
-      <section id="sobre" className="py-16">
+      {/* Section 1: About */}
+      <section id="about" className="py-16">
         <div className="max-w-5xl mx-auto px-5 grid grid-cols-1 md:grid-cols-12 gap-10">
           <div className="md:col-span-7">
             <h2 className="text-3xl sm:text-4xl font-semibold mb-4 text-[var(--ink)]">
@@ -210,8 +210,8 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Seção 2: Escola de Missões */}
-      <section id="escola" className="py-16 bg-[var(--card)]">
+      {/* Section 2: School */}
+      <section id="school" className="py-16 bg-[var(--card)]">
         <div className="max-w-5xl mx-auto px-5">
           <h2 className="text-3xl sm:text-4xl font-semibold mb-3 text-[var(--ink)]">
             Escola de Missões
@@ -303,8 +303,8 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Seção 3: Datas Importantes */}
-      <section id="datas" className="py-16">
+      {/* Section 3: Dates */}
+      <section id="dates" className="py-16">
         <div className="max-w-5xl mx-auto px-5">
           <h2 className="text-3xl sm:text-4xl font-semibold mb-2 text-[var(--ink)]">
             Datas importantes
@@ -400,8 +400,8 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Seção 4: Valores e Inscrição */}
-      <section id="valores" className="py-16 bg-[#072119] text-[#e9e1d0]">
+      {/* Section 4: Pricing */}
+      <section id="pricing" className="py-16 bg-[#072119] text-[#e9e1d0]">
         <div className="max-w-5xl mx-auto px-5">
           <h2 className="text-3xl sm:text-4xl font-semibold mb-2">Valores</h2>
           <p className="text-[#d5cfbf] mb-8">
@@ -409,7 +409,7 @@ export default function HomePage() {
           </p>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {/* Card Escola */}
+            {/* School Card */}
             <div className="bg-[#12302a] border border-[#8fa66a]/30 rounded-3xl p-8 flex flex-col justify-between shadow-xl">
               <div>
                 <span className="text-xs uppercase tracking-wider text-[#8fa66a] font-semibold">
@@ -434,14 +434,14 @@ export default function HomePage() {
                 </ul>
               </div>
               <Link
-                href="/inscricao?modalidade=ESCOLA"
+                href="/enrollment?modality=SCHOOL"
                 className="w-full text-center bg-[#8fa66a] text-[#072119] font-heading font-semibold py-3.5 rounded-full hover:bg-[#e9e1d0] transition-colors"
               >
                 Inscrever na Escola
               </Link>
             </div>
 
-            {/* Card Missão */}
+            {/* Mission Card */}
             <div className="bg-[#12302a] border border-[#8fa66a]/30 rounded-3xl p-8 flex flex-col justify-between shadow-xl">
               <div>
                 <span className="text-xs uppercase tracking-wider text-[#8fa66a] font-semibold">
@@ -467,7 +467,7 @@ export default function HomePage() {
                 </ul>
               </div>
               <Link
-                href="/inscricao?modalidade=MISSAO"
+                href="/enrollment?modality=MISSION"
                 className="w-full text-center bg-[#8fa66a] text-[#072119] font-heading font-semibold py-3.5 rounded-full hover:bg-[#e9e1d0] transition-colors"
               >
                 Inscrever na Missão
@@ -477,8 +477,8 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Seção 5: Missão Amazonas 2027 Detalhes */}
-      <section id="amazonas" className="py-16">
+      {/* Section 5: Mission Details */}
+      <section id="amazon" className="py-16">
         <div className="max-w-5xl mx-auto px-5 grid grid-cols-1 md:grid-cols-12 gap-10">
           <div className="md:col-span-7">
             <h2 className="text-3xl sm:text-4xl font-semibold mb-4 text-[var(--ink)]">
@@ -514,8 +514,8 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Seção 6: CTA Central de Inscrição */}
-      <section id="inscricao" className="py-16 bg-[#072119] text-center text-[#e9e1d0]">
+      {/* Section 6: Enrollment CTA */}
+      <section id="enrollment" className="py-16 bg-[#072119] text-center text-[#e9e1d0]">
         <div className="max-w-3xl mx-auto px-5">
           <h2 className="text-3xl sm:text-4xl font-semibold mb-3">
             Inscreva-se Agora
@@ -526,19 +526,19 @@ export default function HomePage() {
           </p>
           <div className="flex flex-wrap items-center justify-center gap-4">
             <Link
-              href="/inscricao?modalidade=ESCOLA"
+              href="/enrollment?modality=SCHOOL"
               className="bg-[#8fa66a] text-[#072119] font-heading font-semibold px-8 py-3.5 rounded-full hover:bg-[#e9e1d0] transition-colors shadow-lg"
             >
               Escola de Missões
             </Link>
             <Link
-              href="/inscricao?modalidade=MISSAO"
+              href="/enrollment?modality=MISSION"
               className="text-[#e9e1d0] font-heading font-semibold px-8 py-3.5 rounded-full border-2 border-[#8fa66a] hover:bg-[#8fa66a] hover:text-[#072119] transition-colors"
             >
               Missão Amazonas
             </Link>
             <Link
-              href="/inscricao?modalidade=AMBOS"
+              href="/enrollment?modality=BOTH"
               className="bg-[var(--terra)] text-[#e9e1d0] font-heading font-semibold px-8 py-3.5 rounded-full hover:bg-[var(--terra)]/80 transition-colors shadow-lg"
             >
               Inscrever em Ambos
@@ -547,7 +547,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Seção WhatsApp / Contato */}
+      {/* WhatsApp / Community Section */}
       <section className="py-16 bg-[#8fa66a] text-[#072119] text-center">
         <div className="max-w-3xl mx-auto px-5">
           <h2 className="text-3xl sm:text-4xl font-semibold mb-3">
@@ -582,14 +582,14 @@ export default function HomePage() {
           </div>
           <div className="flex items-center gap-4 text-xs">
             <Link
-              href="/privacidade"
+              href="/privacy"
               className="hover:text-[#8fa66a] transition-colors"
             >
               Política de Privacidade
             </Link>
             <span>•</span>
             <Link
-              href="/termos"
+              href="/terms"
               className="hover:text-[#8fa66a] transition-colors"
             >
               Termos de Uso
