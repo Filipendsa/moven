@@ -82,3 +82,4 @@ CREATE POLICY "Admin manage missions" ON missions
   FOR ALL TO authenticated
   USING (true)
   WITH CHECK (true);
+

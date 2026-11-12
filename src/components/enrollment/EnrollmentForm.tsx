@@ -3,7 +3,15 @@
 import { useState, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, CheckCircle2, AlertCircle, Loader2, Clock } from "lucide-react";
+import {
+  ArrowLeft,
+  CheckCircle2,
+  AlertCircle,
+  Loader2,
+  Clock,
+  CreditCard,
+  QrCode,
+} from "lucide-react";
 import { PublicMissionDto } from "@/components/missions/MissionsShowcase";
 
 export default function EnrollmentForm() {
@@ -28,6 +36,7 @@ export default function EnrollmentForm() {
   const [missions, setMissions] = useState<PublicMissionDto[]>([]);
   const [selectedMissionId, setSelectedMissionId] = useState(preselectedMissionId);
   const [modality, setModality] = useState(defaultModality);
+  const [paymentMethod, setPaymentMethod] = useState<"CARD" | "PIX">("CARD");
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
@@ -109,6 +118,7 @@ export default function EnrollmentForm() {
           cpf,
           modality,
           missionId: includesMission ? activeMission?.id : undefined,
+          paymentMethod: isWaitlist ? "CARD" : paymentMethod,
           termsAccepted,
         }),
       });
@@ -129,7 +139,9 @@ export default function EnrollmentForm() {
       }
 
       const checkout = data.checkout;
-      if (checkout.isMultipleStep) {
+      if (checkout.provider === "PIX") {
+        router.push(checkout.checkoutUrl);
+      } else if (checkout.isMultipleStep) {
         router.push(
           `/enrollment/success?order_id=${data.registrationId}&multi=true&school_url=${encodeURIComponent(
             checkout.checkoutUrl
@@ -146,14 +158,14 @@ export default function EnrollmentForm() {
 
   const missionPriceLabel = activeMission
     ? activeMission.priceFormatted
-    : "R$ 2.463,16";
+    : "R$ 2.500,00";
 
   const bothPriceLabel = activeMission
-    ? ((16842 + activeMission.priceCents) / 100).toLocaleString("pt-BR", {
+    ? ((17000 + activeMission.priceCents) / 100).toLocaleString("pt-BR", {
         style: "currency",
         currency: "BRL",
       })
-    : "R$ 2.631,58";
+    : "R$ 2.670,00";
 
   return (
     <div className="min-h-screen bg-[var(--bg)] text-[var(--ink)] py-12 px-5 flex flex-col justify-center">
@@ -212,7 +224,7 @@ export default function EnrollmentForm() {
                   </div>
                 </div>
                 <div className="font-bold text-sm sm:text-base text-[#8fa66a]">
-                  R$ 168,42
+                  R$ 170,00
                 </div>
               </label>
 
@@ -371,6 +383,68 @@ export default function EnrollmentForm() {
             </div>
           </div>
 
+          {/* Payment Method Selector */}
+          {!isWaitlist && (
+            <div>
+              <label className="block text-sm font-semibold mb-2">
+                Forma de Pagamento:
+              </label>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <label
+                  className={`flex items-start gap-3 p-3.5 rounded-xl border-2 cursor-pointer transition-all ${
+                    paymentMethod === "CARD"
+                      ? "border-[#8fa66a] bg-[#8fa66a]/15"
+                      : "border-black/10 dark:border-white/10 hover:border-[#8fa66a]/50"
+                  }`}
+                >
+                  <input
+                    type="radio"
+                    name="paymentMethod"
+                    value="CARD"
+                    checked={paymentMethod === "CARD"}
+                    onChange={() => setPaymentMethod("CARD")}
+                    className="mt-1 accent-[#8fa66a]"
+                  />
+                  <div>
+                    <div className="font-semibold text-sm flex items-center gap-1.5">
+                      <CreditCard className="w-4 h-4 text-[#8fa66a]" />
+                      Cartão / Parcelado
+                    </div>
+                    <div className="text-xs text-[var(--mut)] mt-0.5">
+                      Até 7x na plataforma online
+                    </div>
+                  </div>
+                </label>
+
+                <label
+                  className={`flex items-start gap-3 p-3.5 rounded-xl border-2 cursor-pointer transition-all ${
+                    paymentMethod === "PIX"
+                      ? "border-[#8fa66a] bg-[#8fa66a]/15"
+                      : "border-black/10 dark:border-white/10 hover:border-[#8fa66a]/50"
+                  }`}
+                >
+                  <input
+                    type="radio"
+                    name="paymentMethod"
+                    value="PIX"
+                    checked={paymentMethod === "PIX"}
+                    onChange={() => setPaymentMethod("PIX")}
+                    className="mt-1 accent-[#8fa66a]"
+                  />
+                  <div>
+                    <div className="font-semibold text-sm flex items-center gap-1.5">
+                      <QrCode className="w-4 h-4 text-[#8fa66a]" />
+                      Pix Direto
+                    </div>
+                    <div className="text-xs text-[var(--mut)] mt-0.5">
+                      Envio do comprovante p/ Gadiel
+                    </div>
+                  </div>
+                </label>
+              </div>
+            </div>
+          )}
+
           {/* LGPD Consent */}
           <div className="pt-2">
             <label className="flex items-start gap-3 cursor-pointer">
@@ -418,6 +492,11 @@ export default function EnrollmentForm() {
               <>
                 <span>Entrar na Lista de Espera</span>
                 <Clock className="w-5 h-5" />
+              </>
+            ) : paymentMethod === "PIX" ? (
+              <>
+                <span>Gerar Dados do Pix</span>
+                <QrCode className="w-5 h-5" />
               </>
             ) : (
               <>

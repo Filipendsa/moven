@@ -166,3 +166,4 @@ export class Mission extends Entity<MissionProps> {
     );
   }
 }
+

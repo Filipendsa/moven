@@ -40,7 +40,7 @@ export class SupabaseMissionRepository implements IMissionRepository {
         location: "Rios do Amazonas (Manaus e Comunidades Ribeirinhas)",
         start_date: "19/07/2027",
         end_date: "29/07/2027",
-        price_cents: 246316,
+        price_cents: 250000,
         min_slots: 28,
         max_slots: 28,
         waitlist_enabled: true,

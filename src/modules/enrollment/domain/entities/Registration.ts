@@ -8,7 +8,7 @@ import { LgpdConsent } from "../value-objects/LgpdConsent";
 import { Money } from "@/modules/mission-catalog/domain/value-objects/Money";
 
 export type PaymentStatus = "PENDING" | "PAID" | "WAITLIST" | "CANCELED";
-export type PaymentProvider = "EVEN3" | "INFINITEPAY";
+export type PaymentProvider = "EVEN3" | "INFINITEPAY" | "PIX";
 
 export interface RegistrationProps {
   fullName: string;

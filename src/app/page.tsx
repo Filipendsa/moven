@@ -420,7 +420,7 @@ export default function HomePage() {
                   Escola de Missões
                 </h3>
                 <div className="text-4xl font-heading font-bold text-[#e9e1d0] my-3">
-                  R$ 168,42{" "}
+                  R$ 170,00{" "}
                   <small className="text-sm font-normal text-[#cfc9b8]">
                     valor único
                   </small>
@@ -452,7 +452,7 @@ export default function HomePage() {
                   Missão Amazonas
                 </h3>
                 <div className="text-4xl font-heading font-bold text-[#e9e1d0] my-3">
-                  R$ 2.463,16{" "}
+                  R$ 2.500,00{" "}
                   <small className="text-sm font-normal text-[#cfc9b8]">
                     por pessoa
                   </small>

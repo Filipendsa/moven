@@ -50,7 +50,7 @@ export default function AdminMissionsPanel() {
   const [location, setLocation] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
-  const [priceBrl, setPriceBrl] = useState("2463.16");
+  const [priceBrl, setPriceBrl] = useState("2500.00");
   const [minSlots, setMinSlots] = useState("28");
   const [maxSlots, setMaxSlots] = useState("28");
   const [waitlistEnabled, setWaitlistEnabled] = useState(true);
@@ -86,7 +86,7 @@ export default function AdminMissionsPanel() {
     setLocation("");
     setStartDate("");
     setEndDate("");
-    setPriceBrl("2463.16");
+    setPriceBrl("2500.00");
     setMinSlots("28");
     setMaxSlots("28");
     setWaitlistEnabled(true);
@@ -508,3 +508,4 @@ export default function AdminMissionsPanel() {
     </div>
   );
 }
+

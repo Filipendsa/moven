@@ -9,3 +9,4 @@ export interface IMissionRepository {
   listActive(): Promise<Mission[]>;
   setFeatured(id: string): Promise<void>;
 }
+

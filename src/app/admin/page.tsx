@@ -444,8 +444,16 @@ export default function AdminDashboardPage() {
                               </span>
                             )}
                           </td>
-                          <td className="py-3 px-4 text-xs font-mono text-[var(--mut)]">
-                            {item.paymentProvider}
+                          <td className="py-3 px-4 text-xs font-mono">
+                            <span
+                              className={`px-2 py-0.5 rounded-md font-semibold ${
+                                item.paymentProvider === "PIX"
+                                  ? "bg-teal-500/15 text-teal-700 dark:text-teal-300"
+                                  : "text-[var(--mut)]"
+                              }`}
+                            >
+                              {item.paymentProvider}
+                            </span>
                           </td>
                           <td className="py-3 px-4">
                             <div className="flex items-center justify-center gap-2">

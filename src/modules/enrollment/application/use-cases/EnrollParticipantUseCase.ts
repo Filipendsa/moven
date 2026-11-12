@@ -2,7 +2,10 @@ import { Result } from "@/shared/domain/Result";
 import { IRegistrationRepository } from "../../domain/repositories/IRegistrationRepository";
 import { IEventOfferingRepository } from "@/modules/mission-catalog/domain/repositories/IEventOfferingRepository";
 import { IMissionRepository } from "@/modules/mission-catalog/domain/repositories/IMissionRepository";
-import { PaymentGatewayResolver } from "@/modules/billing/application/PaymentGatewayResolver";
+import {
+  PaymentGatewayResolver,
+  PaymentMethodPreference,
+} from "@/modules/billing/application/PaymentGatewayResolver";
 import { Registration } from "../../domain/entities/Registration";
 import { Cpf } from "../../domain/value-objects/Cpf";
 import { Email } from "../../domain/value-objects/Email";
@@ -19,6 +22,7 @@ export interface EnrollParticipantInput {
   cpf: string;
   modality: string;
   missionId?: string;
+  paymentMethod?: PaymentMethodPreference;
   termsAccepted: boolean;
 }
 
@@ -117,7 +121,7 @@ export class EnrollParticipantUseCase {
       }
     }
 
-    const gateway = PaymentGatewayResolver.resolve();
+    const gateway = PaymentGatewayResolver.resolve(input.paymentMethod);
 
     const registrationResult = Registration.enroll({
       fullName,

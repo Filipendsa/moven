@@ -3,14 +3,14 @@ import { EventOffering } from "@/modules/mission-catalog/domain/entities/EventOf
 
 export interface CheckoutResult {
   checkoutUrl: string;
-  provider: "EVEN3" | "INFINITEPAY";
+  provider: "EVEN3" | "INFINITEPAY" | "PIX";
   orderId: string;
   isMultipleStep?: boolean;
   extraCheckoutUrl?: string; // Usado caso EVEN3 precise de 2 links no combo
 }
 
 export interface IPaymentGateway {
-  readonly providerName: "EVEN3" | "INFINITEPAY";
+  readonly providerName: "EVEN3" | "INFINITEPAY" | "PIX";
   createCheckoutSession(
     registration: Registration,
     offering: EventOffering

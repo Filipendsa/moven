@@ -29,7 +29,7 @@ export default function TermsPage() {
               1. Da Escola de Missões
             </h2>
             <ul className="list-disc pl-5 space-y-1">
-              <li>O valor de R$ 168,42 é referente à taxa única de matrícula e inclui a pasta do aluno (livro Passaporte, camiseta, squeeze, caderno, lápis e caneta).</li>
+              <li>O valor de R$ 170,00 é referente à taxa única de matrícula e inclui a pasta do aluno (livro Passaporte, camiseta, squeeze, caderno, lápis e caneta).</li>
               <li>A certificação exige no mínimo 70% da nota nas atividades, 80% de presença nos encontros quinzenais e a conclusão do curso online Passaporte para a Missão (SVA).</li>
             </ul>
           </section>
@@ -40,7 +40,7 @@ export default function TermsPage() {
             </h2>
             <ul className="list-disc pl-5 space-y-1">
               <li>A missão ocorrerá de 19 a 29 de julho de 2027, em parceria com o projeto Salva-Vidas Amazônia (Missão Noroeste).</li>
-              <li><strong>Passagens Aéreas:</strong> O trecho São Paulo–Manaus não está incluso no valor de R$ 2.463,16 e é de inteira responsabilidade do voluntário.</li>
+              <li><strong>Passagens Aéreas:</strong> O trecho São Paulo–Manaus não está incluso no valor de R$ 2.500,00 e é de inteira responsabilidade do voluntário.</li>
               <li><strong>Vagas:</strong> Limitadas estritamente a 28 vagas confirmadas (mediante pagamento), respeitando a capacidade técnica e de segurança da embarcação.</li>
               <li><strong>Pré-requisitos:</strong> Certificação na Escola de Missões, cadastro aprovado no SVA/VividFaith e vacinas obrigatórias em dia (febre amarela e tétano).</li>
               <li><strong>Menores de idade:</strong> Menores de 16 anos devem estar acompanhados dos pais ou responsáveis legais. Participantes de 16 a 17 anos necessitam de autorização por escrito assinada e com firma reconhecida.</li>

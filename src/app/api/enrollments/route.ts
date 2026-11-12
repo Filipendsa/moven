@@ -25,6 +25,7 @@ export async function POST(request: Request) {
       cpf: body.cpf,
       modality: body.modality,
       missionId: body.missionId,
+      paymentMethod: body.paymentMethod === "PIX" ? "PIX" : "CARD",
       termsAccepted: Boolean(body.termsAccepted),
     });
 
