@@ -193,41 +193,41 @@ export default function AdminDashboardPage() {
         </div>
 
         {/* Navigation Tabs */}
-        <div className="max-w-7xl mx-auto px-5 flex gap-2 border-t border-white/10 pt-2 pb-2 overflow-x-auto">
+        <div className="max-w-7xl mx-auto px-5 flex flex-wrap gap-2 border-t border-white/10 pt-2.5 pb-3">
           <button
             onClick={() => setActiveTab("registrations")}
-            className={`inline-flex items-center gap-2 px-4 py-2 min-h-[40px] rounded-full text-xs font-heading font-semibold whitespace-nowrap flex-shrink-0 transition-colors ${
+            className={`inline-flex items-center gap-1.5 px-3.5 py-2 min-h-[40px] rounded-full text-xs font-heading font-semibold transition-colors ${
               activeTab === "registrations"
                 ? "bg-[#8fa66a] text-[#072119]"
-                : "text-[#cfc9b8] hover:bg-white/10"
+                : "text-[#cfc9b8] bg-white/5 hover:bg-white/10"
             }`}
           >
-            <Users className="w-4 h-4" />
-            Inscritos & Lista de Espera
+            <Users className="w-4 h-4 flex-shrink-0" />
+            <span>Inscritos & Lista de Espera</span>
           </button>
 
           <button
             onClick={() => setActiveTab("missions")}
-            className={`inline-flex items-center gap-2 px-4 py-2 min-h-[40px] rounded-full text-xs font-heading font-semibold whitespace-nowrap flex-shrink-0 transition-colors ${
+            className={`inline-flex items-center gap-1.5 px-3.5 py-2 min-h-[40px] rounded-full text-xs font-heading font-semibold transition-colors ${
               activeTab === "missions"
                 ? "bg-[#8fa66a] text-[#072119]"
-                : "text-[#cfc9b8] hover:bg-white/10"
+                : "text-[#cfc9b8] bg-white/5 hover:bg-white/10"
             }`}
           >
-            <Compass className="w-4 h-4" />
-            Missões & Próximas Expedições
+            <Compass className="w-4 h-4 flex-shrink-0" />
+            <span>Missões & Expedições</span>
           </button>
 
           <button
             onClick={() => setActiveTab("tutorial")}
-            className={`inline-flex items-center gap-2 px-4 py-2 min-h-[40px] rounded-full text-xs font-heading font-semibold whitespace-nowrap flex-shrink-0 transition-colors ${
+            className={`inline-flex items-center gap-1.5 px-3.5 py-2 min-h-[40px] rounded-full text-xs font-heading font-semibold transition-colors ${
               activeTab === "tutorial"
                 ? "bg-[#8fa66a] text-[#072119]"
-                : "text-[#cfc9b8] hover:bg-white/10"
+                : "text-[#cfc9b8] bg-white/5 hover:bg-white/10"
             }`}
           >
-            <BookOpen className="w-4 h-4" />
-            Guia de Uso (Tutorial)
+            <BookOpen className="w-4 h-4 flex-shrink-0" />
+            <span>Guia de Uso</span>
           </button>
         </div>
       </header>
