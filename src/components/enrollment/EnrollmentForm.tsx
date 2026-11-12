@@ -199,22 +199,22 @@ export default function EnrollmentForm() {
             </label>
             <div className="grid grid-cols-1 gap-2.5">
               <label
-                className={`flex items-center justify-between p-3.5 rounded-xl border-2 cursor-pointer transition-all ${
+                className={`flex items-center justify-between gap-3 p-3.5 rounded-xl border-2 cursor-pointer transition-all ${
                   modality === "SCHOOL"
                     ? "border-[#8fa66a] bg-[#8fa66a]/15"
                     : "border-black/10 dark:border-white/10 hover:border-[#8fa66a]/50"
                 }`}
               >
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-3 min-w-0">
                   <input
                     type="radio"
                     name="modality"
                     value="SCHOOL"
                     checked={modality === "SCHOOL"}
                     onChange={(e) => setModality(e.target.value)}
-                    className="accent-[#8fa66a]"
+                    className="accent-[#8fa66a] flex-shrink-0"
                   />
-                  <div>
+                  <div className="min-w-0">
                     <div className="font-semibold text-sm sm:text-base">
                       Escola de Missões
                     </div>
@@ -223,28 +223,28 @@ export default function EnrollmentForm() {
                     </div>
                   </div>
                 </div>
-                <div className="font-bold text-sm sm:text-base text-[#8fa66a]">
+                <div className="font-bold text-sm sm:text-base text-[#8fa66a] flex-shrink-0 whitespace-nowrap">
                   R$ 170,00
                 </div>
               </label>
 
               <label
-                className={`flex items-center justify-between p-3.5 rounded-xl border-2 cursor-pointer transition-all ${
+                className={`flex items-center justify-between gap-3 p-3.5 rounded-xl border-2 cursor-pointer transition-all ${
                   modality === "MISSION"
                     ? "border-[#8fa66a] bg-[#8fa66a]/15"
                     : "border-black/10 dark:border-white/10 hover:border-[#8fa66a]/50"
                 }`}
               >
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-3 min-w-0">
                   <input
                     type="radio"
                     name="modality"
                     value="MISSION"
                     checked={modality === "MISSION"}
                     onChange={(e) => setModality(e.target.value)}
-                    className="accent-[#8fa66a]"
+                    className="accent-[#8fa66a] flex-shrink-0"
                   />
-                  <div>
+                  <div className="min-w-0">
                     <div className="font-semibold text-sm sm:text-base">
                       {activeMission ? activeMission.title : "Missão Amazonas 2027"}
                     </div>
@@ -255,28 +255,28 @@ export default function EnrollmentForm() {
                     </div>
                   </div>
                 </div>
-                <div className="font-bold text-sm sm:text-base text-[#8fa66a]">
+                <div className="font-bold text-sm sm:text-base text-[#8fa66a] flex-shrink-0 whitespace-nowrap">
                   {missionPriceLabel}
                 </div>
               </label>
 
               <label
-                className={`flex items-center justify-between p-3.5 rounded-xl border-2 cursor-pointer transition-all ${
+                className={`flex items-center justify-between gap-3 p-3.5 rounded-xl border-2 cursor-pointer transition-all ${
                   modality === "BOTH"
                     ? "border-[#8fa66a] bg-[#8fa66a]/15"
                     : "border-black/10 dark:border-white/10 hover:border-[#8fa66a]/50"
                 }`}
               >
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-3 min-w-0">
                   <input
                     type="radio"
                     name="modality"
                     value="BOTH"
                     checked={modality === "BOTH"}
                     onChange={(e) => setModality(e.target.value)}
-                    className="accent-[#8fa66a]"
+                    className="accent-[#8fa66a] flex-shrink-0"
                   />
-                  <div>
+                  <div className="min-w-0">
                     <div className="font-semibold text-sm sm:text-base">
                       Escola + Missão (Combo)
                     </div>
@@ -285,7 +285,7 @@ export default function EnrollmentForm() {
                     </div>
                   </div>
                 </div>
-                <div className="font-bold text-sm sm:text-base text-[#8fa66a]">
+                <div className="font-bold text-sm sm:text-base text-[#8fa66a] flex-shrink-0 whitespace-nowrap">
                   {bothPriceLabel}
                 </div>
               </label>
@@ -301,7 +301,7 @@ export default function EnrollmentForm() {
               <select
                 value={selectedMissionId}
                 onChange={(e) => setSelectedMissionId(e.target.value)}
-                className="w-full bg-white/70 dark:bg-black/30 border border-black/15 dark:border-white/15 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#8fa66a]"
+                className="w-full bg-white/70 dark:bg-black/30 border border-black/15 dark:border-white/15 rounded-xl px-4 py-2.5 text-base sm:text-sm focus:outline-none focus:border-[#8fa66a]"
               >
                 {missions.map((m) => (
                   <option key={m.id} value={m.id}>
@@ -334,7 +334,7 @@ export default function EnrollmentForm() {
               placeholder="Ex: Gabriel Santos Silva"
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
-              className="w-full bg-white/70 dark:bg-black/30 border border-black/15 dark:border-white/15 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#8fa66a]"
+              className="w-full bg-white/70 dark:bg-black/30 border border-black/15 dark:border-white/15 rounded-xl px-4 py-2.5 text-base sm:text-sm focus:outline-none focus:border-[#8fa66a]"
             />
           </div>
 
@@ -349,7 +349,7 @@ export default function EnrollmentForm() {
               placeholder="seuemail@exemplo.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full bg-white/70 dark:bg-black/30 border border-black/15 dark:border-white/15 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#8fa66a]"
+              className="w-full bg-white/70 dark:bg-black/30 border border-black/15 dark:border-white/15 rounded-xl px-4 py-2.5 text-base sm:text-sm focus:outline-none focus:border-[#8fa66a]"
             />
           </div>
 
@@ -365,7 +365,7 @@ export default function EnrollmentForm() {
                 placeholder="(11) 98765-4321"
                 value={phone}
                 onChange={handlePhoneChange}
-                className="w-full bg-white/70 dark:bg-black/30 border border-black/15 dark:border-white/15 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#8fa66a]"
+                className="w-full bg-white/70 dark:bg-black/30 border border-black/15 dark:border-white/15 rounded-xl px-4 py-2.5 text-base sm:text-sm focus:outline-none focus:border-[#8fa66a]"
               />
             </div>
             <div>
@@ -378,7 +378,7 @@ export default function EnrollmentForm() {
                 placeholder="000.000.000-00"
                 value={cpf}
                 onChange={handleCpfChange}
-                className="w-full bg-white/70 dark:bg-black/30 border border-black/15 dark:border-white/15 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#8fa66a]"
+                className="w-full bg-white/70 dark:bg-black/30 border border-black/15 dark:border-white/15 rounded-xl px-4 py-2.5 text-base sm:text-sm focus:outline-none focus:border-[#8fa66a]"
               />
             </div>
           </div>

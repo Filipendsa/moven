@@ -2,6 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { MessageCircle, ShieldCheck, Compass, Users } from "lucide-react";
 import MissionsShowcase from "@/components/missions/MissionsShowcase";
+import Navbar from "@/components/common/Navbar";
 
 export default function HomePage() {
   const whatsappCommunityUrl =
@@ -10,57 +11,7 @@ export default function HomePage() {
   return (
     <div className="flex flex-col min-h-screen">
       {/* Fixed Navigation with Blur */}
-      <nav className="sticky top-0 z-30 bg-[#072119]/95 backdrop-blur-md border-b border-[#8fa66a]/20">
-        <div className="max-w-5xl mx-auto px-5 min-h-[58px] flex items-center justify-between overflow-x-auto whitespace-nowrap">
-          <Link
-            href="/"
-            className="text-[#e9e1d0] font-heading font-bold text-lg tracking-wider flex items-center gap-2"
-          >
-            <span className="text-[#8fa66a]">MOVEN</span>
-            <span className="text-xs text-[#8fa66a]/80 font-normal hidden sm:inline">
-              · Núcleo de Missões
-            </span>
-          </Link>
-          <div className="flex items-center gap-5 text-sm font-heading font-medium">
-            <Link
-              href="#about"
-              className="text-[#e9e1d0]/85 hover:text-[#8fa66a] transition-colors"
-            >
-              Sobre
-            </Link>
-            <Link
-              href="#school"
-              className="text-[#e9e1d0]/85 hover:text-[#8fa66a] transition-colors"
-            >
-              Escola
-            </Link>
-            <Link
-              href="#dates"
-              className="text-[#e9e1d0]/85 hover:text-[#8fa66a] transition-colors"
-            >
-              Datas
-            </Link>
-            <Link
-              href="#pricing"
-              className="text-[#e9e1d0]/85 hover:text-[#8fa66a] transition-colors"
-            >
-              Valores
-            </Link>
-            <Link
-              href="#amazon"
-              className="text-[#e9e1d0]/85 hover:text-[#8fa66a] transition-colors"
-            >
-              Missão Amazonas
-            </Link>
-            <Link
-              href="/enrollment"
-              className="bg-[#8fa66a] text-[#072119] px-4 py-1.5 rounded-full font-semibold hover:bg-[#e9e1d0] transition-colors text-xs uppercase tracking-wide"
-            >
-              Inscrição
-            </Link>
-          </div>
-        </div>
-      </nav>
+      <Navbar />
 
       {/* Hero Section */}
       <header className="bg-[#072119] text-[#e9e1d0] pt-12 pb-16 text-center border-b border-[#8fa66a]/20">

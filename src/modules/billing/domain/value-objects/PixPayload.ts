@@ -110,3 +110,4 @@ export class PixPayload extends ValueObject<PixPayloadProps> {
     });
   }
 }
+

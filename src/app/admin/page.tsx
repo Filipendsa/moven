@@ -166,10 +166,10 @@ export default function AdminDashboardPage() {
             </span>
           </div>
 
-          <div className="flex items-center gap-2.5">
+          <div className="flex flex-wrap items-center gap-2">
             <Link
               href="/admin/change-password"
-              className="inline-flex items-center gap-1.5 text-xs text-[#cfc9b8] hover:text-[#e9e1d0] px-3 py-2 rounded-full border border-white/10 hover:border-white/30 transition-colors"
+              className="inline-flex items-center gap-1.5 text-xs text-[#cfc9b8] hover:text-[#e9e1d0] px-3 py-2 min-h-[40px] rounded-full border border-white/10 hover:border-white/30 transition-colors"
               title="Alterar senha de acesso"
             >
               <KeyRound className="w-3.5 h-3.5 text-[#8fa66a]" />
@@ -177,14 +177,14 @@ export default function AdminDashboardPage() {
             </Link>
             <a
               href="/api/admin/registrations?action=csv"
-              className="inline-flex items-center gap-2 bg-[#8fa66a] text-[#072119] text-xs font-semibold px-4 py-2 rounded-full hover:bg-[#e9e1d0] transition-colors"
+              className="inline-flex items-center gap-2 bg-[#8fa66a] text-[#072119] text-xs font-semibold px-4 py-2 min-h-[40px] rounded-full hover:bg-[#e9e1d0] transition-colors"
             >
               <Download className="w-3.5 h-3.5" />
               Exportar CSV
             </a>
             <button
               onClick={handleLogout}
-              className="inline-flex items-center gap-1.5 text-xs text-[#cfc9b8] hover:text-[#e9e1d0] px-3 py-2 rounded-full border border-white/10 hover:border-white/30 transition-colors"
+              className="inline-flex items-center gap-1.5 text-xs text-[#cfc9b8] hover:text-[#e9e1d0] px-3 py-2 min-h-[40px] rounded-full border border-white/10 hover:border-white/30 transition-colors"
             >
               <LogOut className="w-3.5 h-3.5" />
               Sair
@@ -196,7 +196,7 @@ export default function AdminDashboardPage() {
         <div className="max-w-7xl mx-auto px-5 flex gap-2 border-t border-white/10 pt-2 pb-2 overflow-x-auto">
           <button
             onClick={() => setActiveTab("registrations")}
-            className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-heading font-semibold transition-colors ${
+            className={`inline-flex items-center gap-2 px-4 py-2 min-h-[40px] rounded-full text-xs font-heading font-semibold whitespace-nowrap flex-shrink-0 transition-colors ${
               activeTab === "registrations"
                 ? "bg-[#8fa66a] text-[#072119]"
                 : "text-[#cfc9b8] hover:bg-white/10"
@@ -208,7 +208,7 @@ export default function AdminDashboardPage() {
 
           <button
             onClick={() => setActiveTab("missions")}
-            className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-heading font-semibold transition-colors ${
+            className={`inline-flex items-center gap-2 px-4 py-2 min-h-[40px] rounded-full text-xs font-heading font-semibold whitespace-nowrap flex-shrink-0 transition-colors ${
               activeTab === "missions"
                 ? "bg-[#8fa66a] text-[#072119]"
                 : "text-[#cfc9b8] hover:bg-white/10"
@@ -220,7 +220,7 @@ export default function AdminDashboardPage() {
 
           <button
             onClick={() => setActiveTab("tutorial")}
-            className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-heading font-semibold transition-colors ${
+            className={`inline-flex items-center gap-2 px-4 py-2 min-h-[40px] rounded-full text-xs font-heading font-semibold whitespace-nowrap flex-shrink-0 transition-colors ${
               activeTab === "tutorial"
                 ? "bg-[#8fa66a] text-[#072119]"
                 : "text-[#cfc9b8] hover:bg-white/10"
@@ -373,8 +373,120 @@ export default function AdminDashboardPage() {
               </div>
             </div>
 
-            {/* Table */}
-            <div className="bg-[var(--card)] rounded-2xl border border-[var(--terra)]/20 shadow-sm overflow-hidden flex-1">
+            {/* Mobile Cards View */}
+            <div className="md:hidden flex flex-col gap-3">
+              {registrations.length === 0 ? (
+                <div className="bg-[var(--card)] rounded-2xl border border-[var(--terra)]/20 p-8 text-center text-sm text-[var(--mut)]">
+                  {loading
+                    ? "Carregando inscrições..."
+                    : "Nenhuma inscrição encontrada com os filtros aplicados."}
+                </div>
+              ) : (
+                registrations.map((item) => (
+                  <div
+                    key={item.id}
+                    className="bg-[var(--card)] rounded-2xl border border-[var(--terra)]/20 p-4 shadow-sm space-y-3"
+                  >
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="min-w-0">
+                        <div className="font-semibold text-[var(--ink)] truncate">
+                          {item.fullName}
+                        </div>
+                        <div className="text-xs text-[var(--mut)] break-all">
+                          {item.email}
+                        </div>
+                        <div className="text-xs text-[var(--mut)] mt-0.5">
+                          {item.phoneFormatted} · CPF: <span className="font-mono">{item.cpf}</span>
+                        </div>
+                      </div>
+                      <div className="flex-shrink-0">
+                        {item.paymentStatus === "PAID" && (
+                          <span className="inline-flex items-center gap-1 text-xs font-bold text-emerald-700 bg-emerald-100 dark:bg-emerald-950/40 dark:text-emerald-400 px-2.5 py-0.5 rounded-full">
+                            <CheckCircle2 className="w-3 h-3" /> Pago
+                          </span>
+                        )}
+                        {item.paymentStatus === "PENDING" && (
+                          <span className="inline-flex items-center gap-1 text-xs font-bold text-amber-700 bg-amber-100 dark:bg-amber-950/40 dark:text-amber-400 px-2.5 py-0.5 rounded-full">
+                            <Clock className="w-3 h-3" /> Pendente
+                          </span>
+                        )}
+                        {item.paymentStatus === "WAITLIST" && (
+                          <span className="inline-flex items-center gap-1 text-xs font-bold text-purple-700 bg-purple-100 dark:bg-purple-950/40 dark:text-purple-300 px-2.5 py-0.5 rounded-full">
+                            <Clock className="w-3 h-3" /> Lista de Espera
+                          </span>
+                        )}
+                        {item.paymentStatus === "CANCELED" && (
+                          <span className="inline-block text-xs font-bold text-red-700 bg-red-100 dark:bg-red-950/40 dark:text-red-400 px-2.5 py-0.5 rounded-full">
+                            Cancelado
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-black/10 dark:border-white/10 text-xs">
+                      <span className="inline-block font-medium px-2.5 py-1 rounded-full bg-[#8fa66a]/15 text-[var(--ink)]">
+                        {item.modalityTitle}
+                      </span>
+                      <div className="flex items-center gap-2">
+                        <span
+                          className={`px-2 py-0.5 rounded-md font-mono font-semibold ${
+                            item.paymentProvider === "PIX"
+                              ? "bg-teal-500/15 text-teal-700 dark:text-teal-300"
+                              : "text-[var(--mut)]"
+                          }`}
+                        >
+                          {item.paymentProvider}
+                        </span>
+                        <span className="font-bold text-[var(--ink)]">
+                          {item.amountFormatted}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2 pt-1">
+                      {item.paymentStatus === "WAITLIST" ? (
+                        <button
+                          onClick={() => handleUpdateStatus(item.id, "PENDING")}
+                          className="flex-1 min-h-[44px] text-xs px-3 py-2 rounded-xl font-semibold bg-purple-600 text-white hover:bg-purple-700 transition-colors"
+                        >
+                          Liberar Vaga
+                        </button>
+                      ) : (
+                        <button
+                          onClick={() =>
+                            handleUpdateStatus(
+                              item.id,
+                              item.paymentStatus === "PAID" ? "PENDING" : "PAID"
+                            )
+                          }
+                          className={`flex-1 min-h-[44px] text-xs px-3 py-2 rounded-xl font-semibold transition-colors ${
+                            item.paymentStatus === "PAID"
+                              ? "bg-amber-500/10 text-amber-700 dark:text-amber-400 hover:bg-amber-500/20"
+                              : "bg-emerald-600 text-white hover:bg-emerald-700"
+                          }`}
+                        >
+                          {item.paymentStatus === "PAID"
+                            ? "Marcar Pendente"
+                            : "Confirmar Pagamento"}
+                        </button>
+                      )}
+                      <a
+                        href={item.whatsAppUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="min-w-[44px] min-h-[44px] flex items-center justify-center text-emerald-600 bg-emerald-500/10 hover:bg-emerald-500/20 rounded-xl transition-colors"
+                        title="Chamar no WhatsApp"
+                      >
+                        <MessageCircle className="w-5 h-5" />
+                      </a>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+
+            {/* Desktop Table */}
+            <div className="hidden md:block bg-[var(--card)] rounded-2xl border border-[var(--terra)]/20 shadow-sm overflow-hidden flex-1">
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-sm">
                   <thead className="bg-[#072119] text-[#e9e1d0] text-xs uppercase tracking-wider font-heading">
