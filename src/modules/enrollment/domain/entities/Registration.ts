@@ -7,7 +7,7 @@ import { EnrollmentModality } from "../value-objects/EnrollmentModality";
 import { LgpdConsent } from "../value-objects/LgpdConsent";
 import { Money } from "@/modules/mission-catalog/domain/value-objects/Money";
 
-export type PaymentStatus = "PENDING" | "PAID" | "CANCELED";
+export type PaymentStatus = "PENDING" | "PAID" | "WAITLIST" | "CANCELED";
 export type PaymentProvider = "EVEN3" | "INFINITEPAY";
 
 export interface RegistrationProps {
@@ -16,6 +16,7 @@ export interface RegistrationProps {
   phone: BrazilianPhone;
   cpf: Cpf;
   modality: EnrollmentModality;
+  missionId?: string;
   amount: Money;
   paymentProvider: PaymentProvider;
   paymentStatus: PaymentStatus;
@@ -48,6 +49,10 @@ export class Registration extends Entity<RegistrationProps> {
 
   get modality(): EnrollmentModality {
     return this.props.modality;
+  }
+
+  get missionId(): string | undefined {
+    return this.props.missionId;
   }
 
   get amount(): Money {
@@ -86,7 +91,10 @@ export class Registration extends Entity<RegistrationProps> {
     return this.props.paymentStatus === "PENDING";
   }
 
-  // Comportamentos e Invariantes de Negócio (Domínio Rico)
+  get isWaitlist(): boolean {
+    return this.props.paymentStatus === "WAITLIST";
+  }
+
   public confirmPayment(externalTxId?: string): Result<void, Error> {
     if (this.props.paymentStatus === "CANCELED") {
       return Result.fail(
@@ -98,6 +106,17 @@ export class Registration extends Entity<RegistrationProps> {
     if (externalTxId) {
       this.props.externalTxId = externalTxId;
     }
+    this.props.updatedAt = new Date();
+    return Result.ok(undefined);
+  }
+
+  public promoteFromWaitlist(): Result<void, Error> {
+    if (this.props.paymentStatus !== "WAITLIST") {
+      return Result.fail(
+        new Error("Apenas inscrições na lista de espera podem ser promovidas.")
+      );
+    }
+    this.props.paymentStatus = "PENDING";
     this.props.updatedAt = new Date();
     return Result.ok(undefined);
   }
@@ -114,16 +133,17 @@ export class Registration extends Entity<RegistrationProps> {
     return Result.ok(undefined);
   }
 
-  // Factory Method para novas inscrições
   public static enroll(params: {
     fullName: string;
     email: Email;
     phone: BrazilianPhone;
     cpf: Cpf;
     modality: EnrollmentModality;
+    missionId?: string;
     amount: Money;
     paymentProvider: PaymentProvider;
     lgpdConsent: LgpdConsent;
+    initialStatus?: "PENDING" | "WAITLIST";
     id?: string;
   }): Result<Registration, Error> {
     if (!params.fullName || params.fullName.trim().length < 3) {
@@ -142,9 +162,10 @@ export class Registration extends Entity<RegistrationProps> {
           phone: params.phone,
           cpf: params.cpf,
           modality: params.modality,
+          missionId: params.missionId,
           amount: params.amount,
           paymentProvider: params.paymentProvider,
-          paymentStatus: "PENDING",
+          paymentStatus: params.initialStatus || "PENDING",
           lgpdConsent: params.lgpdConsent,
           createdAt: now,
           updatedAt: now,
@@ -154,7 +175,6 @@ export class Registration extends Entity<RegistrationProps> {
     );
   }
 
-  // Reconstituição a partir do banco de dados (Data Mapper)
   public static reconstitute(
     props: RegistrationProps,
     id: string
@@ -162,4 +182,3 @@ export class Registration extends Entity<RegistrationProps> {
     return new Registration(props, id);
   }
 }
-

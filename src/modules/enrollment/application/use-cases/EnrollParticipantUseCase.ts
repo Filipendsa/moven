@@ -1,6 +1,7 @@
 import { Result } from "@/shared/domain/Result";
 import { IRegistrationRepository } from "../../domain/repositories/IRegistrationRepository";
 import { IEventOfferingRepository } from "@/modules/mission-catalog/domain/repositories/IEventOfferingRepository";
+import { IMissionRepository } from "@/modules/mission-catalog/domain/repositories/IMissionRepository";
 import { PaymentGatewayResolver } from "@/modules/billing/application/PaymentGatewayResolver";
 import { Registration } from "../../domain/entities/Registration";
 import { Cpf } from "../../domain/value-objects/Cpf";
@@ -9,6 +10,7 @@ import { BrazilianPhone } from "../../domain/value-objects/BrazilianPhone";
 import { EnrollmentModality } from "../../domain/value-objects/EnrollmentModality";
 import { LgpdConsent } from "../../domain/value-objects/LgpdConsent";
 import { CheckoutResult } from "@/modules/billing/domain/ports/IPaymentGateway";
+import { Money } from "@/modules/mission-catalog/domain/value-objects/Money";
 
 export interface EnrollParticipantInput {
   fullName: string;
@@ -16,28 +18,33 @@ export interface EnrollParticipantInput {
   phone: string;
   cpf: string;
   modality: string;
+  missionId?: string;
   termsAccepted: boolean;
 }
 
 export interface EnrollParticipantOutput {
   registrationId: string;
-  checkout: CheckoutResult;
+  isWaitlist: boolean;
+  missionTitle?: string;
+  checkout?: CheckoutResult;
   amountFormatted: string;
 }
 
 export class EnrollParticipantUseCase {
   constructor(
     private registrationRepo: IRegistrationRepository,
-    private offeringRepo: IEventOfferingRepository
+    private offeringRepo: IEventOfferingRepository,
+    private missionRepo?: IMissionRepository
   ) {}
 
   async execute(
     input: EnrollParticipantInput
   ): Promise<Result<EnrollParticipantOutput, Error>> {
-    // 1. Validação dos Value Objects de Domínio Rico
     const fullName = input.fullName?.trim();
     if (!fullName || fullName.length < 3) {
-      return Result.fail(new Error("Nome completo deve ter pelo menos 3 caracteres."));
+      return Result.fail(
+        new Error("Nome completo deve ter pelo menos 3 caracteres.")
+      );
     }
 
     const emailResult = Email.create(input.email);
@@ -55,7 +62,6 @@ export class EnrollParticipantUseCase {
     const lgpdResult = LgpdConsent.create(input.termsAccepted);
     if (!lgpdResult.success) return Result.fail(lgpdResult.error);
 
-    // 2. Busca o item de catálogo de eventos correspondente
     const offering = await this.offeringRepo.findByModality(
       modalityResult.value.type
     );
@@ -63,31 +69,67 @@ export class EnrollParticipantUseCase {
       return Result.fail(new Error("Modalidade não encontrada no catálogo."));
     }
 
-    // 3. Regra de Negócio: Limite de vagas na Missão Amazonas (28 vagas)
-    if (modalityResult.value.includesAmazonasMission && offering.maxSlots !== null) {
+    let targetMissionId: string | undefined = input.missionId;
+    let targetMissionTitle: string | undefined;
+    let isWaitlist = false;
+    let effectivePrice = offering.price;
+
+    // Check dynamic Mission catalog if enrolling in a mission or combo
+    if (modalityResult.value.includesAmazonasMission && this.missionRepo) {
+      const mission = input.missionId
+        ? await this.missionRepo.findById(input.missionId)
+        : await this.missionRepo.findFeatured();
+
+      if (mission) {
+        targetMissionId = mission.id;
+        targetMissionTitle = mission.title;
+
+        const counts = await this.registrationRepo.countByMission(mission.id);
+        if (!mission.canEnroll(counts.paid)) {
+          return Result.fail(
+            new Error(
+              `As inscrições para "${mission.title}" estão encerradas no momento.`
+            )
+          );
+        }
+
+        if (mission.isWaitlistMode(counts.paid)) {
+          isWaitlist = true;
+        }
+
+        // Calculate dynamic price if custom mission price differs
+        if (modalityResult.value.type === "MISSION") {
+          effectivePrice = mission.price;
+        } else if (modalityResult.value.type === "BOTH") {
+          const schoolOffering = await this.offeringRepo.findByModality("SCHOOL");
+          effectivePrice = schoolOffering
+            ? schoolOffering.price.add(mission.price)
+            : offering.price;
+        }
+      }
+    } else if (
+      modalityResult.value.includesAmazonasMission &&
+      offering.maxSlots !== null
+    ) {
       const metrics = await this.registrationRepo.getMetrics();
       if (!offering.hasAvailableSlots(metrics.missaoPaidSlots)) {
-        return Result.fail(
-          new Error(
-            "Desculpe! As 28 vagas confirmadas da Missão Amazonas já foram preenchidas."
-          )
-        );
+        isWaitlist = true;
       }
     }
 
-    // 4. Resolve o Gateway de Pagamento ativo (Strategy Pattern)
     const gateway = PaymentGatewayResolver.resolve();
 
-    // 5. Criação do Agregado Registration
     const registrationResult = Registration.enroll({
       fullName,
       email: emailResult.value,
       phone: phoneResult.value,
       cpf: cpfResult.value,
       modality: modalityResult.value,
-      amount: offering.price,
+      missionId: targetMissionId,
+      amount: effectivePrice instanceof Money ? effectivePrice : offering.price,
       paymentProvider: gateway.providerName,
       lgpdConsent: lgpdResult.value,
+      initialStatus: isWaitlist ? "WAITLIST" : "PENDING",
     });
 
     if (!registrationResult.success) {
@@ -95,18 +137,26 @@ export class EnrollParticipantUseCase {
     }
 
     const registration = registrationResult.value;
-
-    // 6. Salva no Repositório (Persistence)
     await this.registrationRepo.save(registration);
 
-    // 7. Gera sessão de checkout no Gateway
+    // Waitlist registrations do not go to payment checkout immediately
+    if (isWaitlist) {
+      return Result.ok({
+        registrationId: registration.id,
+        isWaitlist: true,
+        missionTitle: targetMissionTitle,
+        amountFormatted: registration.amount.formatted,
+      });
+    }
+
     const checkout = await gateway.createCheckoutSession(registration, offering);
 
     return Result.ok({
       registrationId: registration.id,
+      isWaitlist: false,
+      missionTitle: targetMissionTitle,
       checkout,
       amountFormatted: registration.amount.formatted,
     });
   }
 }
-

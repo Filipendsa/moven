@@ -1,19 +1,32 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, CheckCircle2, AlertCircle, Loader2 } from "lucide-react";
+import { ArrowLeft, CheckCircle2, AlertCircle, Loader2, Clock } from "lucide-react";
+import { PublicMissionDto } from "@/components/missions/MissionsShowcase";
 
 export default function EnrollmentForm() {
   const searchParams = useSearchParams();
   const router = useRouter();
 
-  const rawModality = (searchParams.get("modality") || searchParams.get("modalidade") || "").toUpperCase();
+  const rawModality = (
+    searchParams.get("modality") ||
+    searchParams.get("modalidade") ||
+    ""
+  ).toUpperCase();
   let defaultModality = "SCHOOL";
-  if (rawModality === "MISSION" || rawModality === "MISSAO") defaultModality = "MISSION";
-  if (rawModality === "BOTH" || rawModality === "AMBOS") defaultModality = "BOTH";
+  if (rawModality === "MISSION" || rawModality === "MISSAO") {
+    defaultModality = "MISSION";
+  }
+  if (rawModality === "BOTH" || rawModality === "AMBOS") {
+    defaultModality = "BOTH";
+  }
 
+  const preselectedMissionId = searchParams.get("mission") || "";
+
+  const [missions, setMissions] = useState<PublicMissionDto[]>([]);
+  const [selectedMissionId, setSelectedMissionId] = useState(preselectedMissionId);
   const [modality, setModality] = useState(defaultModality);
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
@@ -23,6 +36,28 @@ export default function EnrollmentForm() {
 
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetch("/api/missions")
+      .then((res) => res.json())
+      .then((data) => {
+        const list: PublicMissionDto[] = data.missions || [];
+        setMissions(list);
+        if (!preselectedMissionId && list.length > 0) {
+          const featured = list.find((m) => m.isFeatured) || list[0];
+          setSelectedMissionId(featured.id);
+        }
+      })
+      .catch((err) => console.error("Erro ao carregar missões:", err));
+  }, [preselectedMissionId]);
+
+  const activeMission =
+    missions.find((m) => m.id === selectedMissionId) ||
+    missions.find((m) => m.isFeatured) ||
+    missions[0];
+
+  const includesMission = modality === "MISSION" || modality === "BOTH";
+  const isWaitlist = Boolean(includesMission && activeMission?.isWaitlistMode);
 
   const handleCpfChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     let v = e.target.value.replace(/\D/g, "");
@@ -55,7 +90,9 @@ export default function EnrollmentForm() {
     setErrorMessage(null);
 
     if (!termsAccepted) {
-      setErrorMessage("Você precisa concordar com os Termos de Uso e Política de Privacidade.");
+      setErrorMessage(
+        "Você precisa concordar com os Termos de Uso e Política de Privacidade."
+      );
       return;
     }
 
@@ -71,6 +108,7 @@ export default function EnrollmentForm() {
           phone,
           cpf,
           modality,
+          missionId: includesMission ? activeMission?.id : undefined,
           termsAccepted,
         }),
       });
@@ -79,6 +117,15 @@ export default function EnrollmentForm() {
 
       if (!res.ok) {
         throw new Error(data.error || "Erro ao processar inscrição.");
+      }
+
+      if (data.isWaitlist) {
+        router.push(
+          `/enrollment/success?order_id=${data.registrationId}&waitlist=true&mission=${encodeURIComponent(
+            data.missionTitle || activeMission?.title || "Missão"
+          )}`
+        );
+        return;
       }
 
       const checkout = data.checkout;
@@ -97,6 +144,17 @@ export default function EnrollmentForm() {
     }
   };
 
+  const missionPriceLabel = activeMission
+    ? activeMission.priceFormatted
+    : "R$ 2.463,16";
+
+  const bothPriceLabel = activeMission
+    ? ((16842 + activeMission.priceCents) / 100).toLocaleString("pt-BR", {
+        style: "currency",
+        currency: "BRL",
+      })
+    : "R$ 2.631,58";
+
   return (
     <div className="min-h-screen bg-[var(--bg)] text-[var(--ink)] py-12 px-5 flex flex-col justify-center">
       <div className="max-w-xl mx-auto w-full bg-[var(--card)] p-8 sm:p-10 rounded-3xl border border-[var(--terra)]/20 shadow-2xl">
@@ -111,7 +169,7 @@ export default function EnrollmentForm() {
           Central de Inscrições · MOVEN
         </h1>
         <p className="text-sm text-[var(--mut)] mb-6">
-          Preencha seus dados para garantir sua vaga na Escola e na Missão Amazonas 2027.
+          Preencha seus dados para garantir sua vaga na Escola e nas Missões do núcleo.
         </p>
 
         {errorMessage && (
@@ -176,15 +234,17 @@ export default function EnrollmentForm() {
                   />
                   <div>
                     <div className="font-semibold text-sm sm:text-base">
-                      Missão Amazonas 2027
+                      {activeMission ? activeMission.title : "Missão Amazonas 2027"}
                     </div>
                     <div className="text-xs text-[var(--mut)]">
-                      10 dias de barco (limite 28 vagas)
+                      {activeMission?.isWaitlistMode
+                        ? "Vagas iniciais preenchidas · Lista de espera"
+                        : `Mínimo ${activeMission?.minSlots || 28} vagas (+ lista de espera)`}
                     </div>
                   </div>
                 </div>
                 <div className="font-bold text-sm sm:text-base text-[#8fa66a]">
-                  R$ 2.463,16
+                  {missionPriceLabel}
                 </div>
               </label>
 
@@ -206,7 +266,7 @@ export default function EnrollmentForm() {
                   />
                   <div>
                     <div className="font-semibold text-sm sm:text-base">
-                      Escola + Missão Amazonas (Combo)
+                      Escola + Missão (Combo)
                     </div>
                     <div className="text-xs text-[var(--mut)]">
                       Formação completa + Viagem missionária
@@ -214,11 +274,42 @@ export default function EnrollmentForm() {
                   </div>
                 </div>
                 <div className="font-bold text-sm sm:text-base text-[#8fa66a]">
-                  R$ 2.631,58
+                  {bothPriceLabel}
                 </div>
               </label>
             </div>
           </div>
+
+          {/* Mission Selector when multiple active missions exist */}
+          {includesMission && missions.length > 1 && (
+            <div>
+              <label className="block text-xs font-semibold uppercase tracking-wider mb-1">
+                Selecione a Missão *
+              </label>
+              <select
+                value={selectedMissionId}
+                onChange={(e) => setSelectedMissionId(e.target.value)}
+                className="w-full bg-white/70 dark:bg-black/30 border border-black/15 dark:border-white/15 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#8fa66a]"
+              >
+                {missions.map((m) => (
+                  <option key={m.id} value={m.id}>
+                    {m.title} ({m.startDate} - {m.endDate}){" "}
+                    {m.isWaitlistMode ? "— Lista de Espera" : ""}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+
+          {/* Waitlist Notice */}
+          {isWaitlist && (
+            <div className="p-4 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-900 dark:text-amber-300 text-xs flex items-start gap-2.5 leading-relaxed">
+              <Clock className="w-4 h-4 flex-shrink-0 mt-0.5" />
+              <span>
+                <strong>Lista de Espera Ativa:</strong> As {activeMission?.minSlots} vagas iniciais desta missão já foram preenchidas! Ao concluir este formulário, seu nome entrará na <strong>Lista de Espera</strong> sem cobrança imediata e nossa liderança entrará em contato assim que novas vagas forem liberadas.
+              </span>
+            </div>
+          )}
 
           {/* Full Name */}
           <div>
@@ -321,7 +412,12 @@ export default function EnrollmentForm() {
             {loading ? (
               <>
                 <Loader2 className="w-5 h-5 animate-spin" />
-                Processando Inscrição...
+                Processando...
+              </>
+            ) : isWaitlist ? (
+              <>
+                <span>Entrar na Lista de Espera</span>
+                <Clock className="w-5 h-5" />
               </>
             ) : (
               <>

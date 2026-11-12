@@ -2,13 +2,16 @@ import { NextResponse } from "next/server";
 import { EnrollParticipantUseCase } from "@/modules/enrollment/application/use-cases/EnrollParticipantUseCase";
 import { SupabaseRegistrationRepository } from "@/modules/enrollment/infrastructure/persistence/SupabaseRegistrationRepository";
 import { SupabaseEventOfferingRepository } from "@/modules/mission-catalog/infrastructure/SupabaseEventOfferingRepository";
+import { SupabaseMissionRepository } from "@/modules/mission-catalog/infrastructure/SupabaseMissionRepository";
 
-// Instâncias de repositórios (Injeção de Dependências limpa)
 const registrationRepo = new SupabaseRegistrationRepository();
 const offeringRepo = new SupabaseEventOfferingRepository();
+const missionRepo = new SupabaseMissionRepository();
+
 const enrollUseCase = new EnrollParticipantUseCase(
   registrationRepo,
-  offeringRepo
+  offeringRepo,
+  missionRepo
 );
 
 export async function POST(request: Request) {
@@ -21,6 +24,7 @@ export async function POST(request: Request) {
       phone: body.phone,
       cpf: body.cpf,
       modality: body.modality,
+      missionId: body.missionId,
       termsAccepted: Boolean(body.termsAccepted),
     });
 
@@ -40,4 +44,3 @@ export async function POST(request: Request) {
     );
   }
 }
-

@@ -81,6 +81,9 @@ export class SupabaseRegistrationRepository implements IRegistrationRepository {
         if (filters?.modality) {
           query = query.eq("modality", filters.modality);
         }
+        if (filters?.missionId) {
+          query = query.eq("mission_id", filters.missionId);
+        }
 
         const { data, error } = await query;
         if (!error && data) {
@@ -98,6 +101,9 @@ export class SupabaseRegistrationRepository implements IRegistrationRepository {
       }
       if (filters?.modality) {
         rows = rows.filter((r) => r.modality === filters.modality);
+      }
+      if (filters?.missionId) {
+        rows = rows.filter((r) => r.mission_id === filters.missionId);
       }
       rows.sort(
         (a, b) =>
@@ -156,11 +162,37 @@ export class SupabaseRegistrationRepository implements IRegistrationRepository {
     }
   }
 
+  async countByMission(
+    missionId: string
+  ): Promise<{ paid: number; waitlist: number; pending: number }> {
+    const all = await this.list();
+    let paid = 0;
+    let waitlist = 0;
+    let pending = 0;
+
+    for (const reg of all) {
+      const matchesMission =
+        reg.missionId === missionId ||
+        (!reg.missionId &&
+          missionId === "00000000-0000-4000-a000-000000002027" &&
+          reg.modality.includesAmazonasMission);
+
+      if (!matchesMission) continue;
+
+      if (reg.paymentStatus === "PAID") paid++;
+      else if (reg.paymentStatus === "WAITLIST") waitlist++;
+      else if (reg.paymentStatus === "PENDING") pending++;
+    }
+
+    return { paid, waitlist, pending };
+  }
+
   async getMetrics(): Promise<EnrollmentMetrics> {
     const all = await this.list();
 
     let totalPaid = 0;
     let totalPending = 0;
+    let totalWaitlist = 0;
     let totalCanceled = 0;
     let escolaTotal = 0;
     let missaoTotal = 0;
@@ -180,6 +212,8 @@ export class SupabaseRegistrationRepository implements IRegistrationRepository {
       } else if (reg.paymentStatus === "PENDING") {
         totalPending++;
         pendingRevenueCents += reg.amount.amountCents;
+      } else if (reg.paymentStatus === "WAITLIST") {
+        totalWaitlist++;
       } else if (reg.paymentStatus === "CANCELED") {
         totalCanceled++;
       }
@@ -193,6 +227,7 @@ export class SupabaseRegistrationRepository implements IRegistrationRepository {
       totalRegistrations: all.length,
       totalPaid,
       totalPending,
+      totalWaitlist,
       totalCanceled,
       escolaTotal,
       missaoTotal,

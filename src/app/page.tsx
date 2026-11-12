@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { MessageCircle, ShieldCheck, Compass, Users } from "lucide-react";
+import MissionsShowcase from "@/components/missions/MissionsShowcase";
 
 export default function HomePage() {
   const whatsappCommunityUrl =
@@ -477,39 +478,51 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Section 5: Mission Details */}
+      {/* Section 5: Mission Details & Dynamic Missions Showcase */}
       <section id="amazon" className="py-16">
-        <div className="max-w-5xl mx-auto px-5 grid grid-cols-1 md:grid-cols-12 gap-10">
-          <div className="md:col-span-7">
-            <h2 className="text-3xl sm:text-4xl font-semibold mb-4 text-[var(--ink)]">
-              Missão Amazonas 2027
+        <div className="max-w-5xl mx-auto px-5 space-y-12">
+          <div>
+            <h2 className="text-3xl sm:text-4xl font-semibold mb-2 text-[var(--ink)]">
+              Missões & Expedições
             </h2>
-            <p className="mb-4">
-              Em parceria com a Missão Noroeste, vamos passar 10 dias de barco
-              pelos rios do Amazonas, no formato do projeto Salva-Vidas
-              Amazônia. Serão ações de construção, evangelismo, saúde básica e
-              apoio na cozinha, junto às comunidades ribeirinhas.
+            <p className="text-[var(--mut)] mb-8">
+              Conheça nossa expedição em destaque e as próximas missões do núcleo. O mínimo para fechar o barco é de 28 vagas, com lista de espera aberta para novas turmas e vagas extras.
             </p>
-            <p>
-              Os voluntários dormem em redes, com mosquiteiro fornecido. Quem vai
-              à missão precisa ser certificado pela escola e ter concluído o
-              curso online do SVA.
-            </p>
+            <MissionsShowcase />
           </div>
-          <div className="md:col-span-5 bg-[var(--card)] p-6 rounded-2xl border border-[var(--terra)]/20">
-            <h3 className="text-xl font-semibold mb-4 text-[var(--ink)] flex items-center gap-2">
-              <ShieldCheck className="w-5 h-5 text-[var(--terra)]" />
-              Antes de viajar
-            </h3>
-            <ul className="list-disc pl-5 space-y-3 text-sm text-[var(--ink)]">
-              <li>Cadastro no SVA / VividFaith, com documentos</li>
-              <li>Passagem São Paulo–Manaus, comprada individualmente</li>
-              <li>Vacinas em dia, incluindo febre amarela</li>
-              <li>
-                Menores de 16 anos vão com os responsáveis. De 16 a 17 anos, com
-                termo assinado pelos pais.
-              </li>
-            </ul>
+
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-10 pt-4">
+            <div className="md:col-span-7">
+              <h3 className="text-2xl font-semibold mb-4 text-[var(--ink)]">
+                Como funciona a Missão Amazonas 2027
+              </h3>
+              <p className="mb-4">
+                Em parceria com a Missão Noroeste, vamos passar 10 dias de barco
+                pelos rios do Amazonas, no formato do projeto Salva-Vidas
+                Amazônia. Serão ações de construção, evangelismo, saúde básica e
+                apoio na cozinha, junto às comunidades ribeirinhas.
+              </p>
+              <p>
+                Os voluntários dormem em redes, com mosquiteiro fornecido. Quem vai
+                à missão precisa ser certificado pela escola e ter concluído o
+                curso online do SVA.
+              </p>
+            </div>
+            <div className="md:col-span-5 bg-[var(--card)] p-6 rounded-2xl border border-[var(--terra)]/20">
+              <h3 className="text-xl font-semibold mb-4 text-[var(--ink)] flex items-center gap-2">
+                <ShieldCheck className="w-5 h-5 text-[var(--terra)]" />
+                Antes de viajar
+              </h3>
+              <ul className="list-disc pl-5 space-y-3 text-sm text-[var(--ink)]">
+                <li>Cadastro no SVA / VividFaith, com documentos</li>
+                <li>Passagem São Paulo–Manaus, comprada individualmente</li>
+                <li>Vacinas em dia, incluindo febre amarela</li>
+                <li>
+                  Menores de 16 anos vão com os responsáveis. De 16 a 17 anos, com
+                  termo assinado pelos pais.
+                </li>
+              </ul>
+            </div>
           </div>
         </div>
       </section>
@@ -572,7 +585,7 @@ export default function HomePage() {
       {/* Footer */}
       <footer className="bg-[#072119] text-[#cfc9b8] py-8 border-t border-[#8fa66a]/20 text-center text-sm">
         <div className="max-w-5xl mx-auto px-5 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div>
+          <div className="text-center sm:text-left">
             <div className="font-semibold text-[#e9e1d0]">
               MOVEN · Núcleo de Missões · Igreja UNASP-HT
             </div>
@@ -580,7 +593,7 @@ export default function HomePage() {
               Mais que um núcleo, um movimento.
             </div>
           </div>
-          <div className="flex items-center gap-4 text-xs">
+          <div className="flex flex-wrap items-center justify-center gap-4 text-xs">
             <Link
               href="/privacy"
               className="hover:text-[#8fa66a] transition-colors"
@@ -597,11 +610,22 @@ export default function HomePage() {
             <span>•</span>
             <Link
               href="/admin/login"
-              className="hover:text-[#8fa66a] transition-colors opacity-60 hover:opacity-100"
+              className="hover:text-[#8fa66a] transition-colors opacity-70 hover:opacity-100"
             >
               Painel Admin
             </Link>
           </div>
+        </div>
+        <div className="max-w-5xl mx-auto px-5 mt-6 pt-4 border-t border-white/10 text-xs text-[#cfc9b8]/70">
+          Powered by{" "}
+          <a
+            href="https://yesode.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-[#8fa66a] font-semibold hover:underline"
+          >
+            Yesode
+          </a>
         </div>
       </footer>
     </div>

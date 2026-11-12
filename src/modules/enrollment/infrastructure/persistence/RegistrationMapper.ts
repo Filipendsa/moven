@@ -18,6 +18,7 @@ export interface RegistrationPersistenceRow {
   phone: string;
   cpf: string;
   modality: string;
+  mission_id?: string | null;
   amount_cents: number;
   payment_provider: string;
   payment_status: string;
@@ -39,6 +40,7 @@ export class RegistrationMapper {
       phone: registration.phone.digits,
       cpf: registration.cpf.value,
       modality: registration.modality.type,
+      mission_id: registration.missionId || null,
       amount_cents: registration.amount.amountCents,
       payment_provider: registration.paymentProvider,
       payment_status: registration.paymentStatus,
@@ -79,6 +81,7 @@ export class RegistrationMapper {
       phone: phoneResult.value,
       cpf: cpfResult.value,
       modality: modalityResult.value,
+      missionId: row.mission_id || undefined,
       amount: amountResult.value,
       paymentProvider: row.payment_provider as PaymentProvider,
       paymentStatus: row.payment_status as PaymentStatus,
@@ -91,4 +94,3 @@ export class RegistrationMapper {
     return Registration.reconstitute(props, row.id);
   }
 }
-

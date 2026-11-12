@@ -25,8 +25,14 @@ export async function GET(request: Request) {
     const search = searchParams.get("search") || undefined;
     const modality = (searchParams.get("modality") as any) || undefined;
     const status = (searchParams.get("status") as any) || undefined;
+    const missionId = searchParams.get("missionId") || undefined;
 
-    const list = await registrationRepo.list({ search, modality, status });
+    const list = await registrationRepo.list({
+      search,
+      modality,
+      status,
+      missionId,
+    });
     const metrics = await registrationRepo.getMetrics();
 
     const registrations = list.map((r) => ({
@@ -41,6 +47,7 @@ export async function GET(request: Request) {
       cpf: r.cpf.formatted,
       modality: r.modality.type,
       modalityTitle: r.modality.title,
+      missionId: r.missionId || null,
       amountCents: r.amount.amountCents,
       amountFormatted: r.amount.formatted,
       paymentProvider: r.paymentProvider,
@@ -82,4 +89,3 @@ export async function PATCH(request: Request) {
     );
   }
 }
-
