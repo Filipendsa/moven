@@ -1,26 +1,52 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --verde: #072119;
+  --mov: #8fa66a;
+  --areia: #e9e1d0;
+  --terra: #7b5a40;
+  --bg: #f4efe3;
+  --ink: #12261d;
+  --card: #e9e1d0;
+  --mut: #5b6a5f;
+  --font-h: 'Outfit', 'Segoe UI', system-ui, sans-serif;
+  --font-b: 'Figtree', 'Segoe UI', system-ui, sans-serif;
 }
 
 @media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+  :root:not([data-theme="light"]) {
+    --bg: #0c1f17;
+    --ink: #e9e1d0;
+    --card: #12302a;
+    --mut: #a9b5a8;
   }
 }
 
+:root[data-theme="dark"] {
+  --bg: #0c1f17;
+  --ink: #e9e1d0;
+  --card: #12302a;
+  --mut: #a9b5a8;
+}
+
+:root[data-theme="light"] {
+  --bg: #f4efe3;
+  --ink: #12261d;
+  --card: #e9e1d0;
+  --mut: #5b6a5f;
+}
+
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-b);
+  line-height: 1.65;
+}
+
+h1,
+h2,
+h3,
+h4,
+.font-heading {
+  font-family: var(--font-h);
 }
