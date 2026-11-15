@@ -47,7 +47,7 @@ function SuccessContent() {
   const [copiedMessage, setCopiedMessage] = useState(false);
   const [qrDataUrl, setQrDataUrl] = useState<string>("");
 
-  const pixKey = process.env.NEXT_PUBLIC_PIX_KEY || "+5511972246881";
+  const pixKey = process.env.NEXT_PUBLIC_PIX_KEY || "unaspht.apso@adventistas.org";
   const receiptWhatsapp = process.env.NEXT_PUBLIC_RECEIPT_WHATSAPP || "5511972246881";
 
   const staticQrUrl =
@@ -55,10 +55,10 @@ function SuccessContent() {
     (pixAmount.includes("2.670")
       ? pix2670.src
       : pixAmount.includes("2.500")
-      ? pix2500.src
-      : pixAmount.includes("170")
-      ? pix170.src
-      : "");
+        ? pix2500.src
+        : pixAmount.includes("170")
+          ? pix170.src
+          : "");
 
   useEffect(() => {
     if (isPix && !staticQrUrl && pixCode) {
@@ -88,23 +88,22 @@ function SuccessContent() {
 
   const gadielReceiptMessage = encodeURIComponent(
     `Olá Gadiel! Segue o comprovante da minha inscrição no MOVEN:\n` +
-      `• Descrição: ${pixMessage}\n` +
-      `• Nome: ${participantName}\n` +
-      `• Modalidade: ${pixModality}\n` +
-      `• Valor: ${pixAmount}\n` +
-      `• Protocolo: ${orderId?.slice(0, 8) || ""}\n` +
-      `Comprovante em anexo:`
+    `• Descrição: ${pixMessage}\n` +
+    `• Nome: ${participantName}\n` +
+    `• Modalidade: ${pixModality}\n` +
+    `• Valor: ${pixAmount}\n` +
+    `• Protocolo: ${orderId?.slice(0, 8) || ""}\n` +
+    `Comprovante em anexo:`
   );
 
   return (
     <div className="min-h-screen bg-[var(--bg)] text-[var(--ink)] py-12 px-5 flex items-center justify-center">
       <div className="max-w-lg w-full bg-[var(--card)] p-7 sm:p-10 rounded-3xl border border-[var(--terra)]/20 shadow-2xl text-center">
         <div
-          className={`w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 ${
-            isWaitlist
+          className={`w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 ${isWaitlist
               ? "bg-amber-500/20 text-amber-600 dark:text-amber-400"
               : "bg-[#8fa66a]/20 text-[#8fa66a]"
-          }`}
+            }`}
         >
           {isWaitlist ? (
             <Clock className="w-10 h-10" />
@@ -119,16 +118,16 @@ function SuccessContent() {
           {isWaitlist
             ? "Você está na Lista de Espera!"
             : isPix
-            ? "Pagamento via Pix Direto"
-            : "Inscrição Pré-Registrada!"}
+              ? "Pagamento via Pix Direto"
+              : "Inscrição Pré-Registrada!"}
         </h1>
 
         <p className="text-sm text-[var(--mut)] mb-5">
           {isWaitlist
             ? `Seus dados foram registrados na lista de espera da ${missionTitle}. Assim que novas vagas forem liberadas, nossa liderança entrará em contato com você pelo WhatsApp.`
             : isPix
-            ? "O QR Code abaixo já está configurado com o valor exato e a mensagem da oferta. Após pagar, envie o comprovante para o Gadiel."
-            : "Seus dados cadastrais foram salvos no sistema do MOVEN."}
+              ? "O QR Code abaixo já está configurado com o valor exato e a mensagem da oferta. Após pagar, envie o comprovante para o Gadiel."
+              : "Seus dados cadastrais foram salvos no sistema do MOVEN."}
           {orderId && (
             <span className="block mt-1 font-mono text-xs">
               Protocolo: {orderId.slice(0, 8)}...
