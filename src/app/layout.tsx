@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import CookieConsentBanner from "@/components/common/CookieConsentBanner";
 
 export const metadata: Metadata = {
   title: "MOVEN · Núcleo de Missões · Igreja UNASP-HT",
@@ -39,7 +38,6 @@ export default function RootLayout({
       </head>
       <body className="min-h-screen flex flex-col antialiased selection:bg-[#8fa66a] selection:text-[#072119]">
         {children}
-        <CookieConsentBanner />
       </body>
     </html>
   );

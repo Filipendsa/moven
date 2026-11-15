@@ -1,6 +1,7 @@
 import { IPaymentGateway, CheckoutResult } from "../../domain/ports/IPaymentGateway";
 import { Registration } from "@/modules/enrollment/domain/entities/Registration";
 import { EventOffering } from "@/modules/mission-catalog/domain/entities/EventOffering";
+import { publicEnv, serverEnv } from "@/shared/config/env";
 
 export class InfinitePayGateway implements IPaymentGateway {
   readonly providerName = "INFINITEPAY" as const;
@@ -9,9 +10,8 @@ export class InfinitePayGateway implements IPaymentGateway {
     registration: Registration,
     offering: EventOffering
   ): Promise<CheckoutResult> {
-    const apiKey = process.env.INFINITEPAY_API_KEY;
-    const webhookUrl =
-      process.env.NEXT_PUBLIC_APP_URL || "https://moven.vercel.app";
+    const apiKey = serverEnv.infinitePayApiKey;
+    const webhookUrl = publicEnv.appUrl;
 
     if (!apiKey) {
       return {
@@ -23,9 +23,7 @@ export class InfinitePayGateway implements IPaymentGateway {
     }
 
     try {
-      const response = await fetch(
-        "https://api.infinitepay.io/v2/transactions/checkout",
-        {
+      const response = await fetch(serverEnv.infinitePayApiUrl, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

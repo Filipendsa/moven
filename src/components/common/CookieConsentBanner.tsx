@@ -3,9 +3,11 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Cookie, X } from "lucide-react";
+import { useDictionary } from "@/i18n/DictionaryContext";
 
 export default function CookieConsentBanner() {
   const [show, setShow] = useState(false);
+  const { locale, dict } = useDictionary();
 
   useEffect(() => {
     const consent = localStorage.getItem("moven_cookie_consent");
@@ -26,25 +28,23 @@ export default function CookieConsentBanner() {
       <div className="flex items-start justify-between gap-2">
         <div className="flex items-center gap-2">
           <Cookie className="w-5 h-5 text-[#8fa66a] flex-shrink-0" />
-          <h4 className="font-semibold text-sm">Privacidade e Cookies</h4>
+          <h4 className="font-semibold text-sm">{dict.cookies.title}</h4>
         </div>
         <button
           onClick={() => setShow(false)}
           className="text-[#e9e1d0]/60 hover:text-[#e9e1d0] p-1 rounded-full transition-colors"
-          aria-label="Fechar"
+          aria-label={dict.cookies.close}
         >
           <X className="w-4 h-4" />
         </button>
       </div>
       <p className="text-xs text-[#d5cfbf] leading-relaxed">
-        Utilizamos cookies essenciais para garantir o funcionamento seguro da
-        central de inscrições e preferências de navegação, em total conformidade
-        com a LGPD. Saiba mais na nossa{" "}
+        {dict.cookies.description}{" "}
         <Link
-          href="/privacy"
+          href={`/${locale}/privacy`}
           className="text-[#8fa66a] underline hover:text-[#e9e1d0]"
         >
-          Política de Privacidade
+          {dict.cookies.privacyLink}
         </Link>
         .
       </p>
@@ -53,7 +53,7 @@ export default function CookieConsentBanner() {
           onClick={handleAccept}
           className="bg-[#8fa66a] text-[#072119] font-semibold text-xs px-4 py-2 rounded-full hover:bg-[#e9e1d0] transition-colors"
         >
-          Entendido e Aceitar
+          {dict.cookies.accept}
         </button>
       </div>
     </div>

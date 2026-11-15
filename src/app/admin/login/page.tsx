@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ShieldCheck, Lock, ArrowLeft, Loader2, AlertCircle } from "lucide-react";
 import { supabaseBrowser } from "@/shared/infrastructure/supabase/client";
+import { publicEnv } from "@/shared/config/env";
 
 export default function AdminLoginPage() {
   const router = useRouter();
@@ -22,10 +23,7 @@ export default function AdminLoginPage() {
       let mustChangePassword = false;
 
       // Autenticação com Supabase Auth
-      if (
-        process.env.NEXT_PUBLIC_SUPABASE_URL &&
-        !process.env.NEXT_PUBLIC_SUPABASE_URL.includes("placeholder")
-      ) {
+      if (publicEnv.isSupabaseConfigured) {
         const { data, error } = await supabaseBrowser.auth.signInWithPassword({
           email,
           password,

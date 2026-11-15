@@ -1,0 +1,302 @@
+{
+  "metadata": {
+    "title": "MOVEN · Núcleo de Missões · Igreja UNASP-HT",
+    "description": "Escola de Missões e Missão Amazonas 2027. Movidos pelo amor. Enviados para servir."
+  },
+  "nav": {
+    "subtitle": "· Núcleo de Missões",
+    "about": "Sobre",
+    "school": "Escola",
+    "dates": "Datas",
+    "pricing": "Valores",
+    "amazon": "Missão Amazonas",
+    "enroll": "Inscrição",
+    "openMenu": "Abrir menu",
+    "closeMenu": "Fechar menu",
+    "language": "Idioma"
+  },
+  "hero": {
+    "tagline": "Movidos pelo amor. Enviados para servir.",
+    "subtitle": "Faça parte da primeira turma da Escola de Missões e viaje com a gente para a Missão Amazonas, em julho de 2027.",
+    "ctaPrimary": "Inscrever na Escola de Missões",
+    "ctaSecondary": "Inscrever na Missão Amazonas",
+    "ctaCommunity": "Entrar na Comunidade",
+    "stats": [
+      { "value": "29/11/2026", "label": "Aula inaugural, às 16h" },
+      { "value": "8 encontros", "label": "Quinzenais, aos domingos" },
+      { "value": "19 a 29/07/2027", "label": "Missão Amazonas" },
+      { "value": "28 vagas", "label": "Para a missão de barco" }
+    ]
+  },
+  "about": {
+    "title": "O que é o MOVEN",
+    "p1": "MOVEN é o Núcleo de Missões da Igreja UNASP-HT. O nome é uma palavra criada para expressar movimento, propósito e missão.",
+    "p2": "O número 7 aparece de forma sutil na logo. Ele representa o sétimo dia, nossa identidade adventista, e nos lembra de que o Deus que nos convida a descansar em Seu amor também nos chama a compartilhá-lo com o mundo.",
+    "p3": "Seguimos o modelo do Serviço Voluntário Adventista (SVA) e somos um braço da igreja. Nossos objetivos:",
+    "goals": [
+      "Estabelecer o núcleo de missões de forma permanente na igreja.",
+      "Capacitar pessoas a fazer discípulos por meio do serviço, onde estiverem.",
+      "Capacitar pessoas a contagiar e treinar outras para a missão."
+    ],
+    "biblicalTitle": "Base bíblica",
+    "verses": [
+      { "ref": "2 Coríntios 5:14", "text": "O amor de Cristo nos impulsiona." },
+      { "ref": "João 13:34-35", "text": "O amor é a marca dos discípulos de Jesus." },
+      { "ref": "Mateus 28:19", "text": "Somos chamados a ir e fazer discípulos." }
+    ]
+  },
+  "school": {
+    "title": "Escola de Missões",
+    "subtitle": "De novembro a junho, você aprende a servir na prática: cada encontro tem 30 minutos de prática missionária e dois blocos de teoria e prática.",
+    "howItWorksTitle": "Como funciona",
+    "howItWorks": [
+      "8 encontros quinzenais, aos domingos, das 16h às 18h30",
+      "Retiro, visita de choque cultural e formatura",
+      "7 ações voluntárias em grupo nos domingos sem aula",
+      "Estudo bíblico, Pequeno Grupo e atividades missionárias pessoais",
+      "Curso online Passaporte para a Missão (SVA) e leitura do livro Passaporte"
+    ],
+    "studyTitle": "O que você vai estudar",
+    "topics": [
+      "Estudo bíblico por descoberta",
+      "Chamado missionário",
+      "Evangelismo",
+      "Cultura e contextualização",
+      "Saúde mental",
+      "Primeiros socorros",
+      "Doutrinas da igreja",
+      "Realidade ribeirinha",
+      "Vida no barco",
+      "Oficinas: crianças, saúde, construção e música"
+    ],
+    "certTitle": "Critérios para Certificação",
+    "certItems": [
+      { "value": "70%", "label": "da nota total" },
+      { "value": "80%", "label": "de presença nas aulas e atividades" },
+      { "value": "SVA", "label": "curso online Passaporte para a Missão concluído" }
+    ]
+  },
+  "dates": {
+    "title": "Datas importantes",
+    "subtitle": "Do lançamento ao culto de retorno, em nove meses.",
+    "items": [
+      { "date": "14/11/2026", "title": "Lançamento no culto de sábado", "desc": "Inscrições abertas na saída do culto", "highlight": true },
+      { "date": "29/11/2026", "title": "Aula inaugural, às 16h", "desc": "Encontro 1", "highlight": true },
+      { "date": "13/12/2026", "title": "Encontro 2" },
+      { "date": "14/12 a 16/01", "title": "Pausa de fim de ano", "desc": "Curso online SVA, leitura do livro e ação de Natal (20/12)" },
+      { "date": "17/01 a 04/04/2027", "title": "Encontros 3 a 8", "desc": "17/01, 31/01, 14/02, 28/02, 14/03 e 04/04" },
+      { "date": "30/04 a 02/05", "title": "Retiro de comunhão e consagração" },
+      { "date": "16/05/2027", "title": "Visita de choque cultural", "desc": "Mesquita e comunidade árabe" },
+      { "date": "12/06/2027", "title": "Formatura e culto de envio", "highlight": true },
+      { "date": "19 a 29/07/2027", "title": "Missão Amazonas", "desc": "10 dias de serviço de barco pelas comunidades ribeirinhas", "highlight": true },
+      { "date": "07/08/2027", "title": "Culto de retorno", "desc": "Relatório, fotos e testemunhos" }
+    ]
+  },
+  "pricing": {
+    "title": "Valores",
+    "subtitle": "A escola e a missão são cobradas separadamente.",
+    "school": {
+      "badge": "Módulo 1",
+      "title": "Escola de Missões",
+      "unit": "valor único",
+      "note": "Sem mensalidade. Inclui a pasta do aluno:",
+      "features": ["Livro Passaporte", "Camiseta e squeeze", "Caderno, lápis e caneta"],
+      "cta": "Inscrever na Escola"
+    },
+    "mission": {
+      "badge": "Módulo 2",
+      "title": "Missão Amazonas",
+      "unit": "por pessoa",
+      "note": "Parcele em até 7x. Vagas limitadas (28 vagas):",
+      "features": [
+        "Traslado do aeroporto até o Instituto",
+        "Kit: sacochila, camisa, chapéu e garrafinha",
+        "Três refeições ovolactovegetarianas por dia",
+        "Passagem aérea São Paulo–Manaus não inclusa"
+      ],
+      "cta": "Inscrever na Missão"
+    }
+  },
+  "amazon": {
+    "title": "Missões & Expedições",
+    "subtitle": "Conheça nossa expedição em destaque e as próximas missões do núcleo. O mínimo para fechar o barco é de 28 vagas, com lista de espera aberta para novas turmas e vagas extras.",
+    "howTitle": "Como funciona a Missão Amazonas 2027",
+    "p1": "Em parceria com a Missão Noroeste, vamos passar 10 dias de barco pelos rios do Amazonas, no formato do projeto Salva-Vidas Amazônia. Serão ações de construção, evangelismo, saúde básica e apoio na cozinha, junto às comunidades ribeirinhas.",
+    "p2": "Os voluntários dormem em redes, com mosquiteiro fornecido. Quem vai à missão precisa ser certificado pela escola e ter concluído o curso online do SVA.",
+    "beforeTitle": "Antes de viajar",
+    "beforeItems": [
+      "Cadastro no SVA / VividFaith, com documentos",
+      "Passagem São Paulo–Manaus, comprada individualmente",
+      "Vacinas em dia, incluindo febre amarela",
+      "Menores de 16 anos vão com os responsáveis. De 16 a 17 anos, com termo assinado pelos pais."
+    ]
+  },
+  "missionsShowcase": {
+    "loading": "Carregando missões disponíveis...",
+    "featuredBadge": "Missão em Destaque",
+    "waitlistBadge": "Vagas iniciais preenchidas · Lista de Espera Aberta",
+    "openSpotsPrefix": "Inscrições Abertas",
+    "openSpotsSuffix": "vagas mínimas confirmadas",
+    "toLabel": "a",
+    "minSlotsPrefix": "Mínimo",
+    "minSlotsSuffix": "vagas (+ lista de espera para novas vagas)",
+    "investment": "Investimento",
+    "waitlistNote": "Cadastre-se na lista de espera gratuitamente",
+    "installmentsNote": "Parcele em até 7x",
+    "joinWaitlist": "Entrar na Lista de Espera",
+    "enrollMission": "Inscrever nesta Missão",
+    "otherMissions": "Outras Missões e Expedições",
+    "waitlistShort": "Lista de Espera",
+    "openShort": "Vagas Abertas",
+    "enrollShort": "Inscrever-se"
+  },
+  "cta": {
+    "title": "Inscreva-se Agora",
+    "subtitle": "Escolha o que combina com você. Quem vai à missão pode se inscrever nos dois juntos.",
+    "school": "Escola de Missões",
+    "mission": "Missão Amazonas",
+    "both": "Inscrever em Ambos"
+  },
+  "community": {
+    "title": "Ficou com dúvida ou quer entrar na comunidade?",
+    "subtitlePrefix": "Fale diretamente com",
+    "subtitleSuffix": "pelo WhatsApp ou tire dúvidas sobre a primeira turma da Escola de Missões.",
+    "whatsappMessage": "Olá! Quero saber mais sobre o MOVEN."
+  },
+  "footer": {
+    "brand": "MOVEN · Núcleo de Missões · Igreja UNASP-HT",
+    "tagline": "Mais que um núcleo, um movimento.",
+    "privacy": "Política de Privacidade",
+    "terms": "Termos de Uso",
+    "admin": "Painel Admin",
+    "poweredBy": "Powered by"
+  },
+  "cookies": {
+    "title": "Privacidade e Cookies",
+    "close": "Fechar",
+    "description": "Utilizamos cookies essenciais para garantir o funcionamento seguro da central de inscrições e preferências de navegação, em total conformidade com a LGPD. Saiba mais na nossa",
+    "privacyLink": "Política de Privacidade",
+    "accept": "Entendido e Aceitar"
+  },
+  "enrollment": {
+    "backHome": "Voltar ao Início",
+    "title": "Central de Inscrições · MOVEN",
+    "subtitle": "Preencha seus dados para garantir sua vaga na Escola e nas Missões do núcleo.",
+    "chooseModality": "Escolha a Modalidade:",
+    "schoolTitle": "Escola de Missões",
+    "schoolDesc": "8 encontros quinzenais + kit do aluno",
+    "missionDefaultTitle": "Missão Amazonas 2027",
+    "missionWaitlistDesc": "Vagas iniciais preenchidas · Lista de espera",
+    "missionSlotsPrefix": "Mínimo",
+    "missionSlotsSuffix": "vagas (+ lista de espera)",
+    "bothTitle": "Escola + Missão (Combo)",
+    "bothDesc": "Formação completa + Viagem missionária",
+    "selectMission": "Selecione a Missão *",
+    "waitlistOption": "Lista de Espera",
+    "waitlistNoticeTitle": "Lista de Espera Ativa:",
+    "waitlistNoticeBody1": "As",
+    "waitlistNoticeBody2": "vagas iniciais desta missão já foram preenchidas! Ao concluir este formulário, seu nome entrará na",
+    "waitlistNoticeHighlight": "Lista de Espera",
+    "waitlistNoticeBody3": "sem cobrança imediata e nossa liderança entrará em contato assim que novas vagas forem liberadas.",
+    "fullNameLabel": "Nome Completo *",
+    "fullNamePlaceholder": "Ex: Gabriel Santos Silva",
+    "emailLabel": "E-mail *",
+    "emailPlaceholder": "seuemail@exemplo.com",
+    "phoneLabel": "WhatsApp / Telefone *",
+    "phonePlaceholder": "(11) 98765-4321",
+    "cpfLabel": "CPF *",
+    "cpfPlaceholder": "000.000.000-00",
+    "paymentMethodLabel": "Forma de Pagamento:",
+    "cardTitle": "Cartão / Parcelado",
+    "cardDesc": "Até 7x na plataforma online",
+    "pixTitle": "Pix Direto",
+    "pixDescPrefix": "Envio do comprovante p/",
+    "termsPrefix": "Li e concordo com os",
+    "termsLink": "Termos de Uso",
+    "termsMiddle": "e com o tratamento dos meus dados conforme a",
+    "privacyLink": "Política de Privacidade (LGPD)",
+    "termsSuffix": "do MOVEN / Igreja UNASP-HT.",
+    "termsError": "Você precisa concordar com os Termos de Uso e Política de Privacidade.",
+    "genericError": "Erro ao processar inscrição.",
+    "unexpectedError": "Ocorreu um erro inesperado.",
+    "submitLoading": "Processando...",
+    "submitWaitlist": "Entrar na Lista de Espera",
+    "submitPix": "Gerar Dados do Pix",
+    "submitCard": "Continuar para Pagamento"
+  },
+  "success": {
+    "waitlistTitle": "Você está na Lista de Espera!",
+    "pixTitle": "Pagamento via Pix Direto",
+    "defaultTitle": "Inscrição Pré-Registrada!",
+    "waitlistDesc1": "Seus dados foram registrados na lista de espera da",
+    "waitlistDesc2": ". Assim que novas vagas forem liberadas, nossa liderança entrará em contato com você pelo WhatsApp.",
+    "pixDescPrefix": "O QR Code abaixo já está configurado com o valor exato e a mensagem da oferta. Após pagar, envie o comprovante para",
+    "defaultDesc": "Seus dados cadastrais foram salvos no sistema do MOVEN.",
+    "protocol": "Protocolo:",
+    "offerMessageLabel": "Mensagem automática da Oferta:",
+    "copyMessage": "Copiar Mensagem",
+    "copied": "Copiada",
+    "offerMessageHint": "Essa identificação já vai embutida no QR Code abaixo. Caso faça transferência manual pela chave, cole esta frase na descrição do Pix.",
+    "exactAmount": "Valor exato do Pix:",
+    "scanHint": "Escaneie no app do seu banco",
+    "exactValueWord": "valor exato",
+    "copyPasteLabel": "Pix Copia e Cola (com valor e mensagem):",
+    "copyCode": "Copiar Código",
+    "copiedCode": "Copiado",
+    "pixKeyLabel": "Ou utilize apenas a Chave Pix:",
+    "copyKey": "Copiar Chave",
+    "sendReceiptPrefix": "Enviar Comprovante p/",
+    "whatsappSuffix": "(WhatsApp)",
+    "even3ComboNote": "Você escolheu o combo Escola + Missão Amazonas. Conclua os pagamentos em duas etapas no Even3:",
+    "even3Step1": "1. Pagar Escola de Missões (R$ 170,00)",
+    "even3Step2": "2. Pagar Missão Amazonas (R$ 2.500,00)",
+    "checkoutFallbackNote": "Você será direcionado para o checkout. Caso não abra automaticamente, fale com a liderança pelo WhatsApp.",
+    "talkLeadership": "Falar com a liderança no WhatsApp",
+    "whatsappInitialMsg": "Olá! Acabei de fazer meu cadastro no MOVEN.",
+    "backHome": "Voltar para o site do MOVEN"
+  },
+  "privacy": {
+    "backHome": "Voltar ao Início",
+    "title": "Política de Privacidade e Proteção de Dados (LGPD)",
+    "updated": "Última atualização: Versão 2026.1 · MOVEN · Núcleo de Missões · Igreja UNASP-HT",
+    "legalNotice": "",
+    "s1Title": "1. Finalidade da Coleta de Dados",
+    "s1Intro": "O MOVEN (Núcleo de Missões da Igreja UNASP-HT) coleta seus dados pessoais (Nome Completo, E-mail, Telefone/WhatsApp e CPF) com a finalidade exclusiva de:",
+    "s1Items": [
+      "Processar e gerenciar sua inscrição na Escola de Missões e/ou Missão Amazonas 2027;",
+      "Emitir listas de chamada, crachás e certificados de conclusão;",
+      "Viabilizar a contratação de seguro de viagem obrigatório e cadastro no Serviço Voluntário Adventista (SVA / VividFaith);",
+      "Conciliar pagamentos e emitir comprovantes;",
+      "Manter contato pastoral, avisos de aulas e orientações logísticas da missão."
+    ],
+    "s2Title": "2. Compartilhamento e Não Comercialização",
+    "s2Body": "O MOVEN não comercializa, não aluga e não compartilha seus dados com quaisquer terceiros com fins lucrativos ou publicitários. O compartilhamento ocorre estritamente com os órgãos denominacionais necessários (SVA / Associação Paulista Central / Missão Noroeste) para fins missionários e seguros.",
+    "s3Title": "3. Direitos do Titular (LGPD)",
+    "s3Body": "Em conformidade com a Lei Geral de Proteção de Dados (Lei nº 13.709/2018), você tem o direito de solicitar a confirmação da existência de tratamento, acesso, correção de dados incompletos ou a eliminação dos dados após a conclusão do projeto missionário, bastando entrar em contato com a coordenação através do canal oficial:",
+    "s3ContactLabel": "WhatsApp / Contato:",
+    "s3Leadership": "Liderança MOVEN",
+    "s4Title": "4. Cookies e Segurança da Informação",
+    "s4Body": "Utilizamos apenas cookies essenciais para autenticação de sessão e armazenamento de preferências de navegação. Os dados são protegidos por criptografia e controle de acesso com Row Level Security (RLS) no banco de dados PostgreSQL."
+  },
+  "terms": {
+    "backHome": "Voltar ao Início",
+    "title": "Termos de Uso e Condições Gerais",
+    "subtitle": "MOVEN · Núcleo de Missões · Igreja UNASP-HT · Edição 2026/2027",
+    "legalNotice": "",
+    "s1Title": "1. Da Escola de Missões",
+    "s1Items": [
+      "O valor de R$ 170,00 é referente à taxa única de matrícula e inclui a pasta do aluno (livro Passaporte, camiseta, squeeze, caderno, lápis e caneta).",
+      "A certificação exige no mínimo 70% da nota nas atividades, 80% de presença nos encontros quinzenais e a conclusão do curso online Passaporte para a Missão (SVA)."
+    ],
+    "s2Title": "2. Da Missão Amazonas 2027",
+    "s2Items": [
+      "A missão ocorrerá de 19 a 29 de julho de 2027, em parceria com o projeto Salva-Vidas Amazônia (Missão Noroeste).",
+      "Passagens Aéreas: O trecho São Paulo–Manaus não está incluso no valor de R$ 2.500,00 e é de inteira responsabilidade do voluntário.",
+      "Vagas: Limitadas estritamente a 28 vagas confirmadas (mediante pagamento), respeitando a capacidade técnica e de segurança da embarcação.",
+      "Pré-requisitos: Certificação na Escola de Missões, cadastro aprovado no SVA/VividFaith e vacinas obrigatórias em dia (febre amarela e tétano).",
+      "Menores de idade: Menores de 16 anos devem estar acompanhados dos pais ou responsáveis legais. Participantes de 16 a 17 anos necessitam de autorização por escrito assinada e com firma reconhecida."
+    ],
+    "s3Title": "3. Cancelamento e Reembolso",
+    "s3Body": "Cancelamentos solicitados com até 60 dias de antecedência do início da expedição terão reembolso conforme as políticas de custos fixos já contratados da embarcação e seguro. Taxas administrativas de processamento de cartão ou boleto não são reembolsáveis."
+  }
+}

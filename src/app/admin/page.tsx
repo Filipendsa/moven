@@ -18,6 +18,7 @@ import {
   Compass,
 } from "lucide-react";
 import { supabaseBrowser } from "@/shared/infrastructure/supabase/client";
+import { publicEnv } from "@/shared/config/env";
 import AdminMissionsPanel from "@/components/admin/AdminMissionsPanel";
 import AdminTutorialPanel from "@/components/admin/AdminTutorialPanel";
 
@@ -100,10 +101,7 @@ export default function AdminDashboardPage() {
         return;
       }
 
-      if (
-        process.env.NEXT_PUBLIC_SUPABASE_URL &&
-        !process.env.NEXT_PUBLIC_SUPABASE_URL.includes("placeholder")
-      ) {
+      if (publicEnv.isSupabaseConfigured) {
         const { data } = await supabaseBrowser.auth.getUser();
         if (data.user && !data.user.user_metadata?.password_changed) {
           sessionStorage.setItem("moven_password_changed", "false");
@@ -137,10 +135,7 @@ export default function AdminDashboardPage() {
   };
 
   const handleLogout = async () => {
-    if (
-      process.env.NEXT_PUBLIC_SUPABASE_URL &&
-      !process.env.NEXT_PUBLIC_SUPABASE_URL.includes("placeholder")
-    ) {
+    if (publicEnv.isSupabaseConfigured) {
       await supabaseBrowser.auth.signOut();
     }
     sessionStorage.removeItem("moven_admin_logged");

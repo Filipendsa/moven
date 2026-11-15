@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Anchor, Calendar, MapPin, Sparkles, Clock, ArrowRight } from "lucide-react";
+import { useDictionary } from "@/i18n/DictionaryContext";
+import { formatBrl } from "@/i18n/config";
 
 export interface PublicMissionDto {
   id: string;
@@ -29,6 +31,8 @@ export interface PublicMissionDto {
 export default function MissionsShowcase() {
   const [missions, setMissions] = useState<PublicMissionDto[]>([]);
   const [loading, setLoading] = useState(true);
+  const { locale, dict } = useDictionary();
+  const t = dict.missionsShowcase;
 
   useEffect(() => {
     fetch("/api/missions")
@@ -36,14 +40,14 @@ export default function MissionsShowcase() {
       .then((data) => {
         setMissions(data.missions || []);
       })
-      .catch((err) => console.error("Erro ao carregar missões:", err))
+      .catch((err) => console.error("Error loading missions:", err))
       .finally(() => setLoading(false));
   }, []);
 
   if (loading) {
     return (
       <div className="py-12 text-center text-sm text-[var(--mut)]">
-        Carregando missões disponíveis...
+        {t.loading}
       </div>
     );
   }
@@ -62,16 +66,16 @@ export default function MissionsShowcase() {
         <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
           <span className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider bg-[#8fa66a] text-[#072119] px-3 py-1 rounded-full">
             <Sparkles className="w-3.5 h-3.5" />
-            Missão em Destaque
+            {t.featuredBadge}
           </span>
           {featured.isWaitlistMode ? (
             <span className="inline-flex items-center gap-1.5 text-xs font-bold bg-amber-500/20 text-amber-800 dark:text-amber-300 px-3 py-1 rounded-full">
               <Clock className="w-3.5 h-3.5" />
-              Vagas iniciais preenchidas · Lista de Espera Aberta
+              {t.waitlistBadge}
             </span>
           ) : (
             <span className="inline-flex items-center gap-1.5 text-xs font-semibold bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 px-3 py-1 rounded-full">
-              Inscrições Abertas ({featured.paidCount} / {featured.minSlots} vagas mínimas confirmadas)
+              {t.openSpotsPrefix} ({featured.paidCount} / {featured.minSlots} {t.openSpotsSuffix})
             </span>
           )}
         </div>
@@ -93,7 +97,7 @@ export default function MissionsShowcase() {
             <div className="flex flex-wrap gap-4 text-xs sm:text-sm text-[var(--mut)]">
               <span className="inline-flex items-center gap-1.5">
                 <Calendar className="w-4 h-4 text-[#8fa66a]" />
-                {featured.startDate} a {featured.endDate}
+                {featured.startDate} {t.toLabel} {featured.endDate}
               </span>
               <span className="inline-flex items-center gap-1.5">
                 <MapPin className="w-4 h-4 text-[#8fa66a]" />
@@ -101,7 +105,7 @@ export default function MissionsShowcase() {
               </span>
               <span className="inline-flex items-center gap-1.5">
                 <Anchor className="w-4 h-4 text-[#8fa66a]" />
-                Mínimo {featured.minSlots} vagas (+ lista de espera para novas vagas)
+                {t.minSlotsPrefix} {featured.minSlots} {t.minSlotsSuffix}
               </span>
             </div>
           </div>
@@ -109,26 +113,22 @@ export default function MissionsShowcase() {
           <div className="md:col-span-4 bg-[#072119] text-[#e9e1d0] p-6 rounded-2xl text-center flex flex-col justify-between gap-4">
             <div>
               <span className="text-xs uppercase tracking-wider text-[#8fa66a] font-semibold">
-                Investimento
+                {t.investment}
               </span>
               <div className="text-3xl font-heading font-bold mt-1">
-                {featured.priceFormatted}
+                {formatBrl(featured.priceCents, locale)}
               </div>
               <span className="text-xs text-[#cfc9b8]">
-                {featured.isWaitlistMode
-                  ? "Cadastre-se na lista de espera gratuitamente"
-                  : "Parcele em até 7x"}
+                {featured.isWaitlistMode ? t.waitlistNote : t.installmentsNote}
               </span>
             </div>
 
             <Link
-              href={`/enrollment?modality=MISSION&mission=${featured.id}`}
+              href={`/${locale}/enrollment?modality=MISSION&mission=${featured.id}`}
               className="w-full inline-flex items-center justify-center gap-2 bg-[#8fa66a] text-[#072119] font-heading font-bold py-3 px-5 rounded-full hover:bg-[#e9e1d0] transition-colors text-sm"
             >
               <span>
-                {featured.isWaitlistMode
-                  ? "Entrar na Lista de Espera"
-                  : "Inscrever nesta Missão"}
+                {featured.isWaitlistMode ? t.joinWaitlist : t.enrollMission}
               </span>
               <ArrowRight className="w-4 h-4" />
             </Link>
@@ -140,7 +140,7 @@ export default function MissionsShowcase() {
       {others.length > 0 && (
         <div>
           <h3 className="text-xl font-bold font-heading text-[var(--ink)] mb-4">
-            Outras Missões e Expedições
+            {t.otherMissions}
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {others.map((m) => (
@@ -154,7 +154,7 @@ export default function MissionsShowcase() {
                       {m.startDate} – {m.endDate}
                     </span>
                     <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-[#8fa66a]/20 text-[var(--ink)]">
-                      {m.isWaitlistMode ? "Lista de Espera" : "Vagas Abertas"}
+                      {m.isWaitlistMode ? t.waitlistShort : t.openShort}
                     </span>
                   </div>
                   <h4 className="text-xl font-bold font-heading text-[var(--ink)] mb-1">
@@ -171,13 +171,13 @@ export default function MissionsShowcase() {
 
                 <div className="flex items-center justify-between pt-3 border-t border-black/10 dark:border-white/10">
                   <span className="font-heading font-bold text-lg text-[var(--ink)]">
-                    {m.priceFormatted}
+                    {formatBrl(m.priceCents, locale)}
                   </span>
                   <Link
-                    href={`/enrollment?modality=MISSION&mission=${m.id}`}
+                    href={`/${locale}/enrollment?modality=MISSION&mission=${m.id}`}
                     className="inline-flex items-center gap-1.5 bg-[#072119] text-[#e9e1d0] font-heading font-semibold text-xs px-4 py-2 rounded-full hover:bg-[var(--terra)] transition-colors"
                   >
-                    {m.isWaitlistMode ? "Lista de Espera" : "Inscrever-se"}
+                    {m.isWaitlistMode ? t.waitlistShort : t.enrollShort}
                     <ArrowRight className="w-3.5 h-3.5" />
                   </Link>
                 </div>
@@ -189,4 +189,3 @@ export default function MissionsShowcase() {
     </div>
   );
 }
-

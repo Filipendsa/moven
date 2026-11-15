@@ -3,10 +3,32 @@ import Image from "next/image";
 import { MessageCircle, ShieldCheck, Compass, Users } from "lucide-react";
 import MissionsShowcase from "@/components/missions/MissionsShowcase";
 import Navbar from "@/components/common/Navbar";
+import { isValidLocale, Locale, formatBrl } from "@/i18n/config";
+import { getDictionary } from "@/i18n/getDictionary";
+import { publicEnv } from "@/shared/config/env";
 
-export default function HomePage() {
-  const whatsappCommunityUrl =
-    "https://wa.me/5511972246881?text=Ol%C3%A1%20Henrique!%20Quero%20fazer%20parte%20da%20comunidade%20MOVEN%20e%20tirar%20d%C3%BAvidas.";
+function formatWhatsappDisplay(digits: string): string {
+  const clean = digits.replace(/\D/g, "");
+  if (clean.length === 13 && clean.startsWith("55")) {
+    return `+55 ${clean.slice(2, 4)} ${clean.slice(4, 9)}-${clean.slice(9)}`;
+  }
+  return `+${clean}`;
+}
+
+export default async function HomePage({
+  params,
+}: {
+  params: Promise<{ lang: string }>;
+}) {
+  const { lang } = await params;
+  const locale: Locale = isValidLocale(lang) ? lang : "pt";
+  const dict = getDictionary(locale);
+
+  const communityWhatsapp = publicEnv.communityWhatsapp;
+  const communityContactName = publicEnv.communityContactName;
+  const whatsappCommunityUrl = `https://wa.me/${communityWhatsapp}?text=${encodeURIComponent(
+    dict.community.whatsappMessage
+  )}`;
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -19,7 +41,7 @@ export default function HomePage() {
           <div className="relative w-full max-w-[500px] h-48 mx-auto mb-4">
             <Image
               src="/images/moven-logo.jpg"
-              alt="MOVEN, Núcleo de Missões, Igreja UNASP-HT"
+              alt="MOVEN · UNASP-HT"
               fill
               className="object-contain"
               priority
@@ -27,26 +49,25 @@ export default function HomePage() {
           </div>
 
           <h1 className="text-3xl sm:text-4xl md:text-5xl font-medium tracking-tight max-w-2xl mx-auto mb-4 leading-tight">
-            Movidos pelo amor. Enviados para servir.
+            {dict.hero.tagline}
           </h1>
 
           <p className="text-base sm:text-lg text-[#d5cfbf] max-w-xl mx-auto mb-8">
-            Faça parte da primeira turma da Escola de Missões e viaje com a
-            gente para a Missão Amazonas, em julho de 2027.
+            {dict.hero.subtitle}
           </p>
 
           <div className="flex flex-wrap items-center justify-center gap-4 mb-12">
             <Link
-              href="/enrollment?modality=SCHOOL"
+              href={`/${locale}/enrollment?modality=SCHOOL`}
               className="inline-block bg-[#8fa66a] text-[#072119] font-heading font-semibold px-7 py-3.5 rounded-full border-2 border-[#8fa66a] hover:bg-[#e9e1d0] hover:border-[#e9e1d0] transition-colors shadow-lg"
             >
-              Inscrever na Escola de Missões
+              {dict.hero.ctaPrimary}
             </Link>
             <Link
-              href="/enrollment?modality=MISSION"
+              href={`/${locale}/enrollment?modality=MISSION`}
               className="inline-block text-[#e9e1d0] font-heading font-semibold px-7 py-3.5 rounded-full border-2 border-[#8fa66a] hover:bg-[#8fa66a] hover:text-[#072119] transition-colors"
             >
-              Inscrever na Missão Amazonas
+              {dict.hero.ctaSecondary}
             </Link>
             <a
               href={whatsappCommunityUrl}
@@ -55,44 +76,22 @@ export default function HomePage() {
               className="inline-flex items-center gap-2 text-[#8fa66a] font-heading font-semibold px-6 py-3.5 rounded-full border-2 border-[#8fa66a]/40 hover:border-[#8fa66a] hover:bg-[#8fa66a]/10 transition-colors"
             >
               <Users className="w-5 h-5" />
-              Entrar na Comunidade
+              {dict.hero.ctaCommunity}
             </a>
           </div>
 
           {/* Key Facts */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-[1px] bg-[#e9e1d0]/20 rounded-2xl overflow-hidden border border-[#e9e1d0]/20 text-left">
-            <div className="bg-[#072119] p-4 sm:p-5">
-              <b className="block text-xl sm:text-2xl font-heading text-[#8fa66a]">
-                29/11/2026
-              </b>
-              <span className="text-xs sm:text-sm text-[#cfc9b8]">
-                Aula inaugural, às 16h
-              </span>
-            </div>
-            <div className="bg-[#072119] p-4 sm:p-5">
-              <b className="block text-xl sm:text-2xl font-heading text-[#8fa66a]">
-                8 encontros
-              </b>
-              <span className="text-xs sm:text-sm text-[#cfc9b8]">
-                Quinzenais, aos domingos
-              </span>
-            </div>
-            <div className="bg-[#072119] p-4 sm:p-5">
-              <b className="block text-xl sm:text-2xl font-heading text-[#8fa66a]">
-                19 a 29/07/2027
-              </b>
-              <span className="text-xs sm:text-sm text-[#cfc9b8]">
-                Missão Amazonas
-              </span>
-            </div>
-            <div className="bg-[#072119] p-4 sm:p-5">
-              <b className="block text-xl sm:text-2xl font-heading text-[#8fa66a]">
-                28 vagas
-              </b>
-              <span className="text-xs sm:text-sm text-[#cfc9b8]">
-                Para a missão de barco
-              </span>
-            </div>
+            {dict.hero.stats.map((stat, idx) => (
+              <div key={idx} className="bg-[#072119] p-4 sm:p-5">
+                <b className="block text-xl sm:text-2xl font-heading text-[#8fa66a]">
+                  {stat.value}
+                </b>
+                <span className="text-xs sm:text-sm text-[#cfc9b8]">
+                  {stat.label}
+                </span>
+              </div>
+            ))}
           </div>
         </div>
       </header>
@@ -102,62 +101,35 @@ export default function HomePage() {
         <div className="max-w-5xl mx-auto px-5 grid grid-cols-1 md:grid-cols-12 gap-10">
           <div className="md:col-span-7">
             <h2 className="text-3xl sm:text-4xl font-semibold mb-4 text-[var(--ink)]">
-              O que é o MOVEN
+              {dict.about.title}
             </h2>
-            <p className="mb-4">
-              MOVEN é o Núcleo de Missões da Igreja UNASP-HT. O nome é uma
-              palavra criada para expressar movimento, propósito e missão.
-            </p>
-            <p className="mb-4">
-              O número 7 aparece de forma sutil na logo. Ele representa o sétimo
-              dia, nossa identidade adventista, e nos lembra de que o Deus que
-              nos convida a descansar em Seu amor também nos chama a
-              compartilhá-lo com o mundo.
-            </p>
-            <p className="mb-4">
-              Seguimos o modelo do Serviço Voluntário Adventista (SVA) e somos um
-              braço da igreja. Nossos objetivos:
-            </p>
+            <p className="mb-4">{dict.about.p1}</p>
+            <p className="mb-4">{dict.about.p2}</p>
+            <p className="mb-4">{dict.about.p3}</p>
             <ul className="list-disc pl-5 space-y-2 text-[var(--ink)]">
-              <li>
-                Estabelecer o núcleo de missões de forma permanente na igreja.
-              </li>
-              <li>
-                Capacitar pessoas a fazer discípulos por meio do serviço, onde
-                estiverem.
-              </li>
-              <li>Capacitar pessoas a contagiar e treinar outras para a missão.</li>
+              {dict.about.goals.map((goal, idx) => (
+                <li key={idx}>{goal}</li>
+              ))}
             </ul>
           </div>
           <div className="md:col-span-5 bg-[var(--card)] p-6 rounded-2xl border border-[var(--terra)]/20">
             <h3 className="text-xl font-semibold mb-4 text-[var(--ink)] flex items-center gap-2">
               <Compass className="w-5 h-5 text-[var(--terra)]" />
-              Base bíblica
+              {dict.about.biblicalTitle}
             </h3>
-            <div className="border-l-4 border-[var(--terra)] pl-4 mb-4">
-              <b className="block font-heading text-[var(--ink)]">
-                2 Coríntios 5:14
-              </b>
-              <span className="text-sm text-[var(--mut)]">
-                O amor de Cristo nos impulsiona.
-              </span>
-            </div>
-            <div className="border-l-4 border-[var(--terra)] pl-4 mb-4">
-              <b className="block font-heading text-[var(--ink)]">
-                João 13:34-35
-              </b>
-              <span className="text-sm text-[var(--mut)]">
-                O amor é a marca dos discípulos de Jesus.
-              </span>
-            </div>
-            <div className="border-l-4 border-[var(--terra)] pl-4">
-              <b className="block font-heading text-[var(--ink)]">
-                Mateus 28:19
-              </b>
-              <span className="text-sm text-[var(--mut)]">
-                Somos chamados a ir e fazer discípulos.
-              </span>
-            </div>
+            {dict.about.verses.map((verse, idx) => (
+              <div
+                key={idx}
+                className={`border-l-4 border-[var(--terra)] pl-4 ${
+                  idx < dict.about.verses.length - 1 ? "mb-4" : ""
+                }`}
+              >
+                <b className="block font-heading text-[var(--ink)]">
+                  {verse.ref}
+                </b>
+                <span className="text-sm text-[var(--mut)]">{verse.text}</span>
+              </div>
+            ))}
           </div>
         </div>
       </section>
@@ -166,54 +138,29 @@ export default function HomePage() {
       <section id="school" className="py-16 bg-[var(--card)]">
         <div className="max-w-5xl mx-auto px-5">
           <h2 className="text-3xl sm:text-4xl font-semibold mb-3 text-[var(--ink)]">
-            Escola de Missões
+            {dict.school.title}
           </h2>
           <p className="max-w-2xl mb-8 text-[var(--ink)]/90">
-            De novembro a junho, você aprende a servir na prática: cada encontro
-            tem 30 minutos de prática missionária e dois blocos de teoria e
-            prática.
+            {dict.school.subtitle}
           </p>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
             <div>
               <h3 className="text-xl font-semibold mb-3 text-[var(--ink)]">
-                Como funciona
+                {dict.school.howItWorksTitle}
               </h3>
               <ul className="list-disc pl-5 space-y-2 text-sm sm:text-base text-[var(--ink)]">
-                <li>
-                  8 encontros quinzenais, aos domingos, das 16h às 18h30
-                </li>
-                <li>Retiro, visita de choque cultural e formatura</li>
-                <li>
-                  7 ações voluntárias em grupo nos domingos sem aula
-                </li>
-                <li>
-                  Estudo bíblico, Pequeno Grupo e atividades missionárias
-                  pessoais
-                </li>
-                <li>
-                  Curso online Passaporte para a Missão (SVA) e leitura do
-                  livro Passaporte
-                </li>
+                {dict.school.howItWorks.map((item, idx) => (
+                  <li key={idx}>{item}</li>
+                ))}
               </ul>
             </div>
             <div>
               <h3 className="text-xl font-semibold mb-3 text-[var(--ink)]">
-                O que você vai estudar
+                {dict.school.studyTitle}
               </h3>
               <div className="flex flex-wrap gap-2">
-                {[
-                  "Estudo bíblico por descoberta",
-                  "Chamado missionário",
-                  "Evangelismo",
-                  "Cultura e contextualização",
-                  "Saúde mental",
-                  "Primeiros socorros",
-                  "Doutrinas da igreja",
-                  "Realidade ribeirinha",
-                  "Vida no barco",
-                  "Oficinas: crianças, saúde, construção e música",
-                ].map((item, idx) => (
+                {dict.school.topics.map((item, idx) => (
                   <span
                     key={idx}
                     className="border border-[#8fa66a] text-[var(--ink)] rounded-full px-3.5 py-1 text-xs sm:text-sm bg-[#8fa66a]/10"
@@ -226,31 +173,20 @@ export default function HomePage() {
           </div>
 
           <h3 className="text-xl font-semibold mb-4 text-[var(--ink)]">
-            Critérios para Certificação
+            {dict.school.certTitle}
           </h3>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-            <div className="border-t-4 border-[var(--terra)] pt-3 bg-white/40 dark:bg-black/20 p-4 rounded-b-xl">
-              <b className="block text-3xl font-heading text-[var(--ink)]">
-                70%
-              </b>
-              <span className="text-sm text-[var(--mut)]">da nota total</span>
-            </div>
-            <div className="border-t-4 border-[var(--terra)] pt-3 bg-white/40 dark:bg-black/20 p-4 rounded-b-xl">
-              <b className="block text-3xl font-heading text-[var(--ink)]">
-                80%
-              </b>
-              <span className="text-sm text-[var(--mut)]">
-                de presença nas aulas e atividades
-              </span>
-            </div>
-            <div className="border-t-4 border-[var(--terra)] pt-3 bg-white/40 dark:bg-black/20 p-4 rounded-b-xl">
-              <b className="block text-3xl font-heading text-[var(--ink)]">
-                SVA
-              </b>
-              <span className="text-sm text-[var(--mut)]">
-                curso online Passaporte para a Missão concluído
-              </span>
-            </div>
+            {dict.school.certItems.map((cert, idx) => (
+              <div
+                key={idx}
+                className="border-t-4 border-[var(--terra)] pt-3 bg-white/40 dark:bg-black/20 p-4 rounded-b-xl"
+              >
+                <b className="block text-3xl font-heading text-[var(--ink)]">
+                  {cert.value}
+                </b>
+                <span className="text-sm text-[var(--mut)]">{cert.label}</span>
+              </div>
+            ))}
           </div>
         </div>
       </section>
@@ -259,66 +195,12 @@ export default function HomePage() {
       <section id="dates" className="py-16">
         <div className="max-w-5xl mx-auto px-5">
           <h2 className="text-3xl sm:text-4xl font-semibold mb-2 text-[var(--ink)]">
-            Datas importantes
+            {dict.dates.title}
           </h2>
-          <p className="text-[var(--mut)] mb-8">
-            Do lançamento ao culto de retorno, em nove meses.
-          </p>
+          <p className="text-[var(--mut)] mb-8">{dict.dates.subtitle}</p>
 
           <ol className="relative border-l-2 border-[#8fa66a] ml-3 sm:ml-4 space-y-6">
-            {[
-              {
-                date: "14/11/2026",
-                title: "Lançamento no culto de sábado",
-                desc: "Inscrições abertas na saída do culto",
-                highlight: true,
-              },
-              {
-                date: "29/11/2026",
-                title: "Aula inaugural, às 16h",
-                desc: "Encontro 1",
-                highlight: true,
-              },
-              {
-                date: "13/12/2026",
-                title: "Encontro 2",
-              },
-              {
-                date: "14/12 a 16/01",
-                title: "Pausa de fim de ano",
-                desc: "Curso online SVA, leitura do livro e ação de Natal (20/12)",
-              },
-              {
-                date: "17/01 a 04/04/2027",
-                title: "Encontros 3 a 8",
-                desc: "17/01, 31/01, 14/02, 28/02, 14/03 e 04/04",
-              },
-              {
-                date: "30/04 a 02/05",
-                title: "Retiro de comunhão e consagração",
-              },
-              {
-                date: "16/05/2027",
-                title: "Visita de choque cultural",
-                desc: "Mesquita e comunidade árabe",
-              },
-              {
-                date: "12/06/2027",
-                title: "Formatura e culto de envio",
-                highlight: true,
-              },
-              {
-                date: "19 a 29/07/2027",
-                title: "Missão Amazonas",
-                desc: "10 dias de serviço de barco pelas comunidades ribeirinhas",
-                highlight: true,
-              },
-              {
-                date: "07/08/2027",
-                title: "Culto de retorno",
-                desc: "Relatório, fotos e testemunhos",
-              },
-            ].map((item, idx) => (
+            {dict.dates.items.map((item, idx) => (
               <li key={idx} className="relative pl-6 sm:pl-8">
                 <span
                   className={`absolute -left-[7px] top-1.5 rounded-full ${
@@ -355,41 +237,41 @@ export default function HomePage() {
       {/* Section 4: Pricing */}
       <section id="pricing" className="py-16 bg-[#072119] text-[#e9e1d0]">
         <div className="max-w-5xl mx-auto px-5">
-          <h2 className="text-3xl sm:text-4xl font-semibold mb-2">Valores</h2>
-          <p className="text-[#d5cfbf] mb-8">
-            A escola e a missão são cobradas separadamente.
-          </p>
+          <h2 className="text-3xl sm:text-4xl font-semibold mb-2">
+            {dict.pricing.title}
+          </h2>
+          <p className="text-[#d5cfbf] mb-8">{dict.pricing.subtitle}</p>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {/* School Card */}
             <div className="bg-[#12302a] border border-[#8fa66a]/30 rounded-3xl p-8 flex flex-col justify-between shadow-xl">
               <div>
                 <span className="text-xs uppercase tracking-wider text-[#8fa66a] font-semibold">
-                  Módulo 1
+                  {dict.pricing.school.badge}
                 </span>
                 <h3 className="text-2xl font-bold mt-1 mb-2">
-                  Escola de Missões
+                  {dict.pricing.school.title}
                 </h3>
                 <div className="text-4xl font-heading font-bold text-[#e9e1d0] my-3">
-                  R$ 170,00{" "}
+                  {formatBrl(17000, locale)}{" "}
                   <small className="text-sm font-normal text-[#cfc9b8]">
-                    valor único
+                    {dict.pricing.school.unit}
                   </small>
                 </div>
                 <p className="text-sm text-[#cfc9b8] mb-4">
-                  Sem mensalidade. Inclui a pasta do aluno:
+                  {dict.pricing.school.note}
                 </p>
                 <ul className="list-disc pl-5 space-y-2 text-sm text-[#d5cfbf] mb-6">
-                  <li>Livro Passaporte</li>
-                  <li>Camiseta e squeeze</li>
-                  <li>Caderno, lápis e caneta</li>
+                  {dict.pricing.school.features.map((feat, idx) => (
+                    <li key={idx}>{feat}</li>
+                  ))}
                 </ul>
               </div>
               <Link
-                href="/enrollment?modality=SCHOOL"
+                href={`/${locale}/enrollment?modality=SCHOOL`}
                 className="w-full text-center bg-[#8fa66a] text-[#072119] font-heading font-semibold py-3.5 rounded-full hover:bg-[#e9e1d0] transition-colors"
               >
-                Inscrever na Escola
+                {dict.pricing.school.cta}
               </Link>
             </div>
 
@@ -397,32 +279,31 @@ export default function HomePage() {
             <div className="bg-[#12302a] border border-[#8fa66a]/30 rounded-3xl p-8 flex flex-col justify-between shadow-xl">
               <div>
                 <span className="text-xs uppercase tracking-wider text-[#8fa66a] font-semibold">
-                  Módulo 2
+                  {dict.pricing.mission.badge}
                 </span>
                 <h3 className="text-2xl font-bold mt-1 mb-2">
-                  Missão Amazonas
+                  {dict.pricing.mission.title}
                 </h3>
                 <div className="text-4xl font-heading font-bold text-[#e9e1d0] my-3">
-                  R$ 2.500,00{" "}
+                  {formatBrl(250000, locale)}{" "}
                   <small className="text-sm font-normal text-[#cfc9b8]">
-                    por pessoa
+                    {dict.pricing.mission.unit}
                   </small>
                 </div>
                 <p className="text-sm text-[#cfc9b8] mb-4">
-                  Parcele em até 7x. Vagas limitadas (28 vagas):
+                  {dict.pricing.mission.note}
                 </p>
                 <ul className="list-disc pl-5 space-y-2 text-sm text-[#d5cfbf] mb-6">
-                  <li>Traslado do aeroporto até o Instituto</li>
-                  <li>Kit: sacochila, camisa, chapéu e garrafinha</li>
-                  <li>Três refeições ovolactovegetarianas por dia</li>
-                  <li>Passagem aérea São Paulo–Manaus não inclusa</li>
+                  {dict.pricing.mission.features.map((feat, idx) => (
+                    <li key={idx}>{feat}</li>
+                  ))}
                 </ul>
               </div>
               <Link
-                href="/enrollment?modality=MISSION"
+                href={`/${locale}/enrollment?modality=MISSION`}
                 className="w-full text-center bg-[#8fa66a] text-[#072119] font-heading font-semibold py-3.5 rounded-full hover:bg-[#e9e1d0] transition-colors"
               >
-                Inscrever na Missão
+                {dict.pricing.mission.cta}
               </Link>
             </div>
           </div>
@@ -434,44 +315,29 @@ export default function HomePage() {
         <div className="max-w-5xl mx-auto px-5 space-y-12">
           <div>
             <h2 className="text-3xl sm:text-4xl font-semibold mb-2 text-[var(--ink)]">
-              Missões & Expedições
+              {dict.amazon.title}
             </h2>
-            <p className="text-[var(--mut)] mb-8">
-              Conheça nossa expedição em destaque e as próximas missões do núcleo. O mínimo para fechar o barco é de 28 vagas, com lista de espera aberta para novas turmas e vagas extras.
-            </p>
+            <p className="text-[var(--mut)] mb-8">{dict.amazon.subtitle}</p>
             <MissionsShowcase />
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-12 gap-10 pt-4">
             <div className="md:col-span-7">
               <h3 className="text-2xl font-semibold mb-4 text-[var(--ink)]">
-                Como funciona a Missão Amazonas 2027
+                {dict.amazon.howTitle}
               </h3>
-              <p className="mb-4">
-                Em parceria com a Missão Noroeste, vamos passar 10 dias de barco
-                pelos rios do Amazonas, no formato do projeto Salva-Vidas
-                Amazônia. Serão ações de construção, evangelismo, saúde básica e
-                apoio na cozinha, junto às comunidades ribeirinhas.
-              </p>
-              <p>
-                Os voluntários dormem em redes, com mosquiteiro fornecido. Quem vai
-                à missão precisa ser certificado pela escola e ter concluído o
-                curso online do SVA.
-              </p>
+              <p className="mb-4">{dict.amazon.p1}</p>
+              <p>{dict.amazon.p2}</p>
             </div>
             <div className="md:col-span-5 bg-[var(--card)] p-6 rounded-2xl border border-[var(--terra)]/20">
               <h3 className="text-xl font-semibold mb-4 text-[var(--ink)] flex items-center gap-2">
                 <ShieldCheck className="w-5 h-5 text-[var(--terra)]" />
-                Antes de viajar
+                {dict.amazon.beforeTitle}
               </h3>
               <ul className="list-disc pl-5 space-y-3 text-sm text-[var(--ink)]">
-                <li>Cadastro no SVA / VividFaith, com documentos</li>
-                <li>Passagem São Paulo–Manaus, comprada individualmente</li>
-                <li>Vacinas em dia, incluindo febre amarela</li>
-                <li>
-                  Menores de 16 anos vão com os responsáveis. De 16 a 17 anos, com
-                  termo assinado pelos pais.
-                </li>
+                {dict.amazon.beforeItems.map((item, idx) => (
+                  <li key={idx}>{item}</li>
+                ))}
               </ul>
             </div>
           </div>
@@ -482,30 +348,27 @@ export default function HomePage() {
       <section id="enrollment" className="py-16 bg-[#072119] text-center text-[#e9e1d0]">
         <div className="max-w-3xl mx-auto px-5">
           <h2 className="text-3xl sm:text-4xl font-semibold mb-3">
-            Inscreva-se Agora
+            {dict.cta.title}
           </h2>
-          <p className="text-[#d5cfbf] mb-8">
-            Escolha o que combina com você. Quem vai à missão pode se inscrever
-            nos dois juntos.
-          </p>
+          <p className="text-[#d5cfbf] mb-8">{dict.cta.subtitle}</p>
           <div className="flex flex-wrap items-center justify-center gap-4">
             <Link
-              href="/enrollment?modality=SCHOOL"
+              href={`/${locale}/enrollment?modality=SCHOOL`}
               className="bg-[#8fa66a] text-[#072119] font-heading font-semibold px-8 py-3.5 rounded-full hover:bg-[#e9e1d0] transition-colors shadow-lg"
             >
-              Escola de Missões
+              {dict.cta.school}
             </Link>
             <Link
-              href="/enrollment?modality=MISSION"
+              href={`/${locale}/enrollment?modality=MISSION`}
               className="text-[#e9e1d0] font-heading font-semibold px-8 py-3.5 rounded-full border-2 border-[#8fa66a] hover:bg-[#8fa66a] hover:text-[#072119] transition-colors"
             >
-              Missão Amazonas
+              {dict.cta.mission}
             </Link>
             <Link
-              href="/enrollment?modality=BOTH"
+              href={`/${locale}/enrollment?modality=BOTH`}
               className="bg-[var(--terra)] text-[#e9e1d0] font-heading font-semibold px-8 py-3.5 rounded-full hover:bg-[var(--terra)]/80 transition-colors shadow-lg"
             >
-              Inscrever em Ambos
+              {dict.cta.both}
             </Link>
           </div>
         </div>
@@ -515,20 +378,20 @@ export default function HomePage() {
       <section className="py-16 bg-[#8fa66a] text-[#072119] text-center">
         <div className="max-w-3xl mx-auto px-5">
           <h2 className="text-3xl sm:text-4xl font-semibold mb-3">
-            Ficou com dúvida ou quer entrar na comunidade?
+            {dict.community.title}
           </h2>
           <p className="text-[#072119]/90 mb-8 max-w-xl mx-auto">
-            Fale diretamente com o Henrique pelo WhatsApp ou tire dúvidas sobre a
-            primeira turma da Escola de Missões.
+            {dict.community.subtitlePrefix} {communityContactName}{" "}
+            {dict.community.subtitleSuffix}
           </p>
           <a
-            href="https://wa.me/5511972246881?text=Ol%C3%A1%20Henrique!%20Quero%20saber%20mais%20sobre%20o%20MOVEN."
+            href={whatsappCommunityUrl}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 bg-[#072119] text-[#e9e1d0] font-heading font-semibold px-8 py-4 rounded-full hover:bg-[var(--terra)] transition-colors shadow-lg text-lg"
           >
             <MessageCircle className="w-6 h-6 text-[#8fa66a]" />
-            +55 11 97224-6881
+            {formatWhatsappDisplay(communityWhatsapp)}
           </a>
         </div>
       </section>
@@ -538,39 +401,39 @@ export default function HomePage() {
         <div className="max-w-5xl mx-auto px-5 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="text-center sm:text-left">
             <div className="font-semibold text-[#e9e1d0]">
-              MOVEN · Núcleo de Missões · Igreja UNASP-HT
+              {dict.footer.brand}
             </div>
             <div className="text-xs text-[#cfc9b8]/80">
-              Mais que um núcleo, um movimento.
+              {dict.footer.tagline}
             </div>
           </div>
           <div className="flex flex-wrap items-center justify-center gap-4 text-xs">
             <Link
-              href="/privacy"
+              href={`/${locale}/privacy`}
               className="hover:text-[#8fa66a] transition-colors"
             >
-              Política de Privacidade
+              {dict.footer.privacy}
             </Link>
             <span>•</span>
             <Link
-              href="/terms"
+              href={`/${locale}/terms`}
               className="hover:text-[#8fa66a] transition-colors"
             >
-              Termos de Uso
+              {dict.footer.terms}
             </Link>
             <span>•</span>
             <Link
               href="/admin/login"
               className="hover:text-[#8fa66a] transition-colors opacity-70 hover:opacity-100"
             >
-              Painel Admin
+              {dict.footer.admin}
             </Link>
           </div>
         </div>
         <div className="max-w-5xl mx-auto px-5 mt-6 pt-4 border-t border-white/10 text-xs text-[#cfc9b8]/70">
-          Powered by{" "}
+          {dict.footer.poweredBy}{" "}
           <a
-            href="https://yesode.com"
+            href={publicEnv.poweredByUrl}
             target="_blank"
             rel="noopener noreferrer"
             className="text-[#8fa66a] font-semibold hover:underline"

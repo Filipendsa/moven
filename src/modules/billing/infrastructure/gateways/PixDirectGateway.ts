@@ -2,6 +2,7 @@ import { IPaymentGateway, CheckoutResult } from "../../domain/ports/IPaymentGate
 import { PixPayload } from "../../domain/value-objects/PixPayload";
 import { Registration } from "@/modules/enrollment/domain/entities/Registration";
 import { EventOffering } from "@/modules/mission-catalog/domain/entities/EventOffering";
+import { publicEnv } from "@/shared/config/env";
 
 export class PixDirectGateway implements IPaymentGateway {
   readonly providerName = "PIX" as const;
@@ -21,7 +22,7 @@ export class PixDirectGateway implements IPaymentGateway {
     registration: Registration,
     offering: EventOffering
   ): Promise<CheckoutResult> {
-    const pixKey = process.env.NEXT_PUBLIC_PIX_KEY || "+5511972246881";
+    const pixKey = publicEnv.pixKey;
     const offerMessage = this.buildOfferMessage(registration);
 
     const payload = PixPayload.create({

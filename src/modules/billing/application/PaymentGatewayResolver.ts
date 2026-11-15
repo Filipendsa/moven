@@ -2,6 +2,7 @@ import { IPaymentGateway } from "../domain/ports/IPaymentGateway";
 import { Even3RedirectGateway } from "../infrastructure/gateways/Even3RedirectGateway";
 import { InfinitePayGateway } from "../infrastructure/gateways/InfinitePayGateway";
 import { PixDirectGateway } from "../infrastructure/gateways/PixDirectGateway";
+import { publicEnv } from "@/shared/config/env";
 
 export type PaymentMethodPreference = "CARD" | "PIX";
 
@@ -19,9 +20,7 @@ export class PaymentGatewayResolver {
     }
 
     const activeProvider = (
-      overrideProvider ||
-      process.env.NEXT_PUBLIC_PAYMENT_MODE ||
-      "EVEN3"
+      overrideProvider || publicEnv.paymentMode
     ).toUpperCase();
 
     if (activeProvider === "INFINITEPAY") {

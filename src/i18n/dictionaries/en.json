@@ -1,0 +1,302 @@
+{
+  "metadata": {
+    "title": "MOVEN · Mission Hub · UNASP-HT Church",
+    "description": "School of Missions and Amazon Mission 2027. Moved by love. Sent to serve."
+  },
+  "nav": {
+    "subtitle": "· Mission Hub",
+    "about": "About",
+    "school": "School",
+    "dates": "Dates",
+    "pricing": "Pricing",
+    "amazon": "Amazon Mission",
+    "enroll": "Enroll",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu",
+    "language": "Language"
+  },
+  "hero": {
+    "tagline": "Moved by love. Sent to serve.",
+    "subtitle": "Join the first cohort of the School of Missions and travel with us to the Amazon Mission in July 2027.",
+    "ctaPrimary": "Enroll in School of Missions",
+    "ctaSecondary": "Enroll in Amazon Mission",
+    "ctaCommunity": "Join the Community",
+    "stats": [
+      { "value": "Nov 29, 2026", "label": "Opening class, at 4 PM" },
+      { "value": "8 sessions", "label": "Biweekly, on Sundays" },
+      { "value": "Jul 19–29, 2027", "label": "Amazon Mission" },
+      { "value": "28 spots", "label": "For the boat mission" }
+    ]
+  },
+  "about": {
+    "title": "What is MOVEN",
+    "p1": "MOVEN is the Mission Hub of the UNASP-HT Church. The name was created to express movement, purpose, and mission.",
+    "p2": "The number 7 appears subtly in the logo. It represents the seventh day, our Adventist identity, reminding us that the God who invites us to rest in His love also calls us to share it with the world.",
+    "p3": "We follow the Adventist Volunteer Service (AVS / SVA) model and operate as a ministry arm of the church. Our goals:",
+    "goals": [
+      "Establish a permanent mission hub within the local church.",
+      "Equip people to make disciples through service wherever they are.",
+      "Inspire and train others to embrace the mission."
+    ],
+    "biblicalTitle": "Biblical foundation",
+    "verses": [
+      { "ref": "2 Corinthians 5:14", "text": "Christ's love compels us." },
+      { "ref": "John 13:34-35", "text": "Love is the mark of Jesus' disciples." },
+      { "ref": "Matthew 28:19", "text": "We are called to go and make disciples." }
+    ]
+  },
+  "school": {
+    "title": "School of Missions",
+    "subtitle": "From November to June, you learn to serve hands-on: each session includes 30 minutes of mission practice and two blocks of theory and practice.",
+    "howItWorksTitle": "How it works",
+    "howItWorks": [
+      "8 biweekly sessions on Sundays, from 4:00 PM to 6:30 PM",
+      "Retreat, cross-cultural immersion visit, and graduation",
+      "7 group volunteer outreaches on off-Sundays",
+      "Bible study, Small Group, and personal mission activities",
+      "Online course Passport to Mission (SVA) and Passport book reading"
+    ],
+    "studyTitle": "What you will study",
+    "topics": [
+      "Discovery Bible study",
+      "Missionary calling",
+      "Evangelism",
+      "Culture & contextualization",
+      "Mental health",
+      "First aid",
+      "Church doctrines",
+      "Riverbank reality",
+      "Life on the boat",
+      "Workshops: children, health, construction & music"
+    ],
+    "certTitle": "Certification Requirements",
+    "certItems": [
+      { "value": "70%", "label": "minimum overall grade" },
+      { "value": "80%", "label": "attendance in classes and activities" },
+      { "value": "SVA", "label": "Passport to Mission online course completed" }
+    ]
+  },
+  "dates": {
+    "title": "Key Dates",
+    "subtitle": "From launch to the homecoming service, in nine months.",
+    "items": [
+      { "date": "Nov 14, 2026", "title": "Launch at Saturday service", "desc": "Registrations open after the service", "highlight": true },
+      { "date": "Nov 29, 2026", "title": "Opening class, at 4:00 PM", "desc": "Session 1", "highlight": true },
+      { "date": "Dec 13, 2026", "title": "Session 2" },
+      { "date": "Dec 14 – Jan 16", "title": "Year-end break", "desc": "SVA online course, book reading, and Christmas outreach (Dec 20)" },
+      { "date": "Jan 17 – Apr 4, 2027", "title": "Sessions 3 to 8", "desc": "Jan 17, Jan 31, Feb 14, Feb 28, Mar 14, and Apr 4" },
+      { "date": "Apr 30 – May 2", "title": "Communion & consecration retreat" },
+      { "date": "May 16, 2027", "title": "Cross-cultural immersion visit", "desc": "Mosque and Arab community" },
+      { "date": "Jun 12, 2027", "title": "Graduation & commissioning service", "highlight": true },
+      { "date": "Jul 19–29, 2027", "title": "Amazon Mission", "desc": "10 days of boat ministry across riverbank communities", "highlight": true },
+      { "date": "Aug 7, 2027", "title": "Homecoming service", "desc": "Report, photos, and testimonies" }
+    ]
+  },
+  "pricing": {
+    "title": "Pricing",
+    "subtitle": "The school and the mission are billed separately.",
+    "school": {
+      "badge": "Module 1",
+      "title": "School of Missions",
+      "unit": "one-time fee",
+      "note": "No monthly fees. Includes student kit:",
+      "features": ["Passport Book", "T-shirt & water bottle", "Notebook, pencil & pen"],
+      "cta": "Enroll in the School"
+    },
+    "mission": {
+      "badge": "Module 2",
+      "title": "Amazon Mission",
+      "unit": "per person",
+      "note": "Up to 7 installments. Limited spots (28 spots):",
+      "features": [
+        "Airport transfer to the Institute",
+        "Kit: drawstring bag, shirt, hat & bottle",
+        "Three lacto-ovo-vegetarian meals per day",
+        "São Paulo–Manaus airfare not included"
+      ],
+      "cta": "Enroll in the Mission"
+    }
+  },
+  "amazon": {
+    "title": "Missions & Expeditions",
+    "subtitle": "Discover our featured expedition and upcoming hub missions. The minimum to charter the boat is 28 spots, with an open waitlist for new cohorts and extra spots.",
+    "howTitle": "How Amazon Mission 2027 works",
+    "p1": "In partnership with the Northwest Mission, we will spend 10 days by boat along the Amazon rivers, following the Salva-Vidas Amazônia project model. Activities include construction, evangelism, basic healthcare, and kitchen support alongside riverbank communities.",
+    "p2": "Volunteers sleep in hammocks with mosquito nets provided. Mission participants must be certified by the school and have completed the SVA online course.",
+    "beforeTitle": "Before traveling",
+    "beforeItems": [
+      "SVA / VividFaith registration with documents",
+      "São Paulo–Manaus flight purchased individually",
+      "Up-to-date vaccines, including yellow fever",
+      "Participants under 16 must travel with parents/guardians. Ages 16–17 require notarized parental consent."
+    ]
+  },
+  "missionsShowcase": {
+    "loading": "Loading available missions...",
+    "featuredBadge": "Featured Mission",
+    "waitlistBadge": "Initial spots filled · Waitlist Open",
+    "openSpotsPrefix": "Registration Open",
+    "openSpotsSuffix": "minimum spots confirmed",
+    "toLabel": "to",
+    "minSlotsPrefix": "Minimum",
+    "minSlotsSuffix": "spots (+ waitlist for extra spots)",
+    "investment": "Investment",
+    "waitlistNote": "Join the waitlist for free",
+    "installmentsNote": "Up to 7 installments",
+    "joinWaitlist": "Join Waitlist",
+    "enrollMission": "Enroll in this Mission",
+    "otherMissions": "Other Missions & Expeditions",
+    "waitlistShort": "Waitlist",
+    "openShort": "Open Spots",
+    "enrollShort": "Enroll"
+  },
+  "cta": {
+    "title": "Enroll Now",
+    "subtitle": "Choose what fits you best. Those joining the mission can enroll in both together.",
+    "school": "School of Missions",
+    "mission": "Amazon Mission",
+    "both": "Enroll in Both"
+  },
+  "community": {
+    "title": "Have questions or want to join the community?",
+    "subtitlePrefix": "Message",
+    "subtitleSuffix": "directly on WhatsApp or ask about the first cohort of the School of Missions.",
+    "whatsappMessage": "Hi! I would like to know more about MOVEN."
+  },
+  "footer": {
+    "brand": "MOVEN · Mission Hub · UNASP-HT Church",
+    "tagline": "More than a hub, a movement.",
+    "privacy": "Privacy Policy",
+    "terms": "Terms of Use",
+    "admin": "Admin Panel",
+    "poweredBy": "Powered by"
+  },
+  "cookies": {
+    "title": "Privacy & Cookies",
+    "close": "Close",
+    "description": "We use essential cookies to ensure the secure operation of our enrollment center and navigation preferences, in compliance with Brazilian LGPD. Learn more in our",
+    "privacyLink": "Privacy Policy",
+    "accept": "Got it & Accept"
+  },
+  "enrollment": {
+    "backHome": "Back to Home",
+    "title": "Enrollment Center · MOVEN",
+    "subtitle": "Fill in your details to secure your spot in the School and Hub Missions.",
+    "chooseModality": "Choose your Modality:",
+    "schoolTitle": "School of Missions",
+    "schoolDesc": "8 biweekly sessions + student kit",
+    "missionDefaultTitle": "Amazon Mission 2027",
+    "missionWaitlistDesc": "Initial spots filled · Waitlist",
+    "missionSlotsPrefix": "Minimum",
+    "missionSlotsSuffix": "spots (+ waitlist)",
+    "bothTitle": "School + Mission (Combo)",
+    "bothDesc": "Full training + Mission trip",
+    "selectMission": "Select Mission *",
+    "waitlistOption": "Waitlist",
+    "waitlistNoticeTitle": "Waitlist Active:",
+    "waitlistNoticeBody1": "The",
+    "waitlistNoticeBody2": "initial spots for this mission have already been filled! By submitting this form, your name will join the",
+    "waitlistNoticeHighlight": "Waitlist",
+    "waitlistNoticeBody3": "with no immediate charge, and our leadership will contact you as soon as new spots open.",
+    "fullNameLabel": "Full Name *",
+    "fullNamePlaceholder": "Ex: Gabriel Santos Silva",
+    "emailLabel": "Email *",
+    "emailPlaceholder": "youremail@example.com",
+    "phoneLabel": "WhatsApp / Phone *",
+    "phonePlaceholder": "(11) 98765-4321",
+    "cpfLabel": "CPF (Brazilian Tax ID) *",
+    "cpfPlaceholder": "000.000.000-00",
+    "paymentMethodLabel": "Payment Method:",
+    "cardTitle": "Card / Installments",
+    "cardDesc": "Up to 7x on the online platform",
+    "pixTitle": "Direct Pix",
+    "pixDescPrefix": "Send receipt to",
+    "termsPrefix": "I have read and agree to the",
+    "termsLink": "Terms of Use",
+    "termsMiddle": "and the processing of my data under the",
+    "privacyLink": "Privacy Policy (LGPD)",
+    "termsSuffix": "of MOVEN / UNASP-HT Church.",
+    "termsError": "You must agree to the Terms of Use and Privacy Policy.",
+    "genericError": "Error processing enrollment.",
+    "unexpectedError": "An unexpected error occurred.",
+    "submitLoading": "Processing...",
+    "submitWaitlist": "Join Waitlist",
+    "submitPix": "Generate Pix Details",
+    "submitCard": "Continue to Payment"
+  },
+  "success": {
+    "waitlistTitle": "You are on the Waitlist!",
+    "pixTitle": "Direct Pix Payment",
+    "defaultTitle": "Pre-Registration Saved!",
+    "waitlistDesc1": "Your details have been added to the waitlist for",
+    "waitlistDesc2": ". As soon as new spots open, our leadership will contact you via WhatsApp.",
+    "pixDescPrefix": "The QR Code below is configured with the exact amount and offering message. After paying, send your receipt to",
+    "defaultDesc": "Your registration details have been saved in the MOVEN system.",
+    "protocol": "Protocol:",
+    "offerMessageLabel": "Automatic Offering Message:",
+    "copyMessage": "Copy Message",
+    "copied": "Copied",
+    "offerMessageHint": "This identification is already embedded in the QR Code below. If transferring manually by Pix key, paste this phrase into the Pix description.",
+    "exactAmount": "Exact Pix amount:",
+    "scanHint": "Scan in your banking app",
+    "exactValueWord": "exact amount",
+    "copyPasteLabel": "Pix Copy & Paste (with amount & message):",
+    "copyCode": "Copy Code",
+    "copiedCode": "Copied",
+    "pixKeyLabel": "Or use only the Pix Key:",
+    "copyKey": "Copy Key",
+    "sendReceiptPrefix": "Send Receipt to",
+    "whatsappSuffix": "(WhatsApp)",
+    "even3ComboNote": "You selected the School + Amazon Mission combo. Complete the payments in two steps on Even3:",
+    "even3Step1": "1. Pay School of Missions (R$ 170.00)",
+    "even3Step2": "2. Pay Amazon Mission (R$ 2,500.00)",
+    "checkoutFallbackNote": "You will be redirected to checkout. If it does not open automatically, contact leadership via WhatsApp.",
+    "talkLeadership": "Contact leadership on WhatsApp",
+    "whatsappInitialMsg": "Olá! Acabei de fazer meu cadastro no MOVEN.",
+    "backHome": "Back to MOVEN website"
+  },
+  "privacy": {
+    "backHome": "Back to Home",
+    "title": "Privacy Policy & Data Protection (LGPD)",
+    "updated": "Last updated: Version 2026.1 · MOVEN · Mission Hub · UNASP-HT Church",
+    "legalNotice": "Legal notice: This translation is for informational purposes only. For legal purposes under Brazilian law, the original Portuguese version prevails.",
+    "s1Title": "1. Purpose of Data Collection",
+    "s1Intro": "MOVEN (Mission Hub of the UNASP-HT Church) collects your personal data (Full Name, Email, Phone/WhatsApp, and CPF) exclusively to:",
+    "s1Items": [
+      "Process and manage your enrollment in the School of Missions and/or Amazon Mission 2027;",
+      "Issue attendance lists, badges, and completion certificates;",
+      "Arrange mandatory travel insurance and registration in the Adventist Volunteer Service (SVA / VividFaith);",
+      "Reconcile payments and issue receipts;",
+      "Maintain pastoral contact, class announcements, and mission logistics guidance."
+    ],
+    "s2Title": "2. Data Sharing & Non-Commercialization",
+    "s2Body": "MOVEN does not sell, rent, or share your data with any third parties for commercial or advertising purposes. Data is shared strictly with required denominational bodies (SVA / Central São Paulo Conference / Northwest Mission) for mission and insurance purposes.",
+    "s3Title": "3. Data Subject Rights (LGPD)",
+    "s3Body": "In accordance with Brazil's General Data Protection Law (Law No. 13.709/2018), you have the right to request confirmation of processing, access, correction of incomplete data, or deletion of your data after the mission project concludes by contacting coordination through our official channel:",
+    "s3ContactLabel": "WhatsApp / Contact:",
+    "s3Leadership": "MOVEN Leadership",
+    "s4Title": "4. Cookies & Information Security",
+    "s4Body": "We only use essential cookies for session authentication and navigation preferences. Data is protected by encryption and Row Level Security (RLS) access control in our PostgreSQL database."
+  },
+  "terms": {
+    "backHome": "Back to Home",
+    "title": "Terms of Use & General Conditions",
+    "subtitle": "MOVEN · Mission Hub · UNASP-HT Church · 2026/2027 Edition",
+    "legalNotice": "Legal notice: This translation is for informational purposes only. For legal purposes under Brazilian law, the original Portuguese version prevails.",
+    "s1Title": "1. School of Missions",
+    "s1Items": [
+      "The R$ 170.00 fee is a one-time enrollment fee and includes the student kit (Passport book, t-shirt, water bottle, notebook, pencil, and pen).",
+      "Certification requires at least 70% overall score on activities, 80% attendance at biweekly sessions, and completion of the Passport to Mission (SVA) online course."
+    ],
+    "s2Title": "2. Amazon Mission 2027",
+    "s2Items": [
+      "The mission will take place from July 19 to 29, 2027, in partnership with the Salva-Vidas Amazônia project (Northwest Mission).",
+      "Airfare: The São Paulo–Manaus flight is not included in the R$ 2,500.00 fee and is the volunteer's sole responsibility.",
+      "Spots: Strictly limited to 28 confirmed spots (upon payment), respecting the technical and safety capacity of the boat.",
+      "Prerequisites: Certification from the School of Missions, approved SVA/VividFaith registration, and up-to-date mandatory vaccines (yellow fever and tetanus).",
+      "Minors: Participants under 16 must be accompanied by parents or legal guardians. Ages 16 to 17 require written, notarized parental authorization."
+    ],
+    "s3Title": "3. Cancellation & Refunds",
+    "s3Body": "Cancellations requested up to 60 days before the start of the expedition will be refunded according to the fixed-cost policies already contracted for the boat and insurance. Administrative card or bank slip processing fees are non-refundable."
+  }
+}

@@ -13,10 +13,15 @@ import {
   QrCode,
 } from "lucide-react";
 import { PublicMissionDto } from "@/components/missions/MissionsShowcase";
+import { useDictionary } from "@/i18n/DictionaryContext";
+import { formatBrl } from "@/i18n/config";
+import { publicEnv } from "@/shared/config/env";
 
 export default function EnrollmentForm() {
   const searchParams = useSearchParams();
   const router = useRouter();
+  const { locale, dict } = useDictionary();
+  const t = dict.enrollment;
 
   const rawModality = (
     searchParams.get("modality") ||
@@ -57,7 +62,7 @@ export default function EnrollmentForm() {
           setSelectedMissionId(featured.id);
         }
       })
-      .catch((err) => console.error("Erro ao carregar missões:", err));
+      .catch((err) => console.error("Error loading missions:", err));
   }, [preselectedMissionId]);
 
   const activeMission =
@@ -94,14 +99,17 @@ export default function EnrollmentForm() {
     setPhone(v);
   };
 
+  const localizeUrl = (url: string) =>
+    url.startsWith("/") && !url.startsWith(`/${locale}/`)
+      ? `/${locale}${url}`
+      : url;
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage(null);
 
     if (!termsAccepted) {
-      setErrorMessage(
-        "Você precisa concordar com os Termos de Uso e Política de Privacidade."
-      );
+      setErrorMessage(t.termsError);
       return;
     }
 
@@ -126,13 +134,13 @@ export default function EnrollmentForm() {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.error || "Erro ao processar inscrição.");
+        throw new Error(data.error || t.genericError);
       }
 
       if (data.isWaitlist) {
         router.push(
-          `/enrollment/success?order_id=${data.registrationId}&waitlist=true&mission=${encodeURIComponent(
-            data.missionTitle || activeMission?.title || "Missão"
+          `/${locale}/enrollment/success?order_id=${data.registrationId}&waitlist=true&mission=${encodeURIComponent(
+            data.missionTitle || activeMission?.title || t.missionDefaultTitle
           )}`
         );
         return;
@@ -140,10 +148,10 @@ export default function EnrollmentForm() {
 
       const checkout = data.checkout;
       if (checkout.provider === "PIX") {
-        router.push(checkout.checkoutUrl);
+        router.push(localizeUrl(checkout.checkoutUrl));
       } else if (checkout.isMultipleStep) {
         router.push(
-          `/enrollment/success?order_id=${data.registrationId}&multi=true&school_url=${encodeURIComponent(
+          `/${locale}/enrollment/success?order_id=${data.registrationId}&multi=true&school_url=${encodeURIComponent(
             checkout.checkoutUrl
           )}&mission_url=${encodeURIComponent(checkout.extraCheckoutUrl || "")}`
         );
@@ -151,38 +159,30 @@ export default function EnrollmentForm() {
         window.location.href = checkout.checkoutUrl;
       }
     } catch (err: any) {
-      setErrorMessage(err.message || "Ocorreu um erro inesperado.");
+      setErrorMessage(err.message || t.unexpectedError);
       setLoading(false);
     }
   };
 
-  const missionPriceLabel = activeMission
-    ? activeMission.priceFormatted
-    : "R$ 2.500,00";
-
-  const bothPriceLabel = activeMission
-    ? ((17000 + activeMission.priceCents) / 100).toLocaleString("pt-BR", {
-        style: "currency",
-        currency: "BRL",
-      })
-    : "R$ 2.670,00";
+  const schoolPriceLabel = formatBrl(17000, locale);
+  const missionPriceCents = activeMission ? activeMission.priceCents : 250000;
+  const missionPriceLabel = formatBrl(missionPriceCents, locale);
+  const bothPriceLabel = formatBrl(17000 + missionPriceCents, locale);
 
   return (
     <div className="min-h-screen bg-[var(--bg)] text-[var(--ink)] py-12 px-5 flex flex-col justify-center">
       <div className="max-w-xl mx-auto w-full bg-[var(--card)] p-8 sm:p-10 rounded-3xl border border-[var(--terra)]/20 shadow-2xl">
         <Link
-          href="/"
+          href={`/${locale}`}
           className="inline-flex items-center gap-2 text-sm text-[var(--terra)] font-semibold mb-6 hover:underline"
         >
-          <ArrowLeft className="w-4 h-4" /> Voltar ao Início
+          <ArrowLeft className="w-4 h-4" /> {t.backHome}
         </Link>
 
         <h1 className="text-2xl sm:text-3xl font-bold font-heading mb-2">
-          Central de Inscrições · MOVEN
+          {t.title}
         </h1>
-        <p className="text-sm text-[var(--mut)] mb-6">
-          Preencha seus dados para garantir sua vaga na Escola e nas Missões do núcleo.
-        </p>
+        <p className="text-sm text-[var(--mut)] mb-6">{t.subtitle}</p>
 
         {errorMessage && (
           <div className="mb-6 p-4 rounded-xl bg-red-500/10 border border-red-500/30 text-red-700 dark:text-red-400 text-sm flex items-start gap-3">
@@ -195,7 +195,7 @@ export default function EnrollmentForm() {
           {/* Modality Selection */}
           <div>
             <label className="block text-sm font-semibold mb-2">
-              Escolha a Modalidade:
+              {t.chooseModality}
             </label>
             <div className="grid grid-cols-1 gap-2.5">
               <label
@@ -216,15 +216,15 @@ export default function EnrollmentForm() {
                   />
                   <div className="min-w-0">
                     <div className="font-semibold text-sm sm:text-base">
-                      Escola de Missões
+                      {t.schoolTitle}
                     </div>
                     <div className="text-xs text-[var(--mut)]">
-                      8 encontros quinzenais + kit do aluno
+                      {t.schoolDesc}
                     </div>
                   </div>
                 </div>
                 <div className="font-bold text-sm sm:text-base text-[#8fa66a] flex-shrink-0 whitespace-nowrap">
-                  R$ 170,00
+                  {schoolPriceLabel}
                 </div>
               </label>
 
@@ -246,12 +246,12 @@ export default function EnrollmentForm() {
                   />
                   <div className="min-w-0">
                     <div className="font-semibold text-sm sm:text-base">
-                      {activeMission ? activeMission.title : "Missão Amazonas 2027"}
+                      {activeMission ? activeMission.title : t.missionDefaultTitle}
                     </div>
                     <div className="text-xs text-[var(--mut)]">
                       {activeMission?.isWaitlistMode
-                        ? "Vagas iniciais preenchidas · Lista de espera"
-                        : `Mínimo ${activeMission?.minSlots || 28} vagas (+ lista de espera)`}
+                        ? t.missionWaitlistDesc
+                        : `${t.missionSlotsPrefix} ${activeMission?.minSlots || 28} ${t.missionSlotsSuffix}`}
                     </div>
                   </div>
                 </div>
@@ -278,10 +278,10 @@ export default function EnrollmentForm() {
                   />
                   <div className="min-w-0">
                     <div className="font-semibold text-sm sm:text-base">
-                      Escola + Missão (Combo)
+                      {t.bothTitle}
                     </div>
                     <div className="text-xs text-[var(--mut)]">
-                      Formação completa + Viagem missionária
+                      {t.bothDesc}
                     </div>
                   </div>
                 </div>
@@ -296,7 +296,7 @@ export default function EnrollmentForm() {
           {includesMission && missions.length > 1 && (
             <div>
               <label className="block text-xs font-semibold uppercase tracking-wider mb-1">
-                Selecione a Missão *
+                {t.selectMission}
               </label>
               <select
                 value={selectedMissionId}
@@ -306,7 +306,7 @@ export default function EnrollmentForm() {
                 {missions.map((m) => (
                   <option key={m.id} value={m.id}>
                     {m.title} ({m.startDate} - {m.endDate}){" "}
-                    {m.isWaitlistMode ? "— Lista de Espera" : ""}
+                    {m.isWaitlistMode ? `— ${t.waitlistOption}` : ""}
                   </option>
                 ))}
               </select>
@@ -318,7 +318,10 @@ export default function EnrollmentForm() {
             <div className="p-4 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-900 dark:text-amber-300 text-xs flex items-start gap-2.5 leading-relaxed">
               <Clock className="w-4 h-4 flex-shrink-0 mt-0.5" />
               <span>
-                <strong>Lista de Espera Ativa:</strong> As {activeMission?.minSlots} vagas iniciais desta missão já foram preenchidas! Ao concluir este formulário, seu nome entrará na <strong>Lista de Espera</strong> sem cobrança imediata e nossa liderança entrará em contato assim que novas vagas forem liberadas.
+                <strong>{t.waitlistNoticeTitle}</strong> {t.waitlistNoticeBody1}{" "}
+                {activeMission?.minSlots} {t.waitlistNoticeBody2}{" "}
+                <strong>{t.waitlistNoticeHighlight}</strong>{" "}
+                {t.waitlistNoticeBody3}
               </span>
             </div>
           )}
@@ -326,12 +329,12 @@ export default function EnrollmentForm() {
           {/* Full Name */}
           <div>
             <label className="block text-xs font-semibold uppercase tracking-wider mb-1">
-              Nome Completo *
+              {t.fullNameLabel}
             </label>
             <input
               type="text"
               required
-              placeholder="Ex: Gabriel Santos Silva"
+              placeholder={t.fullNamePlaceholder}
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
               className="w-full bg-white/70 dark:bg-black/30 border border-black/15 dark:border-white/15 rounded-xl px-4 py-2.5 text-base sm:text-sm focus:outline-none focus:border-[#8fa66a]"
@@ -341,12 +344,12 @@ export default function EnrollmentForm() {
           {/* Email */}
           <div>
             <label className="block text-xs font-semibold uppercase tracking-wider mb-1">
-              E-mail *
+              {t.emailLabel}
             </label>
             <input
               type="email"
               required
-              placeholder="seuemail@exemplo.com"
+              placeholder={t.emailPlaceholder}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="w-full bg-white/70 dark:bg-black/30 border border-black/15 dark:border-white/15 rounded-xl px-4 py-2.5 text-base sm:text-sm focus:outline-none focus:border-[#8fa66a]"
@@ -357,12 +360,12 @@ export default function EnrollmentForm() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-semibold uppercase tracking-wider mb-1">
-                WhatsApp / Telefone *
+                {t.phoneLabel}
               </label>
               <input
                 type="text"
                 required
-                placeholder="(11) 98765-4321"
+                placeholder={t.phonePlaceholder}
                 value={phone}
                 onChange={handlePhoneChange}
                 className="w-full bg-white/70 dark:bg-black/30 border border-black/15 dark:border-white/15 rounded-xl px-4 py-2.5 text-base sm:text-sm focus:outline-none focus:border-[#8fa66a]"
@@ -370,12 +373,12 @@ export default function EnrollmentForm() {
             </div>
             <div>
               <label className="block text-xs font-semibold uppercase tracking-wider mb-1">
-                CPF *
+                {t.cpfLabel}
               </label>
               <input
                 type="text"
                 required
-                placeholder="000.000.000-00"
+                placeholder={t.cpfPlaceholder}
                 value={cpf}
                 onChange={handleCpfChange}
                 className="w-full bg-white/70 dark:bg-black/30 border border-black/15 dark:border-white/15 rounded-xl px-4 py-2.5 text-base sm:text-sm focus:outline-none focus:border-[#8fa66a]"
@@ -387,7 +390,7 @@ export default function EnrollmentForm() {
           {!isWaitlist && (
             <div>
               <label className="block text-sm font-semibold mb-2">
-                Forma de Pagamento:
+                {t.paymentMethodLabel}
               </label>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <label
@@ -408,10 +411,10 @@ export default function EnrollmentForm() {
                   <div>
                     <div className="font-semibold text-sm flex items-center gap-1.5">
                       <CreditCard className="w-4 h-4 text-[#8fa66a]" />
-                      Cartão / Parcelado
+                      {t.cardTitle}
                     </div>
                     <div className="text-xs text-[var(--mut)] mt-0.5">
-                      Até 7x na plataforma online
+                      {t.cardDesc}
                     </div>
                   </div>
                 </label>
@@ -434,10 +437,10 @@ export default function EnrollmentForm() {
                   <div>
                     <div className="font-semibold text-sm flex items-center gap-1.5">
                       <QrCode className="w-4 h-4 text-[#8fa66a]" />
-                      Pix Direto
+                      {t.pixTitle}
                     </div>
                     <div className="text-xs text-[var(--mut)] mt-0.5">
-                      Envio do comprovante p/ Gadiel
+                      {t.pixDescPrefix} {publicEnv.receiptContactName}
                     </div>
                   </div>
                 </label>
@@ -456,23 +459,23 @@ export default function EnrollmentForm() {
                 className="mt-1 accent-[#8fa66a] w-4 h-4 rounded"
               />
               <span className="text-xs text-[var(--mut)] leading-relaxed">
-                Li e concordo com os{" "}
+                {t.termsPrefix}{" "}
                 <Link
-                  href="/terms"
+                  href={`/${locale}/terms`}
                   target="_blank"
                   className="text-[#8fa66a] underline hover:text-[var(--ink)]"
                 >
-                  Termos de Uso
+                  {t.termsLink}
                 </Link>{" "}
-                e com o tratamento dos meus dados conforme a{" "}
+                {t.termsMiddle}{" "}
                 <Link
-                  href="/privacy"
+                  href={`/${locale}/privacy`}
                   target="_blank"
                   className="text-[#8fa66a] underline hover:text-[var(--ink)]"
                 >
-                  Política de Privacidade (LGPD)
+                  {t.privacyLink}
                 </Link>{" "}
-                do MOVEN / Igreja UNASP-HT.
+                {t.termsSuffix}
               </span>
             </label>
           </div>
@@ -486,21 +489,21 @@ export default function EnrollmentForm() {
             {loading ? (
               <>
                 <Loader2 className="w-5 h-5 animate-spin" />
-                Processando...
+                {t.submitLoading}
               </>
             ) : isWaitlist ? (
               <>
-                <span>Entrar na Lista de Espera</span>
+                <span>{t.submitWaitlist}</span>
                 <Clock className="w-5 h-5" />
               </>
             ) : paymentMethod === "PIX" ? (
               <>
-                <span>Gerar Dados do Pix</span>
+                <span>{t.submitPix}</span>
                 <QrCode className="w-5 h-5" />
               </>
             ) : (
               <>
-                <span>Continuar para Pagamento</span>
+                <span>{t.submitCard}</span>
                 <CheckCircle2 className="w-5 h-5" />
               </>
             )}

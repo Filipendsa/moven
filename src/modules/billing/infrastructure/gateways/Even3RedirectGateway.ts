@@ -1,33 +1,30 @@
 import { IPaymentGateway, CheckoutResult } from "../../domain/ports/IPaymentGateway";
 import { Registration } from "@/modules/enrollment/domain/entities/Registration";
 import { EventOffering } from "@/modules/mission-catalog/domain/entities/EventOffering";
+import { serverEnv } from "@/shared/config/env";
 
 export class Even3RedirectGateway implements IPaymentGateway {
   readonly providerName = "EVEN3" as const;
-
-  private readonly schoolUrl =
-    "https://ingressos.eventodaigreja.com.br/moven-nucleo-de-missoes-igreja-unasp-ht-404c03a0";
-  private readonly missionUrl =
-    "https://ingressos.eventodaigreja.com.br/missao-salva-vidas-amazonia-julho-2027-034970c3";
 
   async createCheckoutSession(
     registration: Registration,
     offering: EventOffering
   ): Promise<CheckoutResult> {
     const modality = registration.modality.type;
+    const schoolUrl = serverEnv.even3SchoolCheckoutUrl;
+    const missionUrl = serverEnv.even3MissionCheckoutUrl;
 
     if (modality === "BOTH") {
       return {
-        checkoutUrl: this.schoolUrl,
-        extraCheckoutUrl: this.missionUrl,
+        checkoutUrl: schoolUrl,
+        extraCheckoutUrl: missionUrl,
         provider: this.providerName,
         orderId: registration.id,
         isMultipleStep: true,
       };
     }
 
-    const primaryUrl =
-      modality === "MISSION" ? this.missionUrl : this.schoolUrl;
+    const primaryUrl = modality === "MISSION" ? missionUrl : schoolUrl;
 
     return {
       checkoutUrl: offering.even3CheckoutUrl || primaryUrl,

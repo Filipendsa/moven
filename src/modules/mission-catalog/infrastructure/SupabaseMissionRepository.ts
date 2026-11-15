@@ -2,6 +2,7 @@ import { IMissionRepository } from "../domain/repositories/IMissionRepository";
 import { Mission, MissionStatus } from "../domain/entities/Mission";
 import { Money } from "../domain/value-objects/Money";
 import { supabaseServer } from "@/shared/infrastructure/supabase/server";
+import { publicEnv, serverEnv } from "@/shared/config/env";
 
 interface MissionPersistenceRow {
   id: string;
@@ -44,8 +45,7 @@ export class SupabaseMissionRepository implements IMissionRepository {
         min_slots: 28,
         max_slots: 28,
         waitlist_enabled: true,
-        even3_checkout_url:
-          "https://ingressos.eventodaigreja.com.br/missao-salva-vidas-amazonia-julho-2027-034970c3",
+        even3_checkout_url: serverEnv.even3MissionCheckoutUrl,
         is_featured: true,
         is_active: true,
         status: "OPEN",
@@ -56,10 +56,7 @@ export class SupabaseMissionRepository implements IMissionRepository {
   ]);
 
   private hasSupabase(): boolean {
-    return Boolean(
-      process.env.NEXT_PUBLIC_SUPABASE_URL &&
-        !process.env.NEXT_PUBLIC_SUPABASE_URL.includes("placeholder")
-    );
+    return publicEnv.isSupabaseConfigured;
   }
 
   private toRow(mission: Mission): MissionPersistenceRow {

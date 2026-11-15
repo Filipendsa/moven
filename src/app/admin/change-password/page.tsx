@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { KeyRound, ShieldAlert, ArrowLeft, Loader2, AlertCircle, CheckCircle2 } from "lucide-react";
 import { supabaseBrowser } from "@/shared/infrastructure/supabase/client";
+import { publicEnv } from "@/shared/config/env";
 
 function ChangePasswordContent() {
   const router = useRouter();
@@ -35,10 +36,7 @@ function ChangePasswordContent() {
     setLoading(true);
 
     try {
-      if (
-        process.env.NEXT_PUBLIC_SUPABASE_URL &&
-        !process.env.NEXT_PUBLIC_SUPABASE_URL.includes("placeholder")
-      ) {
+      if (publicEnv.isSupabaseConfigured) {
         const { error } = await supabaseBrowser.auth.updateUser({
           password: newPassword,
           data: {

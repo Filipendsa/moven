@@ -1,5 +1,6 @@
 "use client";
 
+import { publicEnv } from "@/shared/config/env";
 import {
   BookOpen,
   Anchor,
@@ -117,7 +118,17 @@ export default function AdminTutorialPanel() {
         </div>
         <div className="flex items-center gap-2">
           <Download className="w-4 h-4 text-[#8fa66a]" />
-          <span>Dúvidas técnicas? Suporte Yesode (yesode.com)</span>
+          <span>
+            Dúvidas técnicas? Suporte{" "}
+            <a
+              href={publicEnv.poweredByUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline hover:text-[#8fa66a]"
+            >
+              Yesode
+            </a>
+          </span>
         </div>
       </div>
     </div>

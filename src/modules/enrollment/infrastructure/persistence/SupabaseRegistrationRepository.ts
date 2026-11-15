@@ -6,6 +6,7 @@ import {
 import { Registration, PaymentStatus } from "../../domain/entities/Registration";
 import { RegistrationMapper, RegistrationPersistenceRow } from "./RegistrationMapper";
 import { supabaseServer } from "@/shared/infrastructure/supabase/server";
+import { publicEnv } from "@/shared/config/env";
 
 export class SupabaseRegistrationRepository implements IRegistrationRepository {
   private static inMemoryStore = new Map<string, RegistrationPersistenceRow>();
@@ -14,10 +15,7 @@ export class SupabaseRegistrationRepository implements IRegistrationRepository {
     const row = RegistrationMapper.toPersistence(registration);
     SupabaseRegistrationRepository.inMemoryStore.set(row.id, row);
 
-    if (
-      process.env.NEXT_PUBLIC_SUPABASE_URL &&
-      !process.env.NEXT_PUBLIC_SUPABASE_URL.includes("placeholder")
-    ) {
+    if (publicEnv.isSupabaseConfigured) {
       try {
         const { error } = await supabaseServer
           .from("registrations")
@@ -33,10 +31,7 @@ export class SupabaseRegistrationRepository implements IRegistrationRepository {
   }
 
   async findById(id: string): Promise<Registration | null> {
-    if (
-      process.env.NEXT_PUBLIC_SUPABASE_URL &&
-      !process.env.NEXT_PUBLIC_SUPABASE_URL.includes("placeholder")
-    ) {
+    if (publicEnv.isSupabaseConfigured) {
       try {
         const { data, error } = await supabaseServer
           .from("registrations")
@@ -65,10 +60,7 @@ export class SupabaseRegistrationRepository implements IRegistrationRepository {
   async list(filters?: EnrollmentFilters): Promise<Registration[]> {
     let rows: RegistrationPersistenceRow[] = [];
 
-    if (
-      process.env.NEXT_PUBLIC_SUPABASE_URL &&
-      !process.env.NEXT_PUBLIC_SUPABASE_URL.includes("placeholder")
-    ) {
+    if (publicEnv.isSupabaseConfigured) {
       try {
         let query = supabaseServer
           .from("registrations")
@@ -137,10 +129,7 @@ export class SupabaseRegistrationRepository implements IRegistrationRepository {
       SupabaseRegistrationRepository.inMemoryStore.set(id, memoryRow);
     }
 
-    if (
-      process.env.NEXT_PUBLIC_SUPABASE_URL &&
-      !process.env.NEXT_PUBLIC_SUPABASE_URL.includes("placeholder")
-    ) {
+    if (publicEnv.isSupabaseConfigured) {
       try {
         const updateData: {
           payment_status: PaymentStatus;
