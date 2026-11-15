@@ -15,6 +15,15 @@ import {
 } from "lucide-react";
 import { Suspense, useState, useEffect } from "react";
 import QRCode from "qrcode";
+import pix170 from "@/assets/pix/170.jpeg";
+import pix2500 from "@/assets/pix/2500.jpeg";
+import pix2670 from "@/assets/pix/2670.jpeg";
+
+const STATIC_PIX_QR_MAP: Record<string, string> = {
+  "17000": pix170.src,
+  "250000": pix2500.src,
+  "267000": pix2670.src,
+};
 
 function SuccessContent() {
   const searchParams = useSearchParams();
@@ -22,6 +31,7 @@ function SuccessContent() {
   const isWaitlist = searchParams.get("waitlist") === "true";
   const isPix = searchParams.get("pix") === "true";
   const pixAmount = searchParams.get("amount") || "";
+  const amountCents = searchParams.get("amount_cents") || "";
   const pixModality = searchParams.get("modality") || "";
   const participantName = searchParams.get("name") || "";
   const pixMessage =
@@ -40,8 +50,18 @@ function SuccessContent() {
   const pixKey = process.env.NEXT_PUBLIC_PIX_KEY || "+5511972246881";
   const receiptWhatsapp = process.env.NEXT_PUBLIC_RECEIPT_WHATSAPP || "5511972246881";
 
+  const staticQrUrl =
+    STATIC_PIX_QR_MAP[amountCents] ||
+    (pixAmount.includes("2.670")
+      ? pix2670.src
+      : pixAmount.includes("2.500")
+      ? pix2500.src
+      : pixAmount.includes("170")
+      ? pix170.src
+      : "");
+
   useEffect(() => {
-    if (isPix && pixCode) {
+    if (isPix && !staticQrUrl && pixCode) {
       QRCode.toDataURL(pixCode, {
         width: 240,
         margin: 2,
@@ -53,7 +73,9 @@ function SuccessContent() {
         .then((url) => setQrDataUrl(url))
         .catch((err) => console.error("Erro ao gerar QR Code Pix:", err));
     }
-  }, [isPix, pixCode]);
+  }, [isPix, staticQrUrl, pixCode]);
+
+  const activeQrUrl = staticQrUrl || qrDataUrl;
 
   const handleCopy = (
     text: string,
@@ -157,17 +179,17 @@ function SuccessContent() {
                 </span>
               </div>
 
-              {qrDataUrl && (
+              {activeQrUrl && (
                 <div className="flex flex-col items-center py-2">
                   <div className="bg-white p-3 rounded-2xl shadow-md border border-black/10">
                     <img
-                      src={qrDataUrl}
-                      alt="QR Code Pix MOVEN"
-                      className="w-48 h-48"
+                      src={activeQrUrl}
+                      alt={`QR Code Pix MOVEN ${pixAmount}`}
+                      className="w-56 sm:w-64 h-auto object-contain rounded-xl"
                     />
                   </div>
-                  <span className="text-[11px] text-[var(--mut)] mt-2">
-                    Escaneie no app do seu banco (valor e mensagem já preenchidos)
+                  <span className="text-[11px] text-[var(--mut)] mt-2 text-center">
+                    Escaneie no app do seu banco ({pixAmount || "valor exato"})
                   </span>
                 </div>
               )}
