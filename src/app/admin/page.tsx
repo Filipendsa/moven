@@ -16,6 +16,9 @@ import {
   KeyRound,
   BookOpen,
   Compass,
+  Eye,
+  Heart,
+  TrendingUp,
 } from "lucide-react";
 import { supabaseBrowser } from "@/shared/infrastructure/supabase/client";
 import { publicEnv } from "@/shared/config/env";
@@ -60,6 +63,10 @@ export default function AdminDashboardPage() {
   const [activeTab, setActiveTab] = useState<AdminTab>("registrations");
   const [registrations, setRegistrations] = useState<RegistrationItem[]>([]);
   const [metrics, setMetrics] = useState<Metrics | null>(null);
+  const [analytics, setAnalytics] = useState<{
+    uniqueVisits: number;
+    interestedCount: number;
+  }>({ uniqueVisits: 0, interestedCount: 0 });
   const [loading, setLoading] = useState(true);
 
   const [search, setSearch] = useState("");
@@ -74,11 +81,23 @@ export default function AdminDashboardPage() {
       if (modalityFilter) params.append("modality", modalityFilter);
       if (statusFilter) params.append("status", statusFilter);
 
-      const res = await fetch(`/api/admin/registrations?${params.toString()}`);
-      if (res.ok) {
-        const data = await res.json();
+      const [regRes, analyticsRes] = await Promise.all([
+        fetch(`/api/admin/registrations?${params.toString()}`),
+        fetch("/api/analytics"),
+      ]);
+
+      if (regRes.ok) {
+        const data = await regRes.json();
         setRegistrations(data.registrations || []);
         setMetrics(data.metrics || null);
+      }
+
+      if (analyticsRes.ok) {
+        const aData = await analyticsRes.json();
+        setAnalytics({
+          uniqueVisits: aData.uniqueVisits ?? 0,
+          interestedCount: aData.interestedCount ?? 0,
+        });
       }
     } catch (err) {
       console.error("Erro ao carregar dados admin:", err);
@@ -320,6 +339,68 @@ export default function AdminDashboardPage() {
                 </div>
               </div>
             )}
+
+            {/* Anti-Bot Traffic & Interest KPIs */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div className="bg-[var(--card)] p-5 rounded-2xl border border-[#8fa66a]/30 shadow-sm flex items-center justify-between">
+                <div>
+                  <span className="text-xs text-[var(--mut)] font-semibold uppercase tracking-wider block mb-1">
+                    Visitas Reais (Sem Bots)
+                  </span>
+                  <span className="text-3xl font-heading font-bold text-[var(--ink)]">
+                    {analytics.uniqueVisits.toLocaleString("pt-BR")}
+                  </span>
+                  <span className="text-xs text-[var(--mut)] block mt-1">
+                    Visitantes humanos únicos
+                  </span>
+                </div>
+                <div className="p-3 bg-[#8fa66a]/20 text-[#8fa66a] rounded-2xl">
+                  <Eye className="w-6 h-6" />
+                </div>
+              </div>
+
+              <div className="bg-[var(--card)] p-5 rounded-2xl border border-[#8fa66a]/30 shadow-sm flex items-center justify-between">
+                <div>
+                  <span className="text-xs text-[var(--mut)] font-semibold uppercase tracking-wider block mb-1">
+                    Pessoas Interessadas
+                  </span>
+                  <span className="text-3xl font-heading font-bold text-[var(--ink)]">
+                    {analytics.interestedCount.toLocaleString("pt-BR")}
+                  </span>
+                  <span className="text-xs text-[var(--mut)] block mt-1">
+                    Cliques em inscrição, grupo ou interesse
+                  </span>
+                </div>
+                <div className="p-3 bg-rose-500/15 text-rose-500 rounded-2xl">
+                  <Heart className="w-6 h-6" />
+                </div>
+              </div>
+
+              <div className="bg-[var(--card)] p-5 rounded-2xl border border-[#8fa66a]/30 shadow-sm flex items-center justify-between">
+                <div>
+                  <span className="text-xs text-[var(--mut)] font-semibold uppercase tracking-wider block mb-1">
+                    Taxa de Interesse
+                  </span>
+                  <span className="text-3xl font-heading font-bold text-emerald-700 dark:text-emerald-400">
+                    {analytics.uniqueVisits > 0
+                      ? `${Math.min(
+                          Math.round(
+                            (analytics.interestedCount / analytics.uniqueVisits) *
+                              100
+                          ),
+                          100
+                        )}%`
+                      : "0%"}
+                  </span>
+                  <span className="text-xs text-[var(--mut)] block mt-1">
+                    Interessados / visitas únicas
+                  </span>
+                </div>
+                <div className="p-3 bg-emerald-500/20 text-emerald-600 rounded-2xl">
+                  <TrendingUp className="w-6 h-6" />
+                </div>
+              </div>
+            </div>
 
             {/* Filters */}
             <div className="bg-[var(--card)] p-4 rounded-2xl border border-[var(--terra)]/20 shadow-sm flex flex-wrap items-center justify-between gap-4">

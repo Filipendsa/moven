@@ -55,6 +55,18 @@ export const publicEnv = {
   get communityContactName(): string {
     return process.env.NEXT_PUBLIC_COMMUNITY_CONTACT_NAME?.trim() || "Henrique";
   },
+  get communityWhatsappGroupUrl(): string {
+    return assertEnv(
+      process.env.NEXT_PUBLIC_COMMUNITY_WHATSAPP_GROUP_URL,
+      "NEXT_PUBLIC_COMMUNITY_WHATSAPP_GROUP_URL"
+    );
+  },
+  get instagramUrl(): string {
+    return assertEnv(
+      process.env.NEXT_PUBLIC_INSTAGRAM_URL,
+      "NEXT_PUBLIC_INSTAGRAM_URL"
+    );
+  },
   get poweredByUrl(): string {
     return (
       process.env.NEXT_PUBLIC_POWERED_BY_URL?.trim() || "https://yesode.com"

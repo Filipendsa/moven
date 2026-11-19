@@ -25,3 +25,5 @@ Configure todas as variáveis abaixo em **Vercel → Project → Settings → En
 | `NEXT_PUBLIC_RECEIPT_CONTACT_NAME` | `Gadiel` | Pública | Nome do responsável pelo recebimento dos comprovantes |
 | `NEXT_PUBLIC_COMMUNITY_WHATSAPP` | `5511972246881` | Pública | WhatsApp da comunidade/dúvidas do MOVEN |
 | `NEXT_PUBLIC_COMMUNITY_CONTACT_NAME` | `Henrique` | Pública | Nome do contato principal de dúvidas da comunidade |
+| `NEXT_PUBLIC_COMMUNITY_WHATSAPP_GROUP_URL` | `https://chat.whatsapp.com/Go7zqBoAncPEm8b0liQgKb?s=cl&p=i&iam=2` | Pública | Link direto do grupo da Escola de Missões no WhatsApp |
+| `NEXT_PUBLIC_INSTAGRAM_URL` | `https://www.instagram.com/moven.nucleodemissoes?jplx=OGJ6MmtsY3RraXBi&utm_source=qr` | Pública | Link oficial do Instagram `@moven.nucleodemissoes` |

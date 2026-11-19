@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import EnrollmentForm from "@/components/enrollment/EnrollmentForm";
+import VisitorTracker from "@/components/common/VisitorTracker";
 import { Loader2 } from "lucide-react";
 
 export default function EnrollmentPage() {
@@ -11,6 +12,7 @@ export default function EnrollmentPage() {
         </div>
       }
     >
+      <VisitorTracker source="enrollment_page" autoInterestSource="enrollment_page" />
       <EnrollmentForm />
     </Suspense>
   );

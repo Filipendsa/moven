@@ -3,8 +3,10 @@
 import { Suspense, useState } from "react";
 import Link from "next/link";
 import { Menu, X } from "lucide-react";
+import InstagramIcon from "./InstagramIcon";
 import { useDictionary } from "@/i18n/DictionaryContext";
 import LanguageSwitcher from "./LanguageSwitcher";
+import { publicEnv } from "@/shared/config/env";
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -42,6 +44,16 @@ export default function Navbar() {
               {link.label}
             </Link>
           ))}
+          <a
+            href={publicEnv.instagramUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Instagram MOVEN"
+            title="@moven.nucleodemissoes"
+            className="text-[#e9e1d0]/85 hover:text-[#8fa66a] transition-colors p-1.5"
+          >
+            <InstagramIcon className="w-4 h-4" />
+          </a>
           <Suspense fallback={null}>
             <LanguageSwitcher />
           </Suspense>
@@ -87,9 +99,15 @@ export default function Navbar() {
             </Link>
           ))}
           <div className="pt-2 mt-1 border-t border-[#8fa66a]/20 flex items-center justify-between px-3 py-1">
-            <span className="text-xs text-[#e9e1d0]/70 font-heading">
-              {dict.nav.language}
-            </span>
+            <a
+              href={publicEnv.instagramUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 text-xs text-[#e9e1d0]/85 hover:text-[#8fa66a] font-heading"
+            >
+              <InstagramIcon className="w-4 h-4 text-[#8fa66a]" />
+              @moven.nucleodemissoes
+            </a>
             <Suspense fallback={null}>
               <LanguageSwitcher />
             </Suspense>

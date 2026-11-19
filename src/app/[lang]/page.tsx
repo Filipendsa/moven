@@ -1,19 +1,13 @@
 import Link from "next/link";
 import Image from "next/image";
 import { MessageCircle, ShieldCheck, Compass, Users } from "lucide-react";
+import InstagramIcon from "@/components/common/InstagramIcon";
+import VisitorTracker from "@/components/common/VisitorTracker";
 import MissionsShowcase from "@/components/missions/MissionsShowcase";
 import Navbar from "@/components/common/Navbar";
 import { isValidLocale, Locale, formatBrl } from "@/i18n/config";
 import { getDictionary } from "@/i18n/getDictionary";
 import { publicEnv } from "@/shared/config/env";
-
-function formatWhatsappDisplay(digits: string): string {
-  const clean = digits.replace(/\D/g, "");
-  if (clean.length === 13 && clean.startsWith("55")) {
-    return `+55 ${clean.slice(2, 4)} ${clean.slice(4, 9)}-${clean.slice(9)}`;
-  }
-  return `+${clean}`;
-}
 
 export default async function HomePage({
   params,
@@ -24,11 +18,8 @@ export default async function HomePage({
   const locale: Locale = isValidLocale(lang) ? lang : "pt";
   const dict = getDictionary(locale);
 
-  const communityWhatsapp = publicEnv.communityWhatsapp;
-  const communityContactName = publicEnv.communityContactName;
-  const whatsappCommunityUrl = `https://wa.me/${communityWhatsapp}?text=${encodeURIComponent(
-    dict.community.whatsappMessage
-  )}`;
+  const whatsappCommunityUrl = publicEnv.communityWhatsappGroupUrl;
+  const instagramUrl = publicEnv.instagramUrl;
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -78,6 +69,10 @@ export default async function HomePage({
               <Users className="w-5 h-5" />
               {dict.hero.ctaCommunity}
             </a>
+          </div>
+
+          <div className="mb-8 flex justify-center">
+            <VisitorTracker showBadge={true} source="home" />
           </div>
 
           {/* Key Facts */}
@@ -231,6 +226,10 @@ export default async function HomePage({
               </li>
             ))}
           </ol>
+
+          <p className="mt-8 text-xs sm:text-sm text-[var(--mut)] bg-[var(--card)] border border-[var(--terra)]/20 rounded-2xl px-4 py-3">
+            {dict.dates.scheduleNotice}
+          </p>
         </div>
       </section>
 
@@ -381,18 +380,28 @@ export default async function HomePage({
             {dict.community.title}
           </h2>
           <p className="text-[#072119]/90 mb-8 max-w-xl mx-auto">
-            {dict.community.subtitlePrefix} {communityContactName}{" "}
-            {dict.community.subtitleSuffix}
+            {dict.community.subtitle}
           </p>
-          <a
-            href={whatsappCommunityUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 bg-[#072119] text-[#e9e1d0] font-heading font-semibold px-8 py-4 rounded-full hover:bg-[var(--terra)] transition-colors shadow-lg text-lg"
-          >
-            <MessageCircle className="w-6 h-6 text-[#8fa66a]" />
-            {formatWhatsappDisplay(communityWhatsapp)}
-          </a>
+          <div className="flex flex-wrap items-center justify-center gap-4">
+            <a
+              href={whatsappCommunityUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 bg-[#072119] text-[#e9e1d0] font-heading font-semibold px-7 py-4 rounded-full hover:bg-[var(--terra)] transition-colors shadow-lg text-base sm:text-lg"
+            >
+              <MessageCircle className="w-5 h-5 text-[#8fa66a]" />
+              {dict.community.groupCta}
+            </a>
+            <a
+              href={instagramUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 bg-white/85 text-[#072119] font-heading font-semibold px-7 py-4 rounded-full hover:bg-white transition-colors shadow-lg text-base sm:text-lg"
+            >
+              <InstagramIcon className="w-5 h-5 text-[#072119]" />
+              {dict.community.instagramCta}
+            </a>
+          </div>
         </div>
       </section>
 
@@ -408,6 +417,16 @@ export default async function HomePage({
             </div>
           </div>
           <div className="flex flex-wrap items-center justify-center gap-4 text-xs">
+            <a
+              href={instagramUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 hover:text-[#8fa66a] transition-colors"
+            >
+              <InstagramIcon className="w-3.5 h-3.5" />
+              {dict.footer.instagram}
+            </a>
+            <span>•</span>
             <Link
               href={`/${locale}/privacy`}
               className="hover:text-[#8fa66a] transition-colors"

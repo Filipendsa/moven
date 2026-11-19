@@ -32,7 +32,7 @@
     "title": "Qué es MOVEN",
     "p1": "MOVEN es el Núcleo de Misiones de la Iglesia UNASP-HT. El nombre es una palabra creada para expresar movimiento, propósito y misión.",
     "p2": "El número 7 aparece de forma sutil en el logotipo. Representa el séptimo día, nuestra identidad adventista, y nos recuerda que el Dios que nos invita a descansar en Su amor también nos llama a compartirlo con el mundo.",
-    "p3": "Seguimos el modelo del Servicio Voluntario Adventista (SVA) y somos un brazo de la iglesia. Nuestros objetivos:",
+    "p3": "Somos un núcleo de misiones y Escuela de Misiones de la Iglesia Adventista del UNASP Hortolândia, en alianza con el Servicio Voluntario Adventista (SVA). Nuestros objetivos:",
     "goals": [
       "Establecer el núcleo de misiones de forma permanente en la iglesia.",
       "Capacitar personas para hacer discípulos mediante el servicio, dondequiera que estén.",
@@ -47,14 +47,14 @@
   },
   "school": {
     "title": "Escuela de Misiones",
-    "subtitle": "De noviembre a junio aprendes a servir en la práctica: cada encuentro tiene 30 minutos de práctica misionera y dos bloques de teoría y práctica.",
+    "subtitle": "Clases 100% presenciales (sin modalidad online). De noviembre a junio aprendes a servir en la práctica: cada encuentro tiene 30 minutos de práctica misionera y dos bloques de teoría y práctica.",
     "howItWorksTitle": "Cómo funciona",
     "howItWorks": [
-      "8 encuentros quincenales, los domingos, de 16h a 18h30",
+      "Clases 100% presenciales — 8 encuentros quincenales, los domingos, de 16h a 18h30",
       "Retiro, visita de choque cultural y graduación",
       "7 acciones voluntarias en grupo los domingos sin clase",
       "Estudio bíblico, Grupo Pequeño y actividades misioneras personales",
-      "Curso online Pasaporte para la Misión (SVA) y lectura del libro Pasaporte"
+      "Lectura del libro Pasaporte para la Misión"
     ],
     "studyTitle": "Qué vas a estudiar",
     "topics": [
@@ -73,17 +73,18 @@
     "certItems": [
       { "value": "70%", "label": "de la nota total" },
       { "value": "80%", "label": "de asistencia a clases y actividades" },
-      { "value": "SVA", "label": "curso online Pasaporte para la Misión completado" }
+      { "value": "Presencial", "label": "Clases 100% presenciales y lectura del libro Pasaporte para la Misión" }
     ]
   },
   "dates": {
     "title": "Fechas importantes",
     "subtitle": "Desde el lanzamiento hasta el culto de regreso, en nueve meses.",
+    "scheduleNotice": "Aviso: La planificación y las fechas de las clases pueden sufrir modificaciones, pero cualquier cambio será comunicado con antelación.",
     "items": [
       { "date": "14/11/2026", "title": "Lanzamiento en el culto del sábado", "desc": "Inscripciones abiertas a la salida del culto", "highlight": true },
       { "date": "29/11/2026", "title": "Clase inaugural, a las 16h", "desc": "Encuentro 1", "highlight": true },
       { "date": "13/12/2026", "title": "Encuentro 2" },
-      { "date": "14/12 al 16/01", "title": "Pausa de fin de año", "desc": "Curso online SVA, lectura del libro y acción de Navidad (20/12)" },
+      { "date": "14/12 al 16/01", "title": "Pausa de fin de año", "desc": "Lectura del libro Pasaporte para la Misión y acción de Navidad (20/12)" },
       { "date": "17/01 al 04/04/2027", "title": "Encuentros 3 al 8", "desc": "17/01, 31/01, 14/02, 28/02, 14/03 y 04/04" },
       { "date": "30/04 al 02/05", "title": "Retiro de comunión y consagración" },
       { "date": "16/05/2027", "title": "Visita de choque cultural", "desc": "Mezquita y comunidad árabe" },
@@ -99,8 +100,13 @@
       "badge": "Módulo 1",
       "title": "Escuela de Misiones",
       "unit": "pago único",
-      "note": "Sin mensualidad. Incluye la carpeta del alumno:",
-      "features": ["Libro Pasaporte", "Camiseta y botella", "Cuaderno, lápiz y bolígrafo"],
+      "note": "Sin mensualidad. Incluye el kit del alumno:",
+      "features": [
+        "Ecobag y camiseta",
+        "Libro Pasaporte para la Misión",
+        "Cuaderno de notas y bolígrafo",
+        "Diploma de graduación"
+      ],
       "cta": "Inscribirse en la Escuela"
     },
     "mission": {
@@ -110,7 +116,7 @@
       "note": "Hasta 7 cuotas. Cupos limitados (28 cupos):",
       "features": [
         "Traslado del aeropuerto hasta el Instituto",
-        "Kit: mochila ligera, camisa, sombrero y botella",
+        "Kit: mochila ligera, camisa y sombrero",
         "Tres comidas ovolactovegetarianas al día",
         "Pasaje aéreo São Paulo–Manaos no incluido"
       ],
@@ -122,7 +128,7 @@
     "subtitle": "Conoce nuestra expedición destacada y las próximas misiones del núcleo. El mínimo para cerrar el barco es de 28 cupos, con lista de espera abierta para nuevos grupos y cupos extra.",
     "howTitle": "Cómo funciona la Misión Amazonas 2027",
     "p1": "En alianza con la Misión Noroeste, pasaremos 10 días en barco por los ríos del Amazonas, en el formato del proyecto Salva-Vidas Amazonía. Habrá acciones de construcción, evangelismo, salud básica y apoyo en cocina junto a las comunidades ribereñas.",
-    "p2": "Los voluntarios duermen en hamacas, con mosquitero provisto. Quien va a la misión debe estar certificado por la escuela y haber completado el curso online del SVA.",
+    "p2": "Los voluntarios duermen en hamacas, con mosquitero provisto. Quien va a la misión debe estar certificado por la Escuela de Misiones presencial.",
     "beforeTitle": "Antes de viajar",
     "beforeItems": [
       "Registro en SVA / VividFaith, con documentos",
@@ -159,8 +165,9 @@
   },
   "community": {
     "title": "¿Tienes dudas o quieres unirte a la comunidad?",
-    "subtitlePrefix": "Habla directamente con",
-    "subtitleSuffix": "por WhatsApp o resuelve tus dudas sobre el primer grupo de la Escuela de Misiones.",
+    "subtitle": "Únete al grupo oficial de la Escuela de Misiones en WhatsApp y sigue a MOVEN en Instagram.",
+    "groupCta": "Unirse al Grupo de WhatsApp",
+    "instagramCta": "Seguir a @moven.nucleodemissoes",
     "whatsappMessage": "¡Hola! Quiero saber más sobre MOVEN."
   },
   "footer": {
@@ -168,8 +175,15 @@
     "tagline": "Más que un núcleo, un movimiento.",
     "privacy": "Política de Privacidad",
     "terms": "Términos de Uso",
+    "instagram": "Instagram",
     "admin": "Panel Admin",
     "poweredBy": "Powered by"
+  },
+  "analytics": {
+    "visitsLabel": "visitas reales",
+    "interestedLabel": "interesados",
+    "interestButton": "Me Interesa",
+    "interestConfirmed": "¡Interés registrado!"
   },
   "cookies": {
     "title": "Privacidad y Cookies",
@@ -285,8 +299,8 @@
     "legalNotice": "Aviso legal: Esta traducción es meramente informativa. Para efectos legales en Brasil, prevalece la versión original en portugués.",
     "s1Title": "1. Sobre la Escuela de Misiones",
     "s1Items": [
-      "El valor de R$ 170,00 corresponde a la tasa única de matrícula e incluye la carpeta del alumno (libro Pasaporte, camiseta, botella, cuaderno, lápiz y bolígrafo).",
-      "La certificación exige un mínimo del 70% de calificación en las actividades, 80% de asistencia a los encuentros quincenales y la finalización del curso online Pasaporte para la Misión (SVA)."
+      "El valor de R$ 170,00 corresponde a la tasa única de matrícula e incluye el kit del alumno (ecobag, camiseta, libro Pasaporte para la Misión, cuaderno de notas, bolígrafo y diploma de graduación).",
+      "La certificación exige clases 100% presenciales, un mínimo del 70% de calificación en las actividades y 80% de asistencia a los encuentros quincenales."
     ],
     "s2Title": "2. Sobre la Misión Amazonas 2027",
     "s2Items": [
