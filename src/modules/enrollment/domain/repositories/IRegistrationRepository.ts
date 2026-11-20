@@ -28,6 +28,11 @@ export interface IRegistrationRepository {
   save(registration: Registration): Promise<void>;
   findById(id: string): Promise<Registration | null>;
   findByCpf(cpf: string): Promise<Registration[]>;
+  findByEmailAndCpfLast4(
+    email: string,
+    cpfLast4: string
+  ): Promise<Registration | null>;
+  findPendingEligibleForReminder(olderThan: Date): Promise<Registration[]>;
   list(filters?: EnrollmentFilters): Promise<Registration[]>;
   getMetrics(): Promise<EnrollmentMetrics>;
   countByMission(missionId: string): Promise<{ paid: number; waitlist: number; pending: number }>;

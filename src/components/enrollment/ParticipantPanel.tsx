@@ -23,7 +23,7 @@ import {
   Minus,
 } from "lucide-react";
 import { useDictionary } from "@/i18n/DictionaryContext";
-import { Cpf } from "@/modules/enrollment/domain/value-objects/Cpf";
+import { Email } from "@/modules/enrollment/domain/value-objects/Email";
 import { ShirtSizeType } from "@/modules/enrollment/domain/value-objects/ShirtSize";
 import { CheckoutResult } from "@/modules/billing/domain/ports/IPaymentGateway";
 import { PublicMissionDto } from "@/components/missions/MissionsShowcase";
@@ -36,7 +36,7 @@ interface ParticipantRegistrationView {
   fullName: string;
   email: string;
   phoneFormatted: string;
-  cpfFormatted: string;
+  cpfMasked: string;
   modality: "SCHOOL" | "MISSION" | "BOTH";
   modalityTitle: string;
   missionId?: string;
@@ -58,11 +58,11 @@ export default function ParticipantPanel() {
   const { locale, dict } = useDictionary();
   const t = dict.panel;
 
-  const initialCpfParam = searchParams.get("cpf") || "";
+  const initialEmailParam = searchParams.get("email") || "";
 
-  const [cpfInput, setCpfInput] = useState(
-    initialCpfParam ? Cpf.formatMask(initialCpfParam) : ""
-  );
+  const [emailInput, setEmailInput] = useState(initialEmailParam);
+  const [cpfLast4Input, setCpfLast4Input] = useState("");
+  const [authenticatedLast4, setAuthenticatedLast4] = useState("");
   const [registration, setRegistration] =
     useState<ParticipantRegistrationView | null>(null);
   const [selectedShirtSize, setSelectedShirtSize] = useState<ShirtSizeType | "">(
@@ -100,14 +100,15 @@ export default function ParticipantPanel() {
       .catch((err) => console.error("Error loading missions:", err));
   }, []);
 
-  const fetchByCpf = useCallback(
-    async (rawCpf: string) => {
+  const fetchByCredentials = useCallback(
+    async (rawEmail: string, rawLast4: string) => {
       setErrorMessage(null);
       setShirtSuccessMessage(null);
       setMissionSuccessMessage(null);
 
-      const cpfResult = Cpf.create(rawCpf);
-      if (!cpfResult.success) {
+      const emailResult = Email.create(rawEmail);
+      const cleanLast4 = rawLast4.replace(/\D/g, "");
+      if (!emailResult.success || cleanLast4.length !== 4) {
         setErrorMessage(t.invalidCpfError);
         setRegistration(null);
         return;
@@ -116,9 +117,9 @@ export default function ParticipantPanel() {
       setSearching(true);
       try {
         const res = await fetch(
-          `/api/enrollments/participant?cpf=${encodeURIComponent(
-            cpfResult.value.value
-          )}`
+          `/api/enrollments/participant?email=${encodeURIComponent(
+            emailResult.value.value
+          )}&cpfLast4=${encodeURIComponent(cleanLast4)}`
         );
         const data = await res.json();
 
@@ -134,6 +135,7 @@ export default function ParticipantPanel() {
 
         const loaded: ParticipantRegistrationView = data.registration;
         setRegistration(loaded);
+        setAuthenticatedLast4(cleanLast4);
         setSelectedShirtSize(loaded.shirtSize);
         if (loaded.missionId) {
           setSelectedMissionId(loaded.missionId);
@@ -148,55 +150,13 @@ export default function ParticipantPanel() {
     [t.invalidCpfError, t.notFoundError]
   );
 
-  useEffect(() => {
-    if (!initialCpfParam) return;
-    const parsed = Cpf.create(initialCpfParam);
-    if (!parsed.success) return;
-
-    let cancelled = false;
-    fetch(
-      `/api/enrollments/participant?cpf=${encodeURIComponent(
-        parsed.value.value
-      )}`
-    )
-      .then(async (res) => ({ ok: res.ok, status: res.status, data: await res.json() }))
-      .then(({ ok, status, data }) => {
-        if (cancelled) return;
-        if (!ok) {
-          if (status === 404 || data.code === "NOT_FOUND") {
-            setErrorMessage(t.notFoundError);
-          } else {
-            setErrorMessage(data.error || t.invalidCpfError);
-          }
-          setRegistration(null);
-          return;
-        }
-        const loaded: ParticipantRegistrationView = data.registration;
-        setRegistration(loaded);
-        setSelectedShirtSize(loaded.shirtSize);
-        if (loaded.missionId) {
-          setSelectedMissionId(loaded.missionId);
-        }
-      })
-      .catch(() => {
-        if (!cancelled) {
-          setErrorMessage(t.notFoundError);
-          setRegistration(null);
-        }
-      });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [initialCpfParam, t.invalidCpfError, t.notFoundError]);
-
   const handleSearchSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    await fetchByCpf(cpfInput);
+    await fetchByCredentials(emailInput, cpfLast4Input);
   };
 
   const handleSaveShirtSize = async () => {
-    if (!registration || !selectedShirtSize) return;
+    if (!registration || !selectedShirtSize || !authenticatedLast4) return;
     if (selectedShirtSize === registration.shirtSize) return;
 
     setSavingShirt(true);
@@ -208,7 +168,8 @@ export default function ParticipantPanel() {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          cpf: registration.cpfFormatted,
+          email: registration.email,
+          cpfLast4: authenticatedLast4,
           shirtSize: selectedShirtSize,
         }),
       });
@@ -240,7 +201,7 @@ export default function ParticipantPanel() {
     nextModality: "SCHOOL" | "MISSION" | "BOTH",
     nextMissionId?: string
   ) => {
-    if (!registration) return;
+    if (!registration || !authenticatedLast4) return;
     setUpdatingMission(true);
     setMissionSuccessMessage(null);
     setErrorMessage(null);
@@ -250,7 +211,8 @@ export default function ParticipantPanel() {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          cpf: registration.cpfFormatted,
+          email: registration.email,
+          cpfLast4: authenticatedLast4,
           action: "UPDATE_ENROLLMENT",
           modality: nextModality,
           missionId: nextMissionId,
@@ -277,7 +239,7 @@ export default function ParticipantPanel() {
   };
 
   const handleCancelUnpaid = async () => {
-    if (!registration) return;
+    if (!registration || !authenticatedLast4) return;
     if (!window.confirm(t.cancelUnpaidConfirm)) return;
 
     setCancelingUnpaid(true);
@@ -289,7 +251,8 @@ export default function ParticipantPanel() {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          cpf: registration.cpfFormatted,
+          email: registration.email,
+          cpfLast4: authenticatedLast4,
           action: "CANCEL",
         }),
       });
@@ -386,7 +349,7 @@ export default function ParticipantPanel() {
 
   const treasuryWhatsappUrl = registration
     ? `https://wa.me/${publicEnv.receiptWhatsapp}?text=${encodeURIComponent(
-        `Olá ${publicEnv.receiptContactName}! Gostaria de consultar/solicitar ajuda com minha inscrição no MOVEN (Protocolo: ${registration.protocol}, Nome: ${registration.fullName}, CPF: ${registration.cpfFormatted}).`
+        `Olá ${publicEnv.receiptContactName}! Gostaria de consultar/solicitar ajuda com minha inscrição no MOVEN (Protocolo: ${registration.protocol}, Nome: ${registration.fullName}, E-mail: ${registration.email}).`
       )}`
     : "#";
 
@@ -431,38 +394,59 @@ export default function ParticipantPanel() {
           <p className="text-sm text-[var(--mut)]">{t.subtitle}</p>
         </div>
 
-        {/* CPF Lookup Form */}
-        <form onSubmit={handleSearchSubmit} className="space-y-3">
-          <label className="block text-xs font-semibold uppercase tracking-wider">
-            {t.cpfLabel}
-          </label>
-          <div className="flex flex-col sm:flex-row gap-3">
-            <input
-              type="text"
-              required
-              placeholder={t.cpfPlaceholder}
-              value={cpfInput}
-              onChange={(e) => setCpfInput(Cpf.formatMask(e.target.value))}
-              className="flex-1 bg-white/70 dark:bg-black/30 border border-black/15 dark:border-white/15 rounded-xl px-4 py-2.5 text-base sm:text-sm font-mono focus:outline-none focus:border-[#8fa66a]"
-            />
-            <button
-              type="submit"
-              disabled={searching}
-              className="bg-[#8fa66a] hover:bg-[#8fa66a]/90 text-[#072119] font-heading font-bold px-6 py-2.5 rounded-xl transition-colors flex items-center justify-center gap-2 shadow-md disabled:opacity-50"
-            >
-              {searching ? (
-                <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  {t.searching}
-                </>
-              ) : (
-                <>
-                  <Search className="w-4 h-4" />
-                  {t.searchButton}
-                </>
-              )}
-            </button>
+        {/* Missionary Login Form (Email + Last 4 digits of CPF) */}
+        <form onSubmit={handleSearchSubmit} className="space-y-4">
+          <div className="grid grid-cols-1 sm:grid-cols-12 gap-3">
+            <div className="sm:col-span-8">
+              <label className="block text-xs font-semibold uppercase tracking-wider mb-1.5">
+                {t.emailInputLabel}
+              </label>
+              <input
+                type="email"
+                required
+                placeholder={t.emailInputPlaceholder}
+                value={emailInput}
+                onChange={(e) => setEmailInput(e.target.value)}
+                className="w-full bg-white/70 dark:bg-black/30 border border-black/15 dark:border-white/15 rounded-xl px-4 py-2.5 text-base sm:text-sm focus:outline-none focus:border-[#8fa66a]"
+              />
+            </div>
+
+            <div className="sm:col-span-4">
+              <label className="block text-xs font-semibold uppercase tracking-wider mb-1.5">
+                {t.cpfLast4Label}
+              </label>
+              <input
+                type="text"
+                inputMode="numeric"
+                maxLength={4}
+                required
+                placeholder={t.cpfLast4Placeholder}
+                value={cpfLast4Input}
+                onChange={(e) =>
+                  setCpfLast4Input(e.target.value.replace(/\D/g, "").slice(0, 4))
+                }
+                className="w-full bg-white/70 dark:bg-black/30 border border-black/15 dark:border-white/15 rounded-xl px-4 py-2.5 text-base sm:text-sm font-mono tracking-widest text-center focus:outline-none focus:border-[#8fa66a]"
+              />
+            </div>
           </div>
+
+          <button
+            type="submit"
+            disabled={searching}
+            className="w-full bg-[#8fa66a] hover:bg-[#8fa66a]/90 text-[#072119] font-heading font-bold px-6 py-3 rounded-xl transition-colors flex items-center justify-center gap-2 shadow-md disabled:opacity-50"
+          >
+            {searching ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                {t.searching}
+              </>
+            ) : (
+              <>
+                <Search className="w-4 h-4" />
+                {t.searchButton}
+              </>
+            )}
+          </button>
         </form>
 
         {errorMessage && (
@@ -500,7 +484,7 @@ export default function ParticipantPanel() {
                     {t.cpfDetailLabel}
                   </span>
                   <span className="font-mono font-semibold">
-                    {registration.cpfFormatted}
+                    {registration.cpfMasked}
                   </span>
                 </div>
                 <div>
@@ -885,7 +869,8 @@ export default function ParticipantPanel() {
                 type="button"
                 onClick={() => {
                   setRegistration(null);
-                  setCpfInput("");
+                  setCpfLast4Input("");
+                  setAuthenticatedLast4("");
                   setErrorMessage(null);
                   setShirtSuccessMessage(null);
                   setMissionSuccessMessage(null);

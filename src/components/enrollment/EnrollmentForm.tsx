@@ -156,6 +156,7 @@ export default function EnrollmentForm() {
           shirtSize,
           paymentMethod: isWaitlist ? "CARD" : effectivePaymentMethod,
           termsAccepted,
+          locale,
         }),
       });
 
@@ -215,7 +216,7 @@ export default function EnrollmentForm() {
           </Link>
 
           <Link
-            href={`/${locale}/panel`}
+            href={`/${locale}/missionary`}
             className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#8fa66a] hover:underline"
           >
             <UserCheck className="w-3.5 h-3.5" />
@@ -242,7 +243,7 @@ export default function EnrollmentForm() {
               </div>
             </div>
             <Link
-              href={`/${locale}/panel?cpf=${encodeURIComponent(cpf)}`}
+              href={`/${locale}/missionary?email=${encodeURIComponent(email)}`}
               className="w-full inline-flex items-center justify-center gap-2 bg-[#072119] text-[#e9e1d0] hover:bg-[var(--terra)] font-heading font-bold py-2.5 px-4 rounded-xl text-xs sm:text-sm transition-colors shadow-md"
             >
               <UserCheck className="w-4 h-4 text-[#8fa66a]" />

@@ -27,6 +27,8 @@ export interface RegistrationPersistenceRow {
   external_tx_id: string | null;
   terms_accepted_at: string;
   terms_version: string;
+  welcome_sent_at?: string | null;
+  payment_reminder_sent_at?: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -50,6 +52,12 @@ export class RegistrationMapper {
       external_tx_id: registration.externalTxId || null,
       terms_accepted_at: registration.lgpdConsent.acceptedAt.toISOString(),
       terms_version: registration.lgpdConsent.policyVersion,
+      welcome_sent_at: registration.welcomeSentAt
+        ? registration.welcomeSentAt.toISOString()
+        : null,
+      payment_reminder_sent_at: registration.paymentReminderSentAt
+        ? registration.paymentReminderSentAt.toISOString()
+        : null,
       created_at: registration.createdAt.toISOString(),
       updated_at: registration.updatedAt.toISOString(),
     };
@@ -91,6 +99,12 @@ export class RegistrationMapper {
       paymentStatus: row.payment_status as PaymentStatus,
       externalTxId: row.external_tx_id || undefined,
       lgpdConsent: lgpdResult.value,
+      welcomeSentAt: row.welcome_sent_at
+        ? new Date(row.welcome_sent_at)
+        : undefined,
+      paymentReminderSentAt: row.payment_reminder_sent_at
+        ? new Date(row.payment_reminder_sent_at)
+        : undefined,
       createdAt: new Date(row.created_at),
       updatedAt: new Date(row.updated_at),
     };

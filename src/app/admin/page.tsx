@@ -21,6 +21,7 @@ import {
   TrendingUp,
   Edit3,
   X,
+  Mail,
 } from "lucide-react";
 import { supabaseBrowser } from "@/shared/infrastructure/supabase/client";
 import { publicEnv } from "@/shared/config/env";
@@ -95,6 +96,8 @@ export default function AdminDashboardPage() {
   const [editMissionId, setEditMissionId] = useState<string>("");
   const [editShirtSize, setEditShirtSize] = useState<ShirtSizeType>("M");
   const [savingEdit, setSavingEdit] = useState(false);
+  const [sendingReminders, setSendingReminders] = useState(false);
+  const [reminderNotice, setReminderNotice] = useState<string | null>(null);
 
   const loadData = useCallback(async () => {
     setLoading(true);
@@ -219,6 +222,30 @@ export default function AdminDashboardPage() {
       console.error("Erro ao salvar edição admin:", err);
     } finally {
       setSavingEdit(false);
+    }
+  };
+
+  const handleTriggerReminders = async () => {
+    setSendingReminders(true);
+    setReminderNotice(null);
+    try {
+      const res = await fetch("/api/admin/reminders", { method: "POST" });
+      const data = await res.json();
+      if (res.ok) {
+        if (!data.smtpConfigured) {
+          setReminderNotice(
+            `Elegíveis (+7 dias): ${data.totalEligible}. SMTP do Gmail ainda aguardando GMAIL_APP_PASSWORD (simulado no log do servidor).`
+          );
+        } else {
+          setReminderNotice(
+            `Lembretes enviados: ${data.sentCount} de ${data.totalEligible} pendentes há +7 dias.`
+          );
+        }
+      }
+    } catch (err) {
+      console.error("Erro ao disparar lembretes:", err);
+    } finally {
+      setSendingReminders(false);
     }
   };
 
@@ -515,6 +542,16 @@ export default function AdminDashboardPage() {
                 </select>
 
                 <button
+                  onClick={handleTriggerReminders}
+                  disabled={sendingReminders}
+                  className="inline-flex items-center gap-1.5 px-3 py-2 bg-[#8fa66a]/20 hover:bg-[#8fa66a]/30 text-[var(--ink)] rounded-xl text-xs font-semibold transition-colors disabled:opacity-50"
+                  title="Enviar lembrete por e-mail para pendentes há 7+ dias"
+                >
+                  <Mail className="w-3.5 h-3.5 text-[#8fa66a]" />
+                  {sendingReminders ? "Enviando..." : "Lembretes (+7d)"}
+                </button>
+
+                <button
                   onClick={loadData}
                   className="p-2 bg-black/5 dark:bg-white/10 rounded-xl hover:bg-black/10 transition-colors"
                   title="Recarregar dados"
@@ -523,6 +560,19 @@ export default function AdminDashboardPage() {
                 </button>
               </div>
             </div>
+
+            {reminderNotice && (
+              <div className="p-3.5 rounded-xl bg-[#8fa66a]/15 border border-[#8fa66a]/40 text-xs font-medium text-[var(--ink)] flex items-center justify-between gap-2">
+                <span>{reminderNotice}</span>
+                <button
+                  type="button"
+                  onClick={() => setReminderNotice(null)}
+                  className="text-[var(--mut)] hover:text-[var(--ink)]"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            )}
 
             {/* Mobile Cards View */}
             <div className="md:hidden flex flex-col gap-3">

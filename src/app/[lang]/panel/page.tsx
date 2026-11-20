@@ -1,17 +1,14 @@
-import { Suspense } from "react";
-import { Loader2 } from "lucide-react";
-import ParticipantPanel from "@/components/enrollment/ParticipantPanel";
+import { redirect } from "next/navigation";
 
-export default function ParticipantPanelPage() {
-  return (
-    <Suspense
-      fallback={
-        <div className="min-h-screen flex items-center justify-center bg-[var(--bg)]">
-          <Loader2 className="w-8 h-8 animate-spin text-[#8fa66a]" />
-        </div>
-      }
-    >
-      <ParticipantPanel />
-    </Suspense>
-  );
+export default async function LegacyPanelRedirectPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ lang: string }>;
+  searchParams: Promise<{ email?: string }>;
+}) {
+  const { lang } = await params;
+  const sp = await searchParams;
+  const query = sp?.email ? `?email=${encodeURIComponent(sp.email)}` : "";
+  redirect(`/${lang}/missionary${query}`);
 }

@@ -1,7 +1,7 @@
 import { Result } from "@/shared/domain/Result";
 import { IRegistrationRepository } from "../../domain/repositories/IRegistrationRepository";
-import { Cpf } from "../../domain/value-objects/Cpf";
 import { ShirtSize, ShirtSizeType } from "../../domain/value-objects/ShirtSize";
+import { authenticateMissionaryCredentials } from "./AuthenticateMissionaryUseCase";
 
 export interface UpdateParticipantShirtSizeOutput {
   registrationId: string;
@@ -13,12 +13,16 @@ export class UpdateParticipantShirtSizeUseCase {
   constructor(private registrationRepo: IRegistrationRepository) {}
 
   async execute(input: {
-    cpf: string;
+    email: string;
+    cpfLast4: string;
     shirtSize: string;
   }): Promise<Result<UpdateParticipantShirtSizeOutput, Error>> {
-    const cpfResult = Cpf.create(input.cpf);
-    if (!cpfResult.success) {
-      return Result.fail(cpfResult.error);
+    const authResult = await authenticateMissionaryCredentials(
+      this.registrationRepo,
+      { email: input.email, cpfLast4: input.cpfLast4 }
+    );
+    if (!authResult.success) {
+      return Result.fail(authResult.error);
     }
 
     const shirtSizeResult = ShirtSize.create(input.shirtSize);
@@ -26,14 +30,7 @@ export class UpdateParticipantShirtSizeUseCase {
       return Result.fail(shirtSizeResult.error);
     }
 
-    const matches = await this.registrationRepo.findByCpf(cpfResult.value.value);
-    if (matches.length === 0) {
-      return Result.fail(
-        new Error("Nenhuma inscrição encontrada para o CPF informado.")
-      );
-    }
-
-    const registration = matches[0];
+    const registration = authResult.value;
     const changeResult = registration.changeShirtSize(shirtSizeResult.value);
     if (!changeResult.success) {
       return Result.fail(changeResult.error);

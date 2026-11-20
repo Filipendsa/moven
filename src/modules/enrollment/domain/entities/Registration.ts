@@ -24,6 +24,8 @@ export interface RegistrationProps {
   paymentStatus: PaymentStatus;
   externalTxId?: string;
   lgpdConsent: LgpdConsent;
+  welcomeSentAt?: Date;
+  paymentReminderSentAt?: Date;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -79,6 +81,14 @@ export class Registration extends Entity<RegistrationProps> {
 
   get lgpdConsent(): LgpdConsent {
     return this.props.lgpdConsent;
+  }
+
+  get welcomeSentAt(): Date | undefined {
+    return this.props.welcomeSentAt;
+  }
+
+  get paymentReminderSentAt(): Date | undefined {
+    return this.props.paymentReminderSentAt;
   }
 
   get createdAt(): Date {
@@ -214,6 +224,23 @@ export class Registration extends Entity<RegistrationProps> {
 
     this.props.updatedAt = new Date();
     return Result.ok(undefined);
+  }
+
+  public markWelcomeSent(sentAt = new Date()): void {
+    this.props.welcomeSentAt = sentAt;
+    this.props.updatedAt = new Date();
+  }
+
+  public markPaymentReminderSent(sentAt = new Date()): void {
+    this.props.paymentReminderSentAt = sentAt;
+    this.props.updatedAt = new Date();
+  }
+
+  public isEligibleForPaymentReminder(now = new Date()): boolean {
+    if (this.props.paymentStatus !== "PENDING") return false;
+    if (this.props.paymentReminderSentAt) return false;
+    const sevenDaysMs = 7 * 24 * 60 * 60 * 1000;
+    return now.getTime() - this.props.createdAt.getTime() >= sevenDaysMs;
   }
 
   public changeShirtSize(newSize: ShirtSize): Result<void, Error> {

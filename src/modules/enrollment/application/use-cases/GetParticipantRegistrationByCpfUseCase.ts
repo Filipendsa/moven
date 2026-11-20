@@ -11,7 +11,7 @@ import {
 } from "../../domain/entities/Registration";
 import { ModalityType } from "../../domain/value-objects/EnrollmentModality";
 import { ShirtSizeType } from "../../domain/value-objects/ShirtSize";
-import { Cpf } from "../../domain/value-objects/Cpf";
+import { authenticateMissionaryCredentials } from "./AuthenticateMissionaryUseCase";
 
 export interface ParticipantRegistrationDto {
   id: string;
@@ -19,7 +19,7 @@ export interface ParticipantRegistrationDto {
   fullName: string;
   email: string;
   phoneFormatted: string;
-  cpfFormatted: string;
+  cpfMasked: string;
   modality: ModalityType;
   modalityTitle: string;
   missionId?: string;
@@ -70,7 +70,7 @@ export async function buildParticipantRegistrationDto(
     fullName: registration.fullName,
     email: registration.email.value,
     phoneFormatted: registration.phone.formatted,
-    cpfFormatted: registration.cpf.formatted,
+    cpfMasked: `***.***.***-${registration.cpf.value.slice(-2)}`,
     modality: registration.modality.type,
     modalityTitle: registration.modality.title,
     missionId: registration.missionId,
@@ -96,22 +96,19 @@ export class GetParticipantRegistrationByCpfUseCase {
   ) {}
 
   async execute(input: {
-    cpf: string;
+    email: string;
+    cpfLast4: string;
   }): Promise<Result<ParticipantRegistrationDto, Error>> {
-    const cpfResult = Cpf.create(input.cpf);
-    if (!cpfResult.success) {
-      return Result.fail(cpfResult.error);
-    }
-
-    const matches = await this.registrationRepo.findByCpf(cpfResult.value.value);
-    if (matches.length === 0) {
-      return Result.fail(
-        new Error("Nenhuma inscrição encontrada para o CPF informado.")
-      );
+    const authResult = await authenticateMissionaryCredentials(
+      this.registrationRepo,
+      { email: input.email, cpfLast4: input.cpfLast4 }
+    );
+    if (!authResult.success) {
+      return Result.fail(authResult.error);
     }
 
     const dto = await buildParticipantRegistrationDto(
-      matches[0],
+      authResult.value,
       this.offeringRepo,
       this.missionRepo
     );

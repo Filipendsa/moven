@@ -84,6 +84,84 @@ export class SupabaseRegistrationRepository implements IRegistrationRepository {
     return rows.map((r) => RegistrationMapper.toDomain(r));
   }
 
+  async findByEmailAndCpfLast4(
+    email: string,
+    cpfLast4: string
+  ): Promise<Registration | null> {
+    const normalizedEmail = email.trim().toLowerCase();
+    const cleanLast4 = cpfLast4.replace(/\D/g, "");
+    if (cleanLast4.length !== 4) return null;
+
+    let rows: RegistrationPersistenceRow[] = [];
+
+    if (publicEnv.isSupabaseConfigured) {
+      try {
+        const { data, error } = await supabaseServer
+          .from("registrations")
+          .select("*")
+          .eq("email", normalizedEmail)
+          .order("created_at", { ascending: false });
+
+        if (!error && data) {
+          rows = data as RegistrationPersistenceRow[];
+        }
+      } catch (err) {
+        console.error("Supabase findByEmailAndCpfLast4 error:", err);
+      }
+    }
+
+    if (rows.length === 0 && SupabaseRegistrationRepository.inMemoryStore.size > 0) {
+      rows = Array.from(SupabaseRegistrationRepository.inMemoryStore.values())
+        .filter((r) => r.email.toLowerCase() === normalizedEmail)
+        .sort(
+          (a, b) =>
+            new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+        );
+    }
+
+    const matched = rows.find((r) => r.cpf.slice(-4) === cleanLast4);
+    return matched ? RegistrationMapper.toDomain(matched) : null;
+  }
+
+  async findPendingEligibleForReminder(olderThan: Date): Promise<Registration[]> {
+    let rows: RegistrationPersistenceRow[] = [];
+
+    if (publicEnv.isSupabaseConfigured) {
+      try {
+        const { data, error } = await supabaseServer
+          .from("registrations")
+          .select("*")
+          .eq("payment_status", "PENDING")
+          .is("payment_reminder_sent_at", null)
+          .lte("created_at", olderThan.toISOString())
+          .order("created_at", { ascending: true });
+
+        if (!error && data) {
+          rows = data as RegistrationPersistenceRow[];
+        }
+      } catch (err) {
+        console.error("Supabase findPendingEligibleForReminder error:", err);
+      }
+    }
+
+    if (rows.length === 0 && SupabaseRegistrationRepository.inMemoryStore.size > 0) {
+      const cutoff = olderThan.getTime();
+      rows = Array.from(SupabaseRegistrationRepository.inMemoryStore.values())
+        .filter(
+          (r) =>
+            r.payment_status === "PENDING" &&
+            !r.payment_reminder_sent_at &&
+            new Date(r.created_at).getTime() <= cutoff
+        )
+        .sort(
+          (a, b) =>
+            new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+        );
+    }
+
+    return rows.map((r) => RegistrationMapper.toDomain(r));
+  }
+
   async list(filters?: EnrollmentFilters): Promise<Registration[]> {
     let rows: RegistrationPersistenceRow[] = [];
 

@@ -44,7 +44,10 @@ export const publicEnv = {
     );
   },
   get receiptContactName(): string {
-    return process.env.NEXT_PUBLIC_RECEIPT_CONTACT_NAME?.trim() || "Gadiel";
+    return assertEnv(
+      process.env.NEXT_PUBLIC_RECEIPT_CONTACT_NAME,
+      "NEXT_PUBLIC_RECEIPT_CONTACT_NAME"
+    );
   },
   get communityWhatsapp(): string {
     return assertEnv(
@@ -53,7 +56,10 @@ export const publicEnv = {
     );
   },
   get communityContactName(): string {
-    return process.env.NEXT_PUBLIC_COMMUNITY_CONTACT_NAME?.trim() || "Henrique";
+    return assertEnv(
+      process.env.NEXT_PUBLIC_COMMUNITY_CONTACT_NAME,
+      "NEXT_PUBLIC_COMMUNITY_CONTACT_NAME"
+    );
   },
   get communityWhatsappGroupUrl(): string {
     return assertEnv(
@@ -68,8 +74,9 @@ export const publicEnv = {
     );
   },
   get poweredByUrl(): string {
-    return (
-      process.env.NEXT_PUBLIC_POWERED_BY_URL?.trim() || "https://yesode.com"
+    return assertEnv(
+      process.env.NEXT_PUBLIC_POWERED_BY_URL,
+      "NEXT_PUBLIC_POWERED_BY_URL"
     );
   },
   get defaultLocale(): AppLocale {
@@ -95,9 +102,9 @@ export const serverEnv = {
     return process.env.INFINITEPAY_WEBHOOK_SECRET?.trim() || undefined;
   },
   get infinitePayApiUrl(): string {
-    return (
-      process.env.INFINITEPAY_API_URL?.trim() ||
-      "https://api.infinitepay.io/v2/transactions/checkout"
+    return assertEnv(
+      process.env.INFINITEPAY_API_URL,
+      "INFINITEPAY_API_URL"
     );
   },
   get even3SchoolCheckoutUrl(): string {
@@ -111,5 +118,14 @@ export const serverEnv = {
       process.env.EVEN3_MISSION_CHECKOUT_URL,
       "EVEN3_MISSION_CHECKOUT_URL"
     );
+  },
+  get gmailUser(): string {
+    return assertEnv(process.env.GMAIL_USER, "GMAIL_USER");
+  },
+  get gmailAppPassword(): string | undefined {
+    return process.env.GMAIL_APP_PASSWORD?.trim() || undefined;
+  },
+  get cronSecret(): string | undefined {
+    return process.env.CRON_SECRET?.trim() || undefined;
   },
 };

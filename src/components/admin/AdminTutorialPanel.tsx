@@ -43,7 +43,7 @@ export default function AdminTutorialPanel() {
       color: "text-emerald-600 bg-emerald-500/20",
       items: [
         "No formulário de inscrição, o participante escolhe entre Cartão/Parcelado (Even3 ou InfinitePay) ou Pix Direto.",
-        "Pagamentos via Pix Direto vão direto para a conta do MOVEN e o comprovante é enviado no WhatsApp do Gadiel (+55 11 97224-6881). Na tabela de Inscritos, essas inscrições aparecem com o provedor PIX e status Pendente.",
+        `Pagamentos via Pix Direto vão direto para a conta do MOVEN e o comprovante é enviado no WhatsApp de ${publicEnv.receiptContactName} (+${publicEnv.receiptWhatsapp}). Na tabela de Inscritos, essas inscrições aparecem com o provedor PIX e status Pendente.`,
         "Após conferir o comprovante no WhatsApp ou o pagamento no painel do Even3, encontre a pessoa na aba \"Inscritos\" (buscando por Nome, CPF ou E-mail) e clique em \"Confirmar Pagamento\". Isso atualiza a contagem oficial de vagas.",
         "Quando o InfinitePay for ativado na Vercel (NEXT_PUBLIC_PAYMENT_MODE=INFINITEPAY), os pagamentos no cartão mudarão de \"Pendente\" para \"Pago\" automaticamente via Webhook.",
       ],

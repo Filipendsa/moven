@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { isValidLocale } from "@/i18n/config";
 import { EnrollParticipantUseCase } from "@/modules/enrollment/application/use-cases/EnrollParticipantUseCase";
 import { DuplicateCpfEnrollmentError } from "@/modules/enrollment/domain/errors/DuplicateCpfEnrollmentError";
 import { SupabaseRegistrationRepository } from "@/modules/enrollment/infrastructure/persistence/SupabaseRegistrationRepository";
@@ -35,6 +36,7 @@ export async function POST(request: Request) {
       shirtSize: body.shirtSize,
       paymentMethod,
       termsAccepted: Boolean(body.termsAccepted),
+      locale: isValidLocale(body.locale) ? body.locale : "pt",
     });
 
     if (!result.success) {

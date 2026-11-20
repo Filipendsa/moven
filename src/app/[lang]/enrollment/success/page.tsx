@@ -93,7 +93,7 @@ function SuccessContent() {
   };
 
   // Kept in Portuguese for MOVEN treasury
-  const gadielReceiptMessage = encodeURIComponent(
+  const receiptMessage = encodeURIComponent(
     `Olá ${receiptContactName}! Segue o comprovante da minha inscrição no MOVEN:\n` +
       `• Descrição: ${pixMessage}\n` +
       `• Nome: ${participantName}\n` +
@@ -256,7 +256,7 @@ function SuccessContent() {
               </div>
 
               <a
-                href={`https://wa.me/${receiptWhatsapp}?text=${gadielReceiptMessage}`}
+                href={`https://wa.me/${receiptWhatsapp}?text=${receiptMessage}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-full inline-flex items-center justify-center gap-2 bg-[#072119] text-[#e9e1d0] font-heading font-bold py-3.5 px-4 rounded-xl hover:bg-[var(--terra)] transition-colors text-sm shadow-lg"
@@ -313,7 +313,7 @@ function SuccessContent() {
           )}
 
           <Link
-            href={`/${locale}/panel`}
+            href={`/${locale}/missionary`}
             className="inline-flex items-center justify-center gap-2 bg-[#8fa66a]/20 text-[#072119] dark:text-[#8fa66a] font-semibold py-3 px-4 rounded-xl hover:bg-[#8fa66a]/30 transition-colors text-sm"
           >
             {t.goToPanelCta}

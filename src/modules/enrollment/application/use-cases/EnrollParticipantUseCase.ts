@@ -16,6 +16,10 @@ import { ShirtSize } from "../../domain/value-objects/ShirtSize";
 import { DuplicateCpfEnrollmentError } from "../../domain/errors/DuplicateCpfEnrollmentError";
 import { EnrollmentPricingAndMissionResolver } from "../services/EnrollmentPricingAndMissionResolver";
 import { CheckoutResult } from "@/modules/billing/domain/ports/IPaymentGateway";
+import { INotificationGateway } from "@/modules/notifications/domain/ports/INotificationGateway";
+import { NotificationGatewayResolver } from "@/modules/notifications/application/NotificationGatewayResolver";
+import { Locale } from "@/i18n/config";
+import { publicEnv } from "@/shared/config/env";
 
 export interface EnrollParticipantInput {
   fullName: string;
@@ -27,6 +31,7 @@ export interface EnrollParticipantInput {
   shirtSize: string;
   paymentMethod?: PaymentMethodPreference;
   termsAccepted: boolean;
+  locale?: Locale;
 }
 
 export interface EnrollParticipantOutput {
@@ -41,8 +46,14 @@ export class EnrollParticipantUseCase {
   constructor(
     private registrationRepo: IRegistrationRepository,
     private offeringRepo: IEventOfferingRepository,
-    private missionRepo?: IMissionRepository
+    private missionRepo?: IMissionRepository,
+    private notificationGateway?: INotificationGateway
   ) {}
+
+  private resolveMissionaryAreaUrl(email: string, locale: Locale): string {
+    const baseUrl = publicEnv.appUrl.replace(/\/$/, "");
+    return `${baseUrl}/${locale}/missionary?email=${encodeURIComponent(email)}`;
+  }
 
   async execute(
     input: EnrollParticipantInput
@@ -128,6 +139,39 @@ export class EnrollParticipantUseCase {
 
     const registration = registrationResult.value;
     await this.registrationRepo.save(registration);
+
+    // Send welcome notification non-blockingly
+    try {
+      const gateway =
+        this.notificationGateway || NotificationGatewayResolver.resolve();
+      const locale: Locale = input.locale || "pt";
+      const notifyResult = await gateway.sendWelcomeMessage({
+        toEmail: registration.email.value,
+        fullName: registration.fullName,
+        protocol: registration.id.slice(0, 8),
+        modalityTitle: registration.modality.title,
+        missionTitle: targetMissionTitle,
+        shirtSize: registration.shirtSize.value,
+        amountFormatted: registration.amount.formatted,
+        paymentMethod: registration.paymentProvider === "PIX" ? "PIX" : "CARD",
+        isWaitlist,
+        missionaryAreaUrl: this.resolveMissionaryAreaUrl(
+          registration.email.value,
+          locale
+        ),
+        locale,
+      });
+
+      if (
+        notifyResult.success &&
+        NotificationGatewayResolver.isSmtpConfigured()
+      ) {
+        registration.markWelcomeSent();
+        await this.registrationRepo.save(registration);
+      }
+    } catch (notifyErr) {
+      console.error("Failed to send welcome notification:", notifyErr);
+    }
 
     // Waitlist registrations do not go to payment checkout immediately
     if (isWaitlist) {

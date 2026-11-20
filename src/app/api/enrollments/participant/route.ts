@@ -36,13 +36,17 @@ const cancelUnpaidUseCase = new CancelUnpaidParticipantRegistrationUseCase(
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
-    const cpf = searchParams.get("cpf") || "";
+    const email = searchParams.get("email") || "";
+    const cpfLast4 = searchParams.get("cpfLast4") || "";
 
-    const result = await getParticipantUseCase.execute({ cpf });
+    const result = await getParticipantUseCase.execute({ email, cpfLast4 });
     if (!result.success) {
-      const isNotFound = result.error.message.includes("Nenhuma inscrição");
+      const isNotFound = result.error.message.includes("não encontrada");
       return NextResponse.json(
-        { error: result.error.message, code: isNotFound ? "NOT_FOUND" : "INVALID_CPF" },
+        {
+          error: result.error.message,
+          code: isNotFound ? "NOT_FOUND" : "INVALID_CREDENTIALS",
+        },
         { status: isNotFound ? 404 : 400 }
       );
     }
@@ -60,14 +64,17 @@ export async function GET(request: Request) {
 export async function PATCH(request: Request) {
   try {
     const body = await request.json();
+    const email = body.email || "";
+    const cpfLast4 = body.cpfLast4 || "";
 
     if (body.action === "CANCEL") {
       const result = await cancelUnpaidUseCase.execute({
-        cpf: body.cpf || "",
+        email,
+        cpfLast4,
       });
 
       if (!result.success) {
-        const isNotFound = result.error.message.includes("Nenhuma inscrição");
+        const isNotFound = result.error.message.includes("não encontrada");
         const isPaidLock = result.error.message.includes("já paga");
         return NextResponse.json(
           { error: result.error.message },
@@ -80,13 +87,14 @@ export async function PATCH(request: Request) {
 
     if (body.action === "UPDATE_ENROLLMENT" || body.modality !== undefined) {
       const result = await updateEnrollmentUseCase.execute({
-        cpf: body.cpf || "",
+        email,
+        cpfLast4,
         modality: body.modality || "",
         missionId: body.missionId,
       });
 
       if (!result.success) {
-        const isNotFound = result.error.message.includes("Nenhuma inscrição");
+        const isNotFound = result.error.message.includes("não encontrada");
         const isPaidLock = result.error.message.includes("já paga");
         return NextResponse.json(
           { error: result.error.message },
@@ -98,12 +106,13 @@ export async function PATCH(request: Request) {
     }
 
     const result = await updateShirtSizeUseCase.execute({
-      cpf: body.cpf || "",
+      email,
+      cpfLast4,
       shirtSize: body.shirtSize || "",
     });
 
     if (!result.success) {
-      const isNotFound = result.error.message.includes("Nenhuma inscrição");
+      const isNotFound = result.error.message.includes("não encontrada");
       return NextResponse.json(
         { error: result.error.message },
         { status: isNotFound ? 404 : 400 }

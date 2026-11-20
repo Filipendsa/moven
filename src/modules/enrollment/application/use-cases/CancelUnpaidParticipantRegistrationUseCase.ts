@@ -2,7 +2,7 @@ import { Result } from "@/shared/domain/Result";
 import { IRegistrationRepository } from "../../domain/repositories/IRegistrationRepository";
 import { IEventOfferingRepository } from "@/modules/mission-catalog/domain/repositories/IEventOfferingRepository";
 import { IMissionRepository } from "@/modules/mission-catalog/domain/repositories/IMissionRepository";
-import { Cpf } from "../../domain/value-objects/Cpf";
+import { authenticateMissionaryCredentials } from "./AuthenticateMissionaryUseCase";
 import {
   buildParticipantRegistrationDto,
   ParticipantRegistrationDto,
@@ -16,21 +16,18 @@ export class CancelUnpaidParticipantRegistrationUseCase {
   ) {}
 
   async execute(input: {
-    cpf: string;
+    email: string;
+    cpfLast4: string;
   }): Promise<Result<ParticipantRegistrationDto, Error>> {
-    const cpfResult = Cpf.create(input.cpf);
-    if (!cpfResult.success) {
-      return Result.fail(cpfResult.error);
+    const authResult = await authenticateMissionaryCredentials(
+      this.registrationRepo,
+      { email: input.email, cpfLast4: input.cpfLast4 }
+    );
+    if (!authResult.success) {
+      return Result.fail(authResult.error);
     }
 
-    const matches = await this.registrationRepo.findByCpf(cpfResult.value.value);
-    if (matches.length === 0) {
-      return Result.fail(
-        new Error("Nenhuma inscrição encontrada para o CPF informado.")
-      );
-    }
-
-    const registration = matches[0];
+    const registration = authResult.value;
     const cancelResult = registration.cancelByParticipant();
     if (!cancelResult.success) {
       return Result.fail(cancelResult.error);

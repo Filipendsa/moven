@@ -18,7 +18,7 @@ export default function Navbar() {
     { href: `/${locale}#dates`, label: dict.nav.dates },
     { href: `/${locale}#pricing`, label: dict.nav.pricing },
     { href: `/${locale}#amazon`, label: dict.nav.amazon },
-    { href: `/${locale}/panel`, label: dict.nav.panel },
+    { href: `/${locale}/missionary`, label: dict.nav.panel },
   ];
 
   return (
