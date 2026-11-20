@@ -1,9 +1,22 @@
 import { NextResponse } from "next/server";
 import { SupabaseRegistrationRepository } from "@/modules/enrollment/infrastructure/persistence/SupabaseRegistrationRepository";
+import { SupabaseEventOfferingRepository } from "@/modules/mission-catalog/infrastructure/SupabaseEventOfferingRepository";
+import { SupabaseMissionRepository } from "@/modules/mission-catalog/infrastructure/SupabaseMissionRepository";
 import { ExportRegistrationsCsvUseCase } from "@/modules/enrollment/application/use-cases/ExportRegistrationsCsvUseCase";
+import { AdminUpdateRegistrationUseCase } from "@/modules/enrollment/application/use-cases/AdminUpdateRegistrationUseCase";
+import { PaymentStatus } from "@/modules/enrollment/domain/entities/Registration";
+import { ModalityType } from "@/modules/enrollment/domain/value-objects/EnrollmentModality";
 
 const registrationRepo = new SupabaseRegistrationRepository();
+const offeringRepo = new SupabaseEventOfferingRepository();
+const missionRepo = new SupabaseMissionRepository();
+
 const exportCsvUseCase = new ExportRegistrationsCsvUseCase(registrationRepo);
+const adminUpdateUseCase = new AdminUpdateRegistrationUseCase(
+  registrationRepo,
+  offeringRepo,
+  missionRepo
+);
 
 export async function GET(request: Request) {
   try {
@@ -23,17 +36,22 @@ export async function GET(request: Request) {
     }
 
     const search = searchParams.get("search") || undefined;
-    const modality = (searchParams.get("modality") as any) || undefined;
-    const status = (searchParams.get("status") as any) || undefined;
+    const modality = (searchParams.get("modality") as ModalityType) || undefined;
+    const status = (searchParams.get("status") as PaymentStatus) || undefined;
     const missionId = searchParams.get("missionId") || undefined;
 
-    const list = await registrationRepo.list({
-      search,
-      modality,
-      status,
-      missionId,
-    });
-    const metrics = await registrationRepo.getMetrics();
+    const [list, metrics, allMissions] = await Promise.all([
+      registrationRepo.list({
+        search,
+        modality,
+        status,
+        missionId,
+      }),
+      registrationRepo.getMetrics(),
+      missionRepo.listAll(),
+    ]);
+
+    const missionTitleMap = new Map(allMissions.map((m) => [m.id, m.title]));
 
     const registrations = list.map((r) => ({
       id: r.id,
@@ -45,9 +63,11 @@ export async function GET(request: Request) {
         `Olá ${r.fullName.split(" ")[0]}! Falamos da liderança do MOVEN a respeito da sua inscrição na ${r.modality.title}.`
       ),
       cpf: r.cpf.formatted,
+      shirtSize: r.shirtSize.value,
       modality: r.modality.type,
       modalityTitle: r.modality.title,
       missionId: r.missionId || null,
+      missionTitle: r.missionId ? missionTitleMap.get(r.missionId) || null : null,
       amountCents: r.amount.amountCents,
       amountFormatted: r.amount.formatted,
       paymentProvider: r.paymentProvider,
@@ -58,7 +78,7 @@ export async function GET(request: Request) {
     }));
 
     return NextResponse.json({ registrations, metrics });
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error("API /api/admin/registrations error:", err);
     return NextResponse.json(
       { error: "Erro ao buscar dados administrativos." },
@@ -70,21 +90,36 @@ export async function GET(request: Request) {
 export async function PATCH(request: Request) {
   try {
     const body = await request.json();
-    const { id, status } = body;
+    const { id, status, shirtSize, modality, missionId } = body;
 
-    if (!id || !status) {
+    if (!id || (!status && !shirtSize && !modality && missionId === undefined)) {
       return NextResponse.json(
-        { error: "ID e novo status são obrigatórios." },
+        { error: "ID e ao menos um campo para atualização são obrigatórios." },
         { status: 400 }
       );
     }
 
-    await registrationRepo.updateStatus(id, status);
+    const result = await adminUpdateUseCase.execute({
+      id,
+      status,
+      shirtSize,
+      modality,
+      missionId,
+    });
+
+    if (!result.success) {
+      const isNotFound = result.error.message.includes("não encontrada");
+      return NextResponse.json(
+        { error: result.error.message },
+        { status: isNotFound ? 404 : 400 }
+      );
+    }
+
     return NextResponse.json({ success: true });
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error("API /api/admin/registrations PATCH error:", err);
     return NextResponse.json(
-      { error: "Erro ao atualizar status." },
+      { error: "Erro ao atualizar inscrição." },
       { status: 500 }
     );
   }

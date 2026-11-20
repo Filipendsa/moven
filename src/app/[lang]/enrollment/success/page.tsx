@@ -313,6 +313,13 @@ function SuccessContent() {
           )}
 
           <Link
+            href={`/${locale}/panel`}
+            className="inline-flex items-center justify-center gap-2 bg-[#8fa66a]/20 text-[#072119] dark:text-[#8fa66a] font-semibold py-3 px-4 rounded-xl hover:bg-[#8fa66a]/30 transition-colors text-sm"
+          >
+            {t.goToPanelCta}
+          </Link>
+
+          <Link
             href={`/${locale}`}
             className="inline-flex items-center justify-center gap-2 text-sm text-[var(--mut)] hover:text-[var(--ink)] py-2"
           >

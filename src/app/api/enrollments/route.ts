@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { EnrollParticipantUseCase } from "@/modules/enrollment/application/use-cases/EnrollParticipantUseCase";
+import { DuplicateCpfEnrollmentError } from "@/modules/enrollment/domain/errors/DuplicateCpfEnrollmentError";
 import { SupabaseRegistrationRepository } from "@/modules/enrollment/infrastructure/persistence/SupabaseRegistrationRepository";
 import { SupabaseEventOfferingRepository } from "@/modules/mission-catalog/infrastructure/SupabaseEventOfferingRepository";
 import { SupabaseMissionRepository } from "@/modules/mission-catalog/infrastructure/SupabaseMissionRepository";
@@ -17,6 +18,12 @@ const enrollUseCase = new EnrollParticipantUseCase(
 export async function POST(request: Request) {
   try {
     const body = await request.json();
+    const paymentMethod =
+      body.paymentMethod === "PIX"
+        ? "PIX"
+        : body.paymentMethod === "CARD"
+        ? "CARD"
+        : undefined;
 
     const result = await enrollUseCase.execute({
       fullName: body.fullName,
@@ -25,19 +32,30 @@ export async function POST(request: Request) {
       cpf: body.cpf,
       modality: body.modality,
       missionId: body.missionId,
-      paymentMethod: body.paymentMethod === "PIX" ? "PIX" : "CARD",
+      shirtSize: body.shirtSize,
+      paymentMethod,
       termsAccepted: Boolean(body.termsAccepted),
     });
 
     if (!result.success) {
+      if (
+        result.error instanceof DuplicateCpfEnrollmentError ||
+        (result.error as { code?: string }).code === "DUPLICATE_CPF"
+      ) {
+        return NextResponse.json(
+          { error: result.error.message, code: "DUPLICATE_CPF" },
+          { status: 409 }
+        );
+      }
+
       return NextResponse.json(
-        { error: result.error.message },
+        { error: result.error.message, code: "VALIDATION_ERROR" },
         { status: 400 }
       );
     }
 
     return NextResponse.json(result.value, { status: 201 });
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error("API /api/enrollments error:", err);
     return NextResponse.json(
       { error: "Erro interno ao processar inscrição." },

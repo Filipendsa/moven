@@ -4,6 +4,7 @@ import {
   EnrollmentMetrics,
 } from "../../domain/repositories/IRegistrationRepository";
 import { Registration, PaymentStatus } from "../../domain/entities/Registration";
+import { ShirtSizeType } from "../../domain/value-objects/ShirtSize";
 import { RegistrationMapper, RegistrationPersistenceRow } from "./RegistrationMapper";
 import { supabaseServer } from "@/shared/infrastructure/supabase/server";
 import { publicEnv } from "@/shared/config/env";
@@ -53,8 +54,34 @@ export class SupabaseRegistrationRepository implements IRegistrationRepository {
 
   async findByCpf(cpf: string): Promise<Registration[]> {
     const cleanCpf = cpf.replace(/\D/g, "");
-    const list = await this.list({ search: cleanCpf });
-    return list.filter((r) => r.cpf.value === cleanCpf);
+    let rows: RegistrationPersistenceRow[] = [];
+
+    if (publicEnv.isSupabaseConfigured) {
+      try {
+        const { data, error } = await supabaseServer
+          .from("registrations")
+          .select("*")
+          .eq("cpf", cleanCpf)
+          .order("created_at", { ascending: false });
+
+        if (!error && data) {
+          rows = data as RegistrationPersistenceRow[];
+        }
+      } catch (err) {
+        console.error("Supabase findByCpf error:", err);
+      }
+    }
+
+    if (rows.length === 0 && SupabaseRegistrationRepository.inMemoryStore.size > 0) {
+      rows = Array.from(SupabaseRegistrationRepository.inMemoryStore.values())
+        .filter((r) => r.cpf === cleanCpf)
+        .sort(
+          (a, b) =>
+            new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+        );
+    }
+
+    return rows.map((r) => RegistrationMapper.toDomain(r));
   }
 
   async list(filters?: EnrollmentFilters): Promise<Registration[]> {
@@ -147,6 +174,34 @@ export class SupabaseRegistrationRepository implements IRegistrationRepository {
           .eq("id", id);
       } catch (err) {
         console.error("Supabase updateStatus error:", err);
+      }
+    }
+  }
+
+  async updateShirtSize(id: string, shirtSize: ShirtSizeType): Promise<void> {
+    const updatedAt = new Date().toISOString();
+    const memoryRow = SupabaseRegistrationRepository.inMemoryStore.get(id);
+    if (memoryRow) {
+      memoryRow.shirt_size = shirtSize;
+      memoryRow.updated_at = updatedAt;
+      SupabaseRegistrationRepository.inMemoryStore.set(id, memoryRow);
+    }
+
+    if (publicEnv.isSupabaseConfigured) {
+      try {
+        const { error } = await supabaseServer
+          .from("registrations")
+          .update({
+            shirt_size: shirtSize,
+            updated_at: updatedAt,
+          })
+          .eq("id", id);
+
+        if (error) {
+          console.error("Supabase updateShirtSize error:", error);
+        }
+      } catch (err) {
+        console.error("Supabase updateShirtSize error:", err);
       }
     }
   }

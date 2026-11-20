@@ -8,6 +8,7 @@ import Navbar from "@/components/common/Navbar";
 import { isValidLocale, Locale, formatBrl } from "@/i18n/config";
 import { getDictionary } from "@/i18n/getDictionary";
 import { publicEnv } from "@/shared/config/env";
+import { APP_VERSION, APP_VERSION_LABEL } from "@/shared/config/version";
 
 export default async function HomePage({
   params,
@@ -449,16 +450,22 @@ export default async function HomePage({
             </Link>
           </div>
         </div>
-        <div className="max-w-5xl mx-auto px-5 mt-6 pt-4 border-t border-white/10 text-xs text-[#cfc9b8]/70">
-          {dict.footer.poweredBy}{" "}
-          <a
-            href={publicEnv.poweredByUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-[#8fa66a] font-semibold hover:underline"
-          >
-            Yesode
-          </a>
+        <div className="max-w-5xl mx-auto px-5 mt-6 pt-4 border-t border-white/10 text-xs text-[#cfc9b8]/70 flex flex-wrap items-center justify-center gap-2">
+          <span>
+            {dict.footer.poweredBy}{" "}
+            <a
+              href={publicEnv.poweredByUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-[#8fa66a] font-semibold hover:underline"
+            >
+              Yesode
+            </a>
+          </span>
+          <span>•</span>
+          <span className="font-mono text-[11px] opacity-80" title={APP_VERSION_LABEL}>
+            v{APP_VERSION}
+          </span>
         </div>
       </footer>
     </div>

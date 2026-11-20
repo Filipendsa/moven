@@ -1,5 +1,6 @@
 import { Registration, PaymentStatus } from "../entities/Registration";
 import { ModalityType } from "../value-objects/EnrollmentModality";
+import { ShirtSizeType } from "../value-objects/ShirtSize";
 
 export interface EnrollmentFilters {
   search?: string;
@@ -35,4 +36,5 @@ export interface IRegistrationRepository {
     status: PaymentStatus,
     externalTxId?: string
   ): Promise<void>;
+  updateShirtSize(id: string, shirtSize: ShirtSizeType): Promise<void>;
 }

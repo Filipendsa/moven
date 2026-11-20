@@ -19,6 +19,21 @@ export class Cpf extends ValueObject<CpfProps> {
     return `${v.slice(0, 3)}.${v.slice(3, 6)}.${v.slice(6, 9)}-${v.slice(9, 11)}`;
   }
 
+  public static formatMask(raw: string): string {
+    let v = raw.replace(/\D/g, "");
+    if (v.length > 11) v = v.slice(0, 11);
+    if (v.length > 9) {
+      return `${v.slice(0, 3)}.${v.slice(3, 6)}.${v.slice(6, 9)}-${v.slice(9)}`;
+    }
+    if (v.length > 6) {
+      return `${v.slice(0, 3)}.${v.slice(3, 6)}.${v.slice(6)}`;
+    }
+    if (v.length > 3) {
+      return `${v.slice(0, 3)}.${v.slice(3)}`;
+    }
+    return v;
+  }
+
   public static create(raw: string): Result<Cpf, Error> {
     if (!raw || typeof raw !== "string") {
       return Result.fail(new Error("CPF é obrigatório."));

@@ -12,8 +12,10 @@ import { Email } from "../../domain/value-objects/Email";
 import { BrazilianPhone } from "../../domain/value-objects/BrazilianPhone";
 import { EnrollmentModality } from "../../domain/value-objects/EnrollmentModality";
 import { LgpdConsent } from "../../domain/value-objects/LgpdConsent";
+import { ShirtSize } from "../../domain/value-objects/ShirtSize";
+import { DuplicateCpfEnrollmentError } from "../../domain/errors/DuplicateCpfEnrollmentError";
+import { EnrollmentPricingAndMissionResolver } from "../services/EnrollmentPricingAndMissionResolver";
 import { CheckoutResult } from "@/modules/billing/domain/ports/IPaymentGateway";
-import { Money } from "@/modules/mission-catalog/domain/value-objects/Money";
 
 export interface EnrollParticipantInput {
   fullName: string;
@@ -22,6 +24,7 @@ export interface EnrollParticipantInput {
   cpf: string;
   modality: string;
   missionId?: string;
+  shirtSize: string;
   paymentMethod?: PaymentMethodPreference;
   termsAccepted: boolean;
 }
@@ -63,62 +66,44 @@ export class EnrollParticipantUseCase {
     const modalityResult = EnrollmentModality.create(input.modality);
     if (!modalityResult.success) return Result.fail(modalityResult.error);
 
+    const shirtSizeResult = ShirtSize.create(input.shirtSize);
+    if (!shirtSizeResult.success) return Result.fail(shirtSizeResult.error);
+
     const lgpdResult = LgpdConsent.create(input.termsAccepted);
     if (!lgpdResult.success) return Result.fail(lgpdResult.error);
 
-    const offering = await this.offeringRepo.findByModality(
-      modalityResult.value.type
+    const existingRegistrations = await this.registrationRepo.findByCpf(
+      cpfResult.value.value
     );
-    if (!offering) {
-      return Result.fail(new Error("Modalidade não encontrada no catálogo."));
+    if (existingRegistrations.length > 0) {
+      return Result.fail(
+        new DuplicateCpfEnrollmentError(cpfResult.value.formatted)
+      );
     }
 
-    let targetMissionId: string | undefined = input.missionId;
-    let targetMissionTitle: string | undefined;
-    let isWaitlist = false;
-    let effectivePrice = offering.price;
+    const resolvedResult = await EnrollmentPricingAndMissionResolver.resolve({
+      modality: modalityResult.value,
+      missionId: input.missionId,
+      offeringRepo: this.offeringRepo,
+      registrationRepo: this.registrationRepo,
+      missionRepo: this.missionRepo,
+    });
+    if (!resolvedResult.success) {
+      return Result.fail(resolvedResult.error);
+    }
 
-    // Check dynamic Mission catalog if enrolling in a mission or combo
-    if (modalityResult.value.includesAmazonasMission && this.missionRepo) {
-      const mission = input.missionId
-        ? await this.missionRepo.findById(input.missionId)
-        : await this.missionRepo.findFeatured();
+    const {
+      offering,
+      targetMissionId,
+      targetMissionTitle,
+      isWaitlist,
+      effectivePrice,
+    } = resolvedResult.value;
 
-      if (mission) {
-        targetMissionId = mission.id;
-        targetMissionTitle = mission.title;
-
-        const counts = await this.registrationRepo.countByMission(mission.id);
-        if (!mission.canEnroll(counts.paid)) {
-          return Result.fail(
-            new Error(
-              `As inscrições para "${mission.title}" estão encerradas no momento.`
-            )
-          );
-        }
-
-        if (mission.isWaitlistMode(counts.paid)) {
-          isWaitlist = true;
-        }
-
-        // Calculate dynamic price if custom mission price differs
-        if (modalityResult.value.type === "MISSION") {
-          effectivePrice = mission.price;
-        } else if (modalityResult.value.type === "BOTH") {
-          const schoolOffering = await this.offeringRepo.findByModality("SCHOOL");
-          effectivePrice = schoolOffering
-            ? schoolOffering.price.add(mission.price)
-            : offering.price;
-        }
-      }
-    } else if (
-      modalityResult.value.includesAmazonasMission &&
-      offering.maxSlots !== null
-    ) {
-      const metrics = await this.registrationRepo.getMetrics();
-      if (!offering.hasAvailableSlots(metrics.missaoPaidSlots)) {
-        isWaitlist = true;
-      }
+    if (!isWaitlist && !input.paymentMethod) {
+      return Result.fail(
+        new Error("Selecione um método de pagamento (Pix ou Cartão) após preencher o formulário.")
+      );
     }
 
     const gateway = PaymentGatewayResolver.resolve(input.paymentMethod);
@@ -130,7 +115,8 @@ export class EnrollParticipantUseCase {
       cpf: cpfResult.value,
       modality: modalityResult.value,
       missionId: targetMissionId,
-      amount: effectivePrice instanceof Money ? effectivePrice : offering.price,
+      shirtSize: shirtSizeResult.value,
+      amount: effectivePrice,
       paymentProvider: gateway.providerName,
       lgpdConsent: lgpdResult.value,
       initialStatus: isWaitlist ? "WAITLIST" : "PENDING",

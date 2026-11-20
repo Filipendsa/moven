@@ -19,11 +19,18 @@ import {
   Eye,
   Heart,
   TrendingUp,
+  Edit3,
+  X,
 } from "lucide-react";
 import { supabaseBrowser } from "@/shared/infrastructure/supabase/client";
 import { publicEnv } from "@/shared/config/env";
+import { APP_VERSION, APP_VERSION_LABEL } from "@/shared/config/version";
 import AdminMissionsPanel from "@/components/admin/AdminMissionsPanel";
 import AdminTutorialPanel from "@/components/admin/AdminTutorialPanel";
+import {
+  ALLOWED_SHIRT_SIZES,
+  ShirtSizeType,
+} from "@/modules/enrollment/domain/value-objects/ShirtSize";
 
 interface RegistrationItem {
   id: string;
@@ -32,12 +39,20 @@ interface RegistrationItem {
   phoneFormatted: string;
   whatsAppUrl: string;
   cpf: string;
+  shirtSize: ShirtSizeType;
   modality: "SCHOOL" | "MISSION" | "BOTH";
   modalityTitle: string;
+  missionId: string | null;
+  missionTitle: string | null;
   amountFormatted: string;
   paymentProvider: string;
   paymentStatus: "PENDING" | "PAID" | "WAITLIST" | "CANCELED";
   createdAt: string;
+}
+
+interface AdminMissionOption {
+  id: string;
+  title: string;
 }
 
 interface Metrics {
@@ -72,6 +87,14 @@ export default function AdminDashboardPage() {
   const [search, setSearch] = useState("");
   const [modalityFilter, setModalityFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
+  const [missions, setMissions] = useState<AdminMissionOption[]>([]);
+
+  const [editingItem, setEditingItem] = useState<RegistrationItem | null>(null);
+  const [editStatus, setEditStatus] = useState<RegistrationItem["paymentStatus"]>("PENDING");
+  const [editModality, setEditModality] = useState<RegistrationItem["modality"]>("SCHOOL");
+  const [editMissionId, setEditMissionId] = useState<string>("");
+  const [editShirtSize, setEditShirtSize] = useState<ShirtSizeType>("M");
+  const [savingEdit, setSavingEdit] = useState(false);
 
   const loadData = useCallback(async () => {
     setLoading(true);
@@ -81,9 +104,10 @@ export default function AdminDashboardPage() {
       if (modalityFilter) params.append("modality", modalityFilter);
       if (statusFilter) params.append("status", statusFilter);
 
-      const [regRes, analyticsRes] = await Promise.all([
+      const [regRes, analyticsRes, missionsRes] = await Promise.all([
         fetch(`/api/admin/registrations?${params.toString()}`),
         fetch("/api/analytics"),
+        fetch("/api/admin/missions"),
       ]);
 
       if (regRes.ok) {
@@ -98,6 +122,16 @@ export default function AdminDashboardPage() {
           uniqueVisits: aData.uniqueVisits ?? 0,
           interestedCount: aData.interestedCount ?? 0,
         });
+      }
+
+      if (missionsRes.ok) {
+        const mData = await missionsRes.json();
+        setMissions(
+          (mData.missions || []).map((m: { id: string; title: string }) => ({
+            id: m.id,
+            title: m.title,
+          }))
+        );
       }
     } catch (err) {
       console.error("Erro ao carregar dados admin:", err);
@@ -153,6 +187,41 @@ export default function AdminDashboardPage() {
     }
   };
 
+  const openEditModal = (item: RegistrationItem) => {
+    setEditingItem(item);
+    setEditStatus(item.paymentStatus);
+    setEditModality(item.modality);
+    setEditMissionId(item.missionId || missions[0]?.id || "");
+    setEditShirtSize(item.shirtSize || "M");
+  };
+
+  const handleSaveEditModal = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingItem) return;
+    setSavingEdit(true);
+    try {
+      const res = await fetch("/api/admin/registrations", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id: editingItem.id,
+          status: editStatus,
+          modality: editModality,
+          missionId: editModality === "SCHOOL" ? undefined : editMissionId || undefined,
+          shirtSize: editShirtSize,
+        }),
+      });
+      if (res.ok) {
+        setEditingItem(null);
+        loadData();
+      }
+    } catch (err) {
+      console.error("Erro ao salvar edição admin:", err);
+    } finally {
+      setSavingEdit(false);
+    }
+  };
+
   const handleLogout = async () => {
     if (publicEnv.isSupabaseConfigured) {
       await supabaseBrowser.auth.signOut();
@@ -177,6 +246,12 @@ export default function AdminDashboardPage() {
             </Link>
             <span className="text-xs bg-[#8fa66a]/20 text-[#8fa66a] px-2.5 py-0.5 rounded-full font-semibold">
               Painel de Gestão
+            </span>
+            <span
+              className="text-[11px] font-mono text-[#cfc9b8]/80 bg-white/5 px-2 py-0.5 rounded-md border border-white/10"
+              title={APP_VERSION_LABEL}
+            >
+              v{APP_VERSION}
             </span>
           </div>
 
@@ -500,9 +575,14 @@ export default function AdminDashboardPage() {
                     </div>
 
                     <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-black/10 dark:border-white/10 text-xs">
-                      <span className="inline-block font-medium px-2.5 py-1 rounded-full bg-[#8fa66a]/15 text-[var(--ink)]">
-                        {item.modalityTitle}
-                      </span>
+                      <div className="flex flex-wrap items-center gap-1.5">
+                        <span className="inline-block font-medium px-2.5 py-1 rounded-full bg-[#8fa66a]/15 text-[var(--ink)]">
+                          {item.modalityTitle}
+                        </span>
+                        <span className="inline-block font-mono font-bold px-2 py-0.5 rounded-full bg-black/10 dark:bg-white/10 text-[var(--ink)]">
+                          Camisa: {item.shirtSize}
+                        </span>
+                      </div>
                       <div className="flex items-center gap-2">
                         <span
                           className={`px-2 py-0.5 rounded-md font-mono font-semibold ${
@@ -546,6 +626,13 @@ export default function AdminDashboardPage() {
                             : "Confirmar Pagamento"}
                         </button>
                       )}
+                      <button
+                        onClick={() => openEditModal(item)}
+                        className="min-w-[44px] min-h-[44px] flex items-center justify-center text-[var(--ink)] bg-black/5 dark:bg-white/10 hover:bg-black/10 rounded-xl transition-colors"
+                        title="Editar inscrição / camisa / missão / cancelar"
+                      >
+                        <Edit3 className="w-4 h-4" />
+                      </button>
                       <a
                         href={item.whatsAppUrl}
                         target="_blank"
@@ -569,6 +656,7 @@ export default function AdminDashboardPage() {
                     <tr>
                       <th className="py-3.5 px-4">Inscrito</th>
                       <th className="py-3.5 px-4">CPF</th>
+                      <th className="py-3.5 px-4">Camisa</th>
                       <th className="py-3.5 px-4">Modalidade</th>
                       <th className="py-3.5 px-4">Valor</th>
                       <th className="py-3.5 px-4">Status</th>
@@ -579,7 +667,7 @@ export default function AdminDashboardPage() {
                   <tbody className="divide-y divide-black/10 dark:divide-white/10">
                     {registrations.length === 0 ? (
                       <tr>
-                        <td colSpan={7} className="py-10 text-center text-[var(--mut)]">
+                        <td colSpan={8} className="py-10 text-center text-[var(--mut)]">
                           {loading
                             ? "Carregando inscrições..."
                             : "Nenhuma inscrição encontrada com os filtros aplicados."}
@@ -603,9 +691,19 @@ export default function AdminDashboardPage() {
                             {item.cpf}
                           </td>
                           <td className="py-3 px-4">
+                            <span className="inline-block font-mono text-xs font-bold px-2.5 py-0.5 rounded-full bg-black/10 dark:bg-white/10">
+                              {item.shirtSize}
+                            </span>
+                          </td>
+                          <td className="py-3 px-4">
                             <span className="inline-block text-xs font-medium px-2.5 py-1 rounded-full bg-[#8fa66a]/15 text-[var(--ink)]">
                               {item.modalityTitle}
                             </span>
+                            {item.missionTitle && (
+                              <span className="block text-[11px] text-[var(--mut)] mt-0.5">
+                                {item.missionTitle}
+                              </span>
+                            )}
                           </td>
                           <td className="py-3 px-4 font-semibold text-xs">
                             {item.amountFormatted}
@@ -673,6 +771,13 @@ export default function AdminDashboardPage() {
                                     : "Confirmar Pagamento"}
                                 </button>
                               )}
+                              <button
+                                onClick={() => openEditModal(item)}
+                                className="p-1.5 text-[var(--ink)] hover:bg-black/10 dark:hover:bg-white/10 rounded-full transition-colors"
+                                title="Editar inscrição, missão, camisa ou cancelar"
+                              >
+                                <Edit3 className="w-4 h-4" />
+                              </button>
                               <a
                                 href={item.whatsAppUrl}
                                 target="_blank"
@@ -694,6 +799,127 @@ export default function AdminDashboardPage() {
           </>
         )}
       </main>
+
+      {/* Admin Edit Registration Modal */}
+      {editingItem && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-[var(--card)] border border-[var(--terra)]/30 rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-5">
+            <div className="flex items-center justify-between border-b border-black/10 dark:border-white/10 pb-3">
+              <div>
+                <h2 className="font-heading font-bold text-lg">
+                  Editar Inscrição
+                </h2>
+                <p className="text-xs text-[var(--mut)]">
+                  {editingItem.fullName} · {editingItem.cpf}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setEditingItem(null)}
+                className="p-1.5 rounded-full hover:bg-black/10 dark:hover:bg-white/10"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveEditModal} className="space-y-4">
+              <div>
+                <label className="block text-xs font-semibold uppercase tracking-wider mb-1">
+                  Status da Inscrição
+                </label>
+                <select
+                  value={editStatus}
+                  onChange={(e) =>
+                    setEditStatus(
+                      e.target.value as RegistrationItem["paymentStatus"]
+                    )
+                  }
+                  className="w-full bg-white/70 dark:bg-black/30 border border-black/15 dark:border-white/15 rounded-xl px-3 py-2 text-sm"
+                >
+                  <option value="PENDING">Pendente</option>
+                  <option value="PAID">Pago / Confirmado</option>
+                  <option value="WAITLIST">Lista de Espera</option>
+                  <option value="CANCELED">Cancelado</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold uppercase tracking-wider mb-1">
+                  Modalidade
+                </label>
+                <select
+                  value={editModality}
+                  onChange={(e) =>
+                    setEditModality(
+                      e.target.value as RegistrationItem["modality"]
+                    )
+                  }
+                  className="w-full bg-white/70 dark:bg-black/30 border border-black/15 dark:border-white/15 rounded-xl px-3 py-2 text-sm"
+                >
+                  <option value="SCHOOL">Escola de Missões</option>
+                  <option value="MISSION">Missão (Somente Missão)</option>
+                  <option value="BOTH">Escola + Missão (Combo)</option>
+                </select>
+              </div>
+
+              {editModality !== "SCHOOL" && missions.length > 0 && (
+                <div>
+                  <label className="block text-xs font-semibold uppercase tracking-wider mb-1">
+                    Missão Vinculada
+                  </label>
+                  <select
+                    value={editMissionId}
+                    onChange={(e) => setEditMissionId(e.target.value)}
+                    className="w-full bg-white/70 dark:bg-black/30 border border-black/15 dark:border-white/15 rounded-xl px-3 py-2 text-sm"
+                  >
+                    {missions.map((m) => (
+                      <option key={m.id} value={m.id}>
+                        {m.title}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+
+              <div>
+                <label className="block text-xs font-semibold uppercase tracking-wider mb-1">
+                  Tamanho da Camisa
+                </label>
+                <select
+                  value={editShirtSize}
+                  onChange={(e) =>
+                    setEditShirtSize(e.target.value as ShirtSizeType)
+                  }
+                  className="w-full bg-white/70 dark:bg-black/30 border border-black/15 dark:border-white/15 rounded-xl px-3 py-2 text-sm"
+                >
+                  {ALLOWED_SHIRT_SIZES.map((s) => (
+                    <option key={s} value={s}>
+                      {s}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="flex gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setEditingItem(null)}
+                  className="flex-1 py-2.5 px-4 rounded-xl border border-black/15 dark:border-white/15 text-sm font-semibold hover:bg-black/5"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  disabled={savingEdit}
+                  className="flex-1 py-2.5 px-4 rounded-xl bg-[#8fa66a] text-[#072119] font-heading font-bold text-sm hover:bg-[#8fa66a]/90 disabled:opacity-50"
+                >
+                  {savingEdit ? "Salvando..." : "Salvar Alterações"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
