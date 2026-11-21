@@ -4,6 +4,7 @@ import { resolve } from "node:path";
 
 export const BASELINE_RELEASE_COMMIT = "c30ed3497c23704b05f580898957f14c14381cbb";
 export const INITIAL_VERSION = "0.0.0.0";
+export const FALLBACK_BASE_VERSION = "1.16.0.18";
 
 function runGit(command, cwd) {
   try {
@@ -17,13 +18,71 @@ function runGit(command, cwd) {
   }
 }
 
+function applyCommitBump(version, subject, body = "") {
+  const fullText = `${subject}\n${body}`;
+  const isBreaking =
+    /^[a-z]+(\([^)]+\))?!:/i.test(subject) ||
+    /BREAKING CHANGE/i.test(fullText);
+
+  if (isBreaking) {
+    return {
+      major: version.major + 1,
+      minor: 0,
+      patch: 0,
+      build: version.build + 1,
+    };
+  }
+
+  if (/^feat(\([^)]+\))?:/i.test(subject)) {
+    return {
+      major: version.major,
+      minor: version.minor + 1,
+      patch: 0,
+      build: version.build + 1,
+    };
+  }
+
+  return {
+    major: version.major,
+    minor: version.minor,
+    patch: version.patch + 1,
+    build: version.build + 1,
+  };
+}
+
+function computeSemanticVersionFromRange(baseVersion, fromRef, cwd) {
+  const rawLog = runGit(
+    `git log --reverse --format="%s%x1f%b%x1e" ${fromRef}..HEAD`,
+    cwd
+  );
+  if (rawLog === null) return null;
+
+  let current = { ...baseVersion };
+  const entries = rawLog
+    .split("\x1e")
+    .map((entry) => entry.trim())
+    .filter(Boolean);
+
+  for (const entry of entries) {
+    const [subject = "", body = ""] = entry.split("\x1f");
+    current = applyCommitBump(current, subject.trim(), body.trim());
+  }
+
+  return {
+    version: `${current.major}.${current.minor}.${current.patch}.${current.build}`,
+    commitsSinceTag: entries.length,
+  };
+}
+
 /**
- * Resolves a 4-segment Git-based version (`MAJOR.MINOR.PATCH.BUILD`).
+ * Resolves a 4-segment Semantic Git-based version (`MAJOR.MINOR.PATCH.BUILD`).
  *
  * - Tag `v1.0.0.0` at `c30ed3497c23704b05f580898957f14c14381cbb` represents the first release (`1.0.0.0`).
- * - Each subsequent commit increments the 4th segment (`1.0.0.1`, `1.0.0.2`, ...).
- * - Creating a newer annotated tag (e.g. `git tag -a v1.1.0.0 -m "Release 1.1.0.0"`)
- *   resets the baseline and restarts the 4th segment from that tag.
+ * - Analyzes every commit since the latest release tag (or baseline commit):
+ *   - Breaking change (`feat!:`, `fix!:`, `BREAKING CHANGE`): increments MAJOR, resets MINOR & PATCH.
+ *   - `feat:` / `feat(...)`: increments MINOR, resets PATCH.
+ *   - `fix:`, `refactor:`, `chore:`, etc.: increments PATCH.
+ *   - Every commit increments BUILD (4th segment).
  */
 export function resolveGitVersion(cwd = process.cwd()) {
   const isShallow = runGit("git rev-parse --is-shallow-repository", cwd) === "true";
@@ -46,64 +105,75 @@ export function resolveGitVersion(cwd = process.cwd()) {
       /^v(\d+)\.(\d+)\.(\d+)\.(\d+)-(\d+)-g([0-9a-f]+)$/i
     );
     if (match) {
-      const [, major, minor, patch, baseBuild, commitsAhead, sha] = match;
-      const commitsSinceTag = Number(commitsAhead);
-      const buildNumber = Number(baseBuild) + commitsSinceTag;
-      const version = `${major}.${minor}.${patch}.${buildNumber}`;
-      return {
-        version,
-        commit: sha,
-        tag: `v${major}.${minor}.${patch}.${baseBuild}`,
-        commitsSinceTag,
-        label: `v${version} (${sha})`,
-      };
+        const [, majorStr, minorStr, patchStr, baseBuildStr, , sha] = match;
+        const baseTag = `v${majorStr}.${minorStr}.${patchStr}.${baseBuildStr}`;
+        const baseVersion = {
+          major: Number(majorStr),
+          minor: Number(minorStr),
+          patch: Number(patchStr),
+          build: Number(baseBuildStr),
+        };
+
+        const computed = computeSemanticVersionFromRange(baseVersion, baseTag, cwd);
+        if(computed) {
+          return {
+            version: computed.version,
+            commit: sha,
+            tag: baseTag,
+            commitsSinceTag: computed.commitsSinceTag,
+            label: `v${computed.version} (${sha})`,
+          };
+        }
+      }
     }
-  }
 
-  // Fallback when tags are absent (e.g., shallow fetch without tags)
-  const isBaselineAncestor =
-    runGit(
-      `git merge-base --is-ancestor ${BASELINE_RELEASE_COMMIT} HEAD && echo yes`,
-      cwd
-    ) === "yes";
+    // Fallback when tags are absent (e.g., shallow fetch without tags)
+    const isBaselineAncestor =
+      runGit(
+        `git merge-base --is-ancestor ${BASELINE_RELEASE_COMMIT} HEAD && echo yes`,
+        cwd
+      ) === "yes";
 
-  if (isBaselineAncestor) {
-    const countStr = runGit(
-      `git rev-list --count ${BASELINE_RELEASE_COMMIT}..HEAD`,
-      cwd
-    );
-    const commitsSinceTag = Number(countStr || "0");
-    const version = `1.0.0.${commitsSinceTag}`;
+    if (isBaselineAncestor) {
+    const computed = computeSemanticVersionFromRange(
+          { major: 1, minor: 0, patch: 0, build: 0 },
+          BASELINE_RELEASE_COMMIT,
+          cwd
+        );
+      if (computed) {
+        return {
+          version: computed.version,
+          commit: shortSha,
+          tag: "v1.0.0.0",
+          commitsSinceTag: computed.commitsSinceTag,
+          label: shortSha
+            ? `v${computed.version} (${shortSha})`
+            : `v${computed.version}`,
+        };
+      }
+    }
+
+    const fallbackVersion =
+      process.env.NEXT_PUBLIC_APP_VERSION?.trim() ||
+      (shortSha ? FALLBACK_BASE_VERSION : INITIAL_VERSION);
+
     return {
-      version,
+      version: fallbackVersion,
       commit: shortSha,
-      tag: "v1.0.0.0",
-      commitsSinceTag,
-      label: shortSha ? `v${version} (${shortSha})` : `v${version}`,
+      tag: `v${fallbackVersion}`,
+      commitsSinceTag: 0,
+      label: shortSha ? `v${fallbackVersion} (${shortSha})` : `v${fallbackVersion}`,
     };
   }
 
-  const fallbackVersion =
-    process.env.NEXT_PUBLIC_APP_VERSION?.trim() ||
-    (shortSha ? "1.0.0.0" : INITIAL_VERSION);
+  const currentFilePath = fileURLToPath(import.meta.url);
+  const invokedPath = process.argv[1] ? resolve(process.argv[1]) : "";
 
-  return {
-    version: fallbackVersion,
-    commit: shortSha,
-    tag: `v${fallbackVersion}`,
-    commitsSinceTag: 0,
-    label: shortSha ? `v${fallbackVersion} (${shortSha})` : `v${fallbackVersion}`,
-  };
-}
-
-const currentFilePath = fileURLToPath(import.meta.url);
-const invokedPath = process.argv[1] ? resolve(process.argv[1]) : "";
-
-if (invokedPath === currentFilePath) {
-  const info = resolveGitVersion();
-  if (process.argv.includes("--json")) {
-    console.log(JSON.stringify(info, null, 2));
-  } else {
-    console.log(info.label);
+  if (invokedPath === currentFilePath) {
+    const info = resolveGitVersion();
+    if (process.argv.includes("--json")) {
+      console.log(JSON.stringify(info, null, 2));
+    } else {
+      console.log(info.label);
+    }
   }
-}
