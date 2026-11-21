@@ -22,12 +22,16 @@ import {
   Edit3,
   X,
   Mail,
+  RotateCcw,
+  UserCheck,
 } from "lucide-react";
 import { supabaseBrowser } from "@/shared/infrastructure/supabase/client";
 import { publicEnv } from "@/shared/config/env";
 import { APP_VERSION, APP_VERSION_LABEL } from "@/shared/config/version";
 import AdminMissionsPanel from "@/components/admin/AdminMissionsPanel";
 import AdminTutorialPanel from "@/components/admin/AdminTutorialPanel";
+import ActionIconTooltip from "@/components/admin/ActionIconTooltip";
+import ModalityBadges from "@/components/admin/ModalityBadges";
 import {
   ALLOWED_SHIRT_SIZES,
   ShirtSizeType,
@@ -626,9 +630,10 @@ export default function AdminDashboardPage() {
 
                     <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-black/10 dark:border-white/10 text-xs">
                       <div className="flex flex-wrap items-center gap-1.5">
-                        <span className="inline-block font-medium px-2.5 py-1 rounded-full bg-[#8fa66a]/15 text-[var(--ink)]">
-                          {item.modalityTitle}
-                        </span>
+                        <ModalityBadges
+                          modality={item.modality}
+                          missionTitle={item.missionTitle}
+                        />
                         <span className="inline-block font-mono font-bold px-2 py-0.5 rounded-full bg-black/10 dark:bg-white/10 text-[var(--ink)]">
                           Camisa: {item.shirtSize}
                         </span>
@@ -699,19 +704,19 @@ export default function AdminDashboardPage() {
             </div>
 
             {/* Desktop Table */}
-            <div className="hidden md:block bg-[var(--card)] rounded-2xl border border-[var(--terra)]/20 shadow-sm overflow-hidden flex-1">
-              <div className="overflow-x-auto">
+            <div className="hidden md:block bg-[var(--card)] rounded-2xl border border-[var(--terra)]/20 shadow-sm flex-1">
+              <div className="overflow-x-auto lg:overflow-visible">
                 <table className="w-full text-left text-sm">
                   <thead className="bg-[#072119] text-[#e9e1d0] text-xs uppercase tracking-wider font-heading">
                     <tr>
-                      <th className="py-3.5 px-4">Inscrito</th>
-                      <th className="py-3.5 px-4">CPF</th>
-                      <th className="py-3.5 px-4">Camisa</th>
+                      <th className="py-3.5 px-4 rounded-tl-2xl">Inscrito</th>
+                      <th className="py-3.5 px-4 whitespace-nowrap">CPF</th>
+                      <th className="py-3.5 px-4 text-center whitespace-nowrap">Camisa</th>
                       <th className="py-3.5 px-4">Modalidade</th>
-                      <th className="py-3.5 px-4">Valor</th>
-                      <th className="py-3.5 px-4">Status</th>
-                      <th className="py-3.5 px-4">Provedor</th>
-                      <th className="py-3.5 px-4 text-center">Ações</th>
+                      <th className="py-3.5 px-4 whitespace-nowrap">Valor</th>
+                      <th className="py-3.5 px-4 whitespace-nowrap">Status</th>
+                      <th className="py-3.5 px-4 whitespace-nowrap">Provedor</th>
+                      <th className="py-3.5 px-4 text-center rounded-tr-2xl whitespace-nowrap">Ações</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-black/10 dark:divide-white/10">
@@ -737,28 +742,24 @@ export default function AdminDashboardPage() {
                               {item.email} · {item.phoneFormatted}
                             </div>
                           </td>
-                          <td className="py-3 px-4 font-mono text-xs">
+                          <td className="py-3 px-4 font-mono text-xs whitespace-nowrap">
                             {item.cpf}
                           </td>
-                          <td className="py-3 px-4">
-                            <span className="inline-block font-mono text-xs font-bold px-2.5 py-0.5 rounded-full bg-black/10 dark:bg-white/10">
+                          <td className="py-3 px-4 text-center whitespace-nowrap">
+                            <span className="inline-flex items-center justify-center w-8 h-7 font-mono text-xs font-bold rounded-lg bg-black/10 dark:bg-white/10">
                               {item.shirtSize}
                             </span>
                           </td>
                           <td className="py-3 px-4">
-                            <span className="inline-block text-xs font-medium px-2.5 py-1 rounded-full bg-[#8fa66a]/15 text-[var(--ink)]">
-                              {item.modalityTitle}
-                            </span>
-                            {item.missionTitle && (
-                              <span className="block text-[11px] text-[var(--mut)] mt-0.5">
-                                {item.missionTitle}
-                              </span>
-                            )}
+                            <ModalityBadges
+                              modality={item.modality}
+                              missionTitle={item.missionTitle}
+                            />
                           </td>
-                          <td className="py-3 px-4 font-semibold text-xs">
+                          <td className="py-3 px-4 font-semibold text-xs whitespace-nowrap">
                             {item.amountFormatted}
                           </td>
-                          <td className="py-3 px-4">
+                          <td className="py-3 px-4 whitespace-nowrap">
                             {item.paymentStatus === "PAID" && (
                               <span className="inline-flex items-center gap-1 text-xs font-bold text-emerald-700 bg-emerald-100 dark:bg-emerald-950/40 dark:text-emerald-400 px-2.5 py-0.5 rounded-full">
                                 <CheckCircle2 className="w-3 h-3" /> Pago
@@ -780,7 +781,7 @@ export default function AdminDashboardPage() {
                               </span>
                             )}
                           </td>
-                          <td className="py-3 px-4 text-xs font-mono">
+                          <td className="py-3 px-4 text-xs font-mono whitespace-nowrap">
                             <span
                               className={`px-2 py-0.5 rounded-md font-semibold ${
                                 item.paymentProvider === "PIX"
@@ -791,52 +792,44 @@ export default function AdminDashboardPage() {
                               {item.paymentProvider}
                             </span>
                           </td>
-                          <td className="py-3 px-4">
-                            <div className="flex items-center justify-center gap-2">
+                          <td className="py-3 px-4 whitespace-nowrap">
+                            <div className="flex items-center justify-center gap-1.5">
                               {item.paymentStatus === "WAITLIST" ? (
-                                <button
+                                <ActionIconTooltip
+                                  label="Liberar vaga (mover para Pendente)"
+                                  variant="purple"
+                                  icon={<UserCheck className="w-4 h-4" />}
                                   onClick={() => handleUpdateStatus(item.id, "PENDING")}
-                                  className="text-xs px-3 py-1 rounded-full font-semibold bg-purple-600 text-white hover:bg-purple-700 transition-colors"
-                                  title="Liberar vaga para esta pessoa (move para Pendente)"
-                                >
-                                  Liberar Vaga
-                                </button>
+                                />
+                              ) : item.paymentStatus === "PAID" ? (
+                                <ActionIconTooltip
+                                  label="Marcar como pendente"
+                                  variant="amber"
+                                  icon={<RotateCcw className="w-4 h-4" />}
+                                  onClick={() => handleUpdateStatus(item.id, "PENDING")}
+                                />
                               ) : (
-                                <button
-                                  onClick={() =>
-                                    handleUpdateStatus(
-                                      item.id,
-                                      item.paymentStatus === "PAID" ? "PENDING" : "PAID"
-                                    )
-                                  }
-                                  className={`text-xs px-3 py-1 rounded-full font-semibold transition-colors ${
-                                    item.paymentStatus === "PAID"
-                                      ? "bg-amber-500/10 text-amber-700 dark:text-amber-400 hover:bg-amber-500/20"
-                                      : "bg-emerald-600 text-white hover:bg-emerald-700"
-                                  }`}
-                                  title="Alternar entre Pago e Pendente (útil para conciliação Even3)"
-                                >
-                                  {item.paymentStatus === "PAID"
-                                    ? "Marcar Pendente"
-                                    : "Confirmar Pagamento"}
-                                </button>
+                                <ActionIconTooltip
+                                  label="Validar pagamento"
+                                  variant="emerald"
+                                  icon={<CheckCircle2 className="w-4 h-4" />}
+                                  onClick={() => handleUpdateStatus(item.id, "PAID")}
+                                />
                               )}
-                              <button
+
+                              <ActionIconTooltip
+                                label="Editar inscrição, missão, camisa ou cancelar"
+                                variant="neutral"
+                                icon={<Edit3 className="w-4 h-4" />}
                                 onClick={() => openEditModal(item)}
-                                className="p-1.5 text-[var(--ink)] hover:bg-black/10 dark:hover:bg-white/10 rounded-full transition-colors"
-                                title="Editar inscrição, missão, camisa ou cancelar"
-                              >
-                                <Edit3 className="w-4 h-4" />
-                              </button>
-                              <a
+                              />
+
+                              <ActionIconTooltip
+                                label="Chamar no WhatsApp"
+                                variant="emerald"
+                                icon={<MessageCircle className="w-4 h-4" />}
                                 href={item.whatsAppUrl}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="p-1.5 text-emerald-600 hover:bg-emerald-500/10 rounded-full transition-colors"
-                                title="Chamar no WhatsApp"
-                              >
-                                <MessageCircle className="w-4 h-4" />
-                              </a>
+                              />
                             </div>
                           </td>
                         </tr>
