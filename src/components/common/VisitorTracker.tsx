@@ -35,7 +35,7 @@ export default function VisitorTracker({
   const [interestSent, setInterestSent] = useState(false);
 
   const interactedRef = useRef(false);
-  const mountTimeRef = useRef<number>(Date.now());
+  const mountTimeRef = useRef<number>(0);
 
   const sendEvent = useCallback(
     async (eventType: "VISIT" | "INTEREST", eventSource: string) => {
@@ -44,7 +44,7 @@ export default function VisitorTracker({
       if (document.visibilityState !== "visible") return;
 
       const visitorId = getOrCreateVisitorId();
-      const dwellMs = Date.now() - mountTimeRef.current;
+      const dwellMs = mountTimeRef.current > 0 ? Date.now() - mountTimeRef.current : 0;
 
       try {
         const res = await fetch("/api/analytics", {
@@ -82,6 +82,8 @@ export default function VisitorTracker({
   );
 
   useEffect(() => {
+    mountTimeRef.current = Date.now();
+
     if (sessionStorage.getItem("moven_interest_sent") === "1") {
       setInterestSent(true);
     }
