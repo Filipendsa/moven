@@ -26,6 +26,11 @@ function runGit(command, cwd) {
  *   resets the baseline and restarts the 4th segment from that tag.
  */
 export function resolveGitVersion(cwd = process.cwd()) {
+  const isShallow = runGit("git rev-parse --is-shallow-repository", cwd) === "true";
+  if (isShallow) {
+    runGit("git fetch --unshallow --tags", cwd);
+  }
+
   const shortSha =
     runGit("git rev-parse --short HEAD", cwd) ||
     process.env.VERCEL_GIT_COMMIT_SHA?.slice(0, 7) ||
