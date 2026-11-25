@@ -5,6 +5,7 @@ import { SupabaseMissionRepository } from "@/modules/mission-catalog/infrastruct
 import { GetParticipantRegistrationByCpfUseCase } from "@/modules/enrollment/application/use-cases/GetParticipantRegistrationByCpfUseCase";
 import { UpdateParticipantShirtSizeUseCase } from "@/modules/enrollment/application/use-cases/UpdateParticipantShirtSizeUseCase";
 import { UpdateParticipantEnrollmentUseCase } from "@/modules/enrollment/application/use-cases/UpdateParticipantEnrollmentUseCase";
+import { UpdateParticipantBirthDateUseCase } from "@/modules/enrollment/application/use-cases/UpdateParticipantBirthDateUseCase";
 import { CancelUnpaidParticipantRegistrationUseCase } from "@/modules/enrollment/application/use-cases/CancelUnpaidParticipantRegistrationUseCase";
 
 const registrationRepo = new SupabaseRegistrationRepository();
@@ -22,6 +23,12 @@ const updateShirtSizeUseCase = new UpdateParticipantShirtSizeUseCase(
 );
 
 const updateEnrollmentUseCase = new UpdateParticipantEnrollmentUseCase(
+  registrationRepo,
+  offeringRepo,
+  missionRepo
+);
+
+const updateBirthDateUseCase = new UpdateParticipantBirthDateUseCase(
   registrationRepo,
   offeringRepo,
   missionRepo
@@ -79,6 +86,24 @@ export async function PATCH(request: Request) {
         return NextResponse.json(
           { error: result.error.message },
           { status: isNotFound ? 404 : isPaidLock ? 403 : 400 }
+        );
+      }
+
+      return NextResponse.json({ registration: result.value });
+    }
+
+    if (body.action === "UPDATE_BIRTH_DATE") {
+      const result = await updateBirthDateUseCase.execute({
+        email,
+        cpfLast4,
+        birthDate: body.birthDate || "",
+      });
+
+      if (!result.success) {
+        const isNotFound = result.error.message.includes("não encontrada");
+        return NextResponse.json(
+          { error: result.error.message },
+          { status: isNotFound ? 404 : 400 }
         );
       }
 

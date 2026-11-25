@@ -35,6 +35,7 @@ export async function POST(request: Request) {
       email: body.email,
       phone: body.phone,
       cpf: body.cpf,
+      birthDate: body.birthDate ? String(body.birthDate) : "",
       modality: body.modality,
       missionId: body.missionId,
       shirtSize: body.shirtSize,

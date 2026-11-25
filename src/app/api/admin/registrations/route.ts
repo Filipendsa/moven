@@ -63,6 +63,10 @@ export async function GET(request: Request) {
         `Olá ${r.fullName.split(" ")[0]}! Falamos da liderança do MOVEN a respeito da sua inscrição na ${r.modality.title}.`
       ),
       cpf: r.cpf.formatted,
+      birthDate: r.birthDate ? r.birthDate.value : null,
+      birthDateFormatted: r.birthDate ? r.birthDate.formattedPtBr : null,
+      age: r.birthDate ? r.birthDate.getAge() : null,
+      isMinor: r.birthDate ? r.birthDate.isMinor() : false,
       shirtSize: r.shirtSize.value,
       modality: r.modality.type,
       modalityTitle: r.modality.title,
@@ -93,9 +97,16 @@ export async function GET(request: Request) {
 export async function PATCH(request: Request) {
   try {
     const body = await request.json();
-    const { id, status, shirtSize, modality, missionId } = body;
+    const { id, status, shirtSize, birthDate, modality, missionId } = body;
 
-    if (!id || (!status && !shirtSize && !modality && missionId === undefined)) {
+    if (
+      !id ||
+      (!status &&
+        !shirtSize &&
+        birthDate === undefined &&
+        !modality &&
+        missionId === undefined)
+    ) {
       return NextResponse.json(
         { error: "ID e ao menos um campo para atualização são obrigatórios." },
         { status: 400 }
@@ -106,6 +117,7 @@ export async function PATCH(request: Request) {
       id,
       status,
       shirtSize,
+      birthDate,
       modality,
       missionId,
     });

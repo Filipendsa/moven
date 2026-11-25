@@ -25,6 +25,7 @@ import {
   RotateCcw,
   UserCheck,
   Ticket,
+  AlertCircle,
 } from "lucide-react";
 import { supabaseBrowser } from "@/shared/infrastructure/supabase/client";
 import { publicEnv } from "@/shared/config/env";
@@ -46,6 +47,10 @@ interface RegistrationItem {
   phoneFormatted: string;
   whatsAppUrl: string;
   cpf: string;
+  birthDate: string | null;
+  birthDateFormatted: string | null;
+  age: number | null;
+  isMinor: boolean;
   shirtSize: ShirtSizeType;
   modality: "SCHOOL" | "MISSION" | "BOTH";
   modalityTitle: string;
@@ -103,6 +108,7 @@ export default function AdminDashboardPage() {
   const [editModality, setEditModality] = useState<RegistrationItem["modality"]>("SCHOOL");
   const [editMissionId, setEditMissionId] = useState<string>("");
   const [editShirtSize, setEditShirtSize] = useState<ShirtSizeType>("M");
+  const [editBirthDate, setEditBirthDate] = useState<string>("");
   const [savingEdit, setSavingEdit] = useState(false);
   const [sendingReminders, setSendingReminders] = useState(false);
   const [reminderNotice, setReminderNotice] = useState<string | null>(null);
@@ -204,6 +210,7 @@ export default function AdminDashboardPage() {
     setEditModality(item.modality);
     setEditMissionId(item.missionId || missions[0]?.id || "");
     setEditShirtSize(item.shirtSize || "M");
+    setEditBirthDate(item.birthDate || "");
   };
 
   const handleSaveEditModal = async (e: React.FormEvent) => {
@@ -220,6 +227,7 @@ export default function AdminDashboardPage() {
           modality: editModality,
           missionId: editModality === "SCHOOL" ? undefined : editMissionId || undefined,
           shirtSize: editShirtSize,
+          birthDate: editBirthDate || undefined,
         }),
       });
       if (res.ok) {
@@ -618,8 +626,28 @@ export default function AdminDashboardPage() {
                         <div className="text-xs text-[var(--mut)] break-all">
                           {item.email}
                         </div>
-                        <div className="text-xs text-[var(--mut)] mt-0.5">
-                          {item.phoneFormatted} · CPF: <span className="font-mono">{item.cpf}</span>
+                        <div className="text-xs text-[var(--mut)] mt-0.5 flex flex-wrap items-center gap-1.5">
+                          <span>{item.phoneFormatted} · CPF: <span className="font-mono">{item.cpf}</span></span>
+                          {item.age !== null ? (
+                            <span
+                              className={`inline-flex items-center px-1.5 py-0.5 rounded font-semibold ${
+                                item.isMinor
+                                  ? "bg-amber-500/15 text-amber-700 dark:text-amber-300"
+                                  : "bg-black/5 dark:bg-white/10 text-[var(--ink)]"
+                              }`}
+                              title={`Nasc.: ${item.birthDateFormatted}`}
+                            >
+                              {item.age} anos
+                            </span>
+                          ) : (
+                            <span
+                              className="inline-flex items-center gap-1 text-amber-600 dark:text-amber-400 font-semibold"
+                              title="Data de nascimento não informada"
+                            >
+                              <AlertCircle className="w-3.5 h-3.5" />
+                              Sem data
+                            </span>
+                          )}
                         </div>
                       </div>
                       <div className="flex-shrink-0">
@@ -734,6 +762,7 @@ export default function AdminDashboardPage() {
                     <tr>
                       <th className="py-3.5 px-4 rounded-tl-2xl">Inscrito</th>
                       <th className="py-3.5 px-4 whitespace-nowrap">CPF</th>
+                      <th className="py-3.5 px-4 text-center whitespace-nowrap">Idade</th>
                       <th className="py-3.5 px-4 text-center whitespace-nowrap">Camisa</th>
                       <th className="py-3.5 px-4">Modalidade</th>
                       <th className="py-3.5 px-4 whitespace-nowrap">Valor</th>
@@ -745,7 +774,7 @@ export default function AdminDashboardPage() {
                   <tbody className="divide-y divide-black/10 dark:divide-white/10">
                     {registrations.length === 0 ? (
                       <tr>
-                        <td colSpan={8} className="py-10 text-center text-[var(--mut)]">
+                        <td colSpan={9} className="py-10 text-center text-[var(--mut)]">
                           {loading
                             ? "Carregando inscrições..."
                             : "Nenhuma inscrição encontrada com os filtros aplicados."}
@@ -767,6 +796,31 @@ export default function AdminDashboardPage() {
                           </td>
                           <td className="py-3 px-4 font-mono text-xs whitespace-nowrap">
                             {item.cpf}
+                          </td>
+                          <td className="py-3 px-4 text-center whitespace-nowrap">
+                            {item.age !== null ? (
+                              <div className="inline-flex flex-col items-center">
+                                <span
+                                  className={`text-xs font-bold px-2 py-0.5 rounded-full ${
+                                    item.isMinor
+                                      ? "bg-amber-500/15 text-amber-700 dark:text-amber-300"
+                                      : "bg-black/5 dark:bg-white/10 text-[var(--ink)]"
+                                  }`}
+                                >
+                                  {item.age} anos
+                                </span>
+                                <span className="text-[10px] text-[var(--mut)] mt-0.5">
+                                  {item.birthDateFormatted}
+                                </span>
+                              </div>
+                            ) : (
+                              <span
+                                className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-amber-500/15 text-amber-600 dark:text-amber-400"
+                                title="Data de nascimento não informada"
+                              >
+                                <AlertCircle className="w-4 h-4" />
+                              </span>
+                            )}
                           </td>
                           <td className="py-3 px-4 text-center whitespace-nowrap">
                             <span className="inline-flex items-center justify-center w-8 h-7 font-mono text-xs font-bold rounded-lg bg-black/10 dark:bg-white/10">
@@ -973,6 +1027,19 @@ export default function AdminDashboardPage() {
                     </option>
                   ))}
                 </select>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold uppercase tracking-wider mb-1">
+                  Data de Nascimento
+                </label>
+                <input
+                  type="date"
+                  max={new Date().toISOString().slice(0, 10)}
+                  value={editBirthDate}
+                  onChange={(e) => setEditBirthDate(e.target.value)}
+                  className="w-full bg-white/70 dark:bg-black/30 border border-black/15 dark:border-white/15 rounded-xl px-3 py-2 text-sm"
+                />
               </div>
 
               <div className="flex gap-3 pt-2">

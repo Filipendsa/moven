@@ -24,6 +24,7 @@ import { publicEnv } from "@/shared/config/env";
 import { Cpf } from "@/modules/enrollment/domain/value-objects/Cpf";
 import { Email } from "@/modules/enrollment/domain/value-objects/Email";
 import { BrazilianPhone } from "@/modules/enrollment/domain/value-objects/BrazilianPhone";
+import { BirthDate } from "@/modules/enrollment/domain/value-objects/BirthDate";
 import {
   ShirtSize,
   ShirtSizeType,
@@ -59,6 +60,7 @@ export default function EnrollmentForm() {
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [cpf, setCpf] = useState("");
+  const [birthDate, setBirthDate] = useState("");
   const [shirtSize, setShirtSize] = useState<ShirtSizeType | "">("");
   const [termsAccepted, setTermsAccepted] = useState(false);
 
@@ -97,11 +99,14 @@ export default function EnrollmentForm() {
   const includesMission = modality === "MISSION" || modality === "BOTH";
   const isWaitlist = Boolean(includesMission && activeMission?.isWaitlistMode);
 
+  const parsedBirthDate = BirthDate.create(birthDate);
+
   const isFormFilled = Boolean(
     fullName.trim().length >= 3 &&
       Email.create(email).success &&
       BrazilianPhone.create(phone).success &&
       Cpf.create(cpf).success &&
+      parsedBirthDate.success &&
       ShirtSize.create(shirtSize).success &&
       termsAccepted
   );
@@ -210,6 +215,7 @@ export default function EnrollmentForm() {
           email,
           phone,
           cpf,
+          birthDate,
           modality,
           missionId: includesMission ? activeMission?.id : undefined,
           shirtSize,
@@ -515,6 +521,33 @@ export default function EnrollmentForm() {
                 className="w-full bg-white/70 dark:bg-black/30 border border-black/15 dark:border-white/15 rounded-xl px-4 py-2.5 text-base sm:text-sm focus:outline-none focus:border-[#8fa66a]"
               />
             </div>
+          </div>
+
+          {/* Birth Date */}
+          <div>
+            <div className="flex items-center justify-between gap-2 mb-1">
+              <label className="block text-xs font-semibold uppercase tracking-wider">
+                {t.birthDateLabel}
+              </label>
+              {parsedBirthDate.success && (
+                <span className="text-xs font-bold text-[#8fa66a]">
+                  {parsedBirthDate.value.getAge()} {t.birthDateAgeSuffix}
+                </span>
+              )}
+            </div>
+            <input
+              type="date"
+              required
+              max={new Date().toISOString().slice(0, 10)}
+              value={birthDate}
+              onChange={(e) => setBirthDate(e.target.value)}
+              className="w-full bg-white/70 dark:bg-black/30 border border-black/15 dark:border-white/15 rounded-xl px-4 py-2.5 text-base sm:text-sm focus:outline-none focus:border-[#8fa66a]"
+            />
+            {parsedBirthDate.success && parsedBirthDate.value.isMinor() && (
+              <p className="text-[11px] text-amber-700 dark:text-amber-300 mt-1">
+                {t.birthDateMinorNote}
+              </p>
+            )}
           </div>
 
           {/* Shirt Size */}

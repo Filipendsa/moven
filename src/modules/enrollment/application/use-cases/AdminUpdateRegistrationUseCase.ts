@@ -5,6 +5,7 @@ import { IEventOfferingRepository } from "@/modules/mission-catalog/domain/repos
 import { IMissionRepository } from "@/modules/mission-catalog/domain/repositories/IMissionRepository";
 import { EnrollmentModality } from "../../domain/value-objects/EnrollmentModality";
 import { ShirtSize } from "../../domain/value-objects/ShirtSize";
+import { BirthDate } from "../../domain/value-objects/BirthDate";
 import { EnrollmentPricingAndMissionResolver } from "../services/EnrollmentPricingAndMissionResolver";
 
 const ALLOWED_STATUSES: readonly PaymentStatus[] = [
@@ -18,6 +19,7 @@ export interface AdminUpdateRegistrationInput {
   id: string;
   status?: PaymentStatus;
   shirtSize?: string;
+  birthDate?: string;
   modality?: string;
   missionId?: string;
 }
@@ -52,6 +54,15 @@ export class AdminUpdateRegistrationUseCase {
         return Result.fail(parsedShirt.error);
       }
       shirtSizeVo = parsedShirt.value;
+    }
+
+    let birthDateVo: BirthDate | undefined;
+    if (input.birthDate !== undefined && input.birthDate.trim() !== "") {
+      const parsedBirthDate = BirthDate.create(input.birthDate);
+      if (!parsedBirthDate.success) {
+        return Result.fail(parsedBirthDate.error);
+      }
+      birthDateVo = parsedBirthDate.value;
     }
 
     let modalityVo: EnrollmentModality | undefined;
@@ -106,6 +117,7 @@ export class AdminUpdateRegistrationUseCase {
       missionId: resolvedMissionId,
       amount: resolvedAmount,
       shirtSize: shirtSizeVo,
+      birthDate: birthDateVo,
       status: input.status,
     });
 

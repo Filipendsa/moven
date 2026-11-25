@@ -37,6 +37,9 @@ interface ParticipantRegistrationView {
   email: string;
   phoneFormatted: string;
   cpfMasked: string;
+  birthDate: string | null;
+  birthDateFormatted: string | null;
+  age: number | null;
   modality: "SCHOOL" | "MISSION" | "BOTH";
   modalityTitle: string;
   missionId?: string;
@@ -73,6 +76,9 @@ export default function ParticipantPanel() {
 
   const [searching, setSearching] = useState(false);
   const [savingShirt, setSavingShirt] = useState(false);
+  const [birthDateInput, setBirthDateInput] = useState("");
+  const [savingBirthDate, setSavingBirthDate] = useState(false);
+  const [birthDateSuccessMessage, setBirthDateSuccessMessage] = useState<string | null>(null);
   const [updatingMission, setUpdatingMission] = useState(false);
   const [cancelingUnpaid, setCancelingUnpaid] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -153,6 +159,39 @@ export default function ParticipantPanel() {
   const handleSearchSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     await fetchByCredentials(emailInput, cpfLast4Input);
+  };
+
+  const handleSaveBirthDate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!registration || !birthDateInput || !authenticatedLast4) return;
+    setSavingBirthDate(true);
+    setBirthDateSuccessMessage(null);
+    setErrorMessage(null);
+
+    try {
+      const res = await fetch("/api/enrollments/participant", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: registration.email,
+          cpfLast4: authenticatedLast4,
+          action: "UPDATE_BIRTH_DATE",
+          birthDate: birthDateInput,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || t.invalidCpfError);
+      }
+
+      setRegistration(data.registration);
+      setBirthDateSuccessMessage(t.birthDateSavedSuccess);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : t.invalidCpfError;
+      setErrorMessage(msg);
+    } finally {
+      setSavingBirthDate(false);
+    }
   };
 
   const handleSaveShirtSize = async () => {
@@ -543,8 +582,65 @@ export default function ParticipantPanel() {
                     )}
                   </span>
                 </div>
+                {registration.birthDateFormatted && (
+                  <div>
+                    <span className="block text-xs text-[var(--mut)]">
+                      {t.birthDateLabel}
+                    </span>
+                    <span className="font-medium">
+                      {registration.birthDateFormatted}
+                      {registration.age !== null
+                        ? ` (${registration.age} ${t.birthDateYearsSuffix})`
+                        : ""}
+                    </span>
+                  </div>
+                )}
               </div>
             </div>
+
+            {/* Missing Birth Date Notification */}
+            {!registration.birthDate && registration.paymentStatus !== "CANCELED" && (
+              <form
+                onSubmit={handleSaveBirthDate}
+                className="p-5 rounded-2xl bg-amber-500/15 border-2 border-amber-500/40 space-y-3"
+              >
+                <div className="flex items-start gap-2.5 text-amber-950 dark:text-amber-200">
+                  <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5 text-amber-600 dark:text-amber-300" />
+                  <div>
+                    <h3 className="font-heading font-bold text-sm">
+                      {t.birthDateMissingTitle}
+                    </h3>
+                    <p className="text-xs opacity-90 mt-0.5">
+                      {t.birthDateMissingDesc}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex flex-col sm:flex-row gap-2.5">
+                  <input
+                    type="date"
+                    required
+                    max={new Date().toISOString().slice(0, 10)}
+                    value={birthDateInput}
+                    onChange={(e) => setBirthDateInput(e.target.value)}
+                    className="flex-1 bg-white/80 dark:bg-black/30 border border-black/15 dark:border-white/15 rounded-xl px-3.5 py-2 text-base sm:text-sm focus:outline-none focus:border-[#8fa66a]"
+                  />
+                  <button
+                    type="submit"
+                    disabled={savingBirthDate || !birthDateInput}
+                    className="bg-[#072119] text-[#e9e1d0] hover:bg-[var(--terra)] font-heading font-bold text-xs px-5 py-2.5 rounded-xl transition-colors disabled:opacity-50"
+                  >
+                    {savingBirthDate ? t.birthDateSaving : t.birthDateSaveButton}
+                  </button>
+                </div>
+              </form>
+            )}
+
+            {birthDateSuccessMessage && (
+              <div className="p-3.5 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-800 dark:text-emerald-300 text-xs flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 flex-shrink-0" />
+                <span>{birthDateSuccessMessage}</span>
+              </div>
+            )}
 
             {/* Payment Method Card */}
             <div className="bg-black/5 dark:bg-white/5 rounded-2xl border border-black/10 dark:border-white/10 p-5 space-y-4">

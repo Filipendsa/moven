@@ -10,6 +10,7 @@ import { BrazilianPhone } from "../../domain/value-objects/BrazilianPhone";
 import { EnrollmentModality } from "../../domain/value-objects/EnrollmentModality";
 import { LgpdConsent } from "../../domain/value-objects/LgpdConsent";
 import { ShirtSize } from "../../domain/value-objects/ShirtSize";
+import { BirthDate } from "../../domain/value-objects/BirthDate";
 import { Money } from "@/modules/mission-catalog/domain/value-objects/Money";
 
 export interface RegistrationPersistenceRow {
@@ -18,6 +19,7 @@ export interface RegistrationPersistenceRow {
   email: string;
   phone: string;
   cpf: string;
+  birth_date?: string | null;
   modality: string;
   mission_id?: string | null;
   shirt_size?: string | null;
@@ -47,6 +49,7 @@ export class RegistrationMapper {
       email: registration.email.value,
       phone: registration.phone.digits,
       cpf: registration.cpf.value,
+      birth_date: registration.birthDate ? registration.birthDate.value : null,
       modality: registration.modality.type,
       mission_id: registration.missionId || null,
       shirt_size: registration.shirtSize.value,
@@ -107,6 +110,7 @@ export class RegistrationMapper {
       email: emailResult.value,
       phone: phoneResult.value,
       cpf: cpfResult.value,
+      birthDate: BirthDate.createOptional(row.birth_date),
       modality: modalityResult.value,
       missionId: row.mission_id || undefined,
       shirtSize: ShirtSize.createOrDefault(row.shirt_size, "M"),

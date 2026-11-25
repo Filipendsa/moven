@@ -6,6 +6,7 @@ import { BrazilianPhone } from "../value-objects/BrazilianPhone";
 import { EnrollmentModality } from "../value-objects/EnrollmentModality";
 import { LgpdConsent } from "../value-objects/LgpdConsent";
 import { ShirtSize } from "../value-objects/ShirtSize";
+import { BirthDate } from "../value-objects/BirthDate";
 import { Money } from "@/modules/mission-catalog/domain/value-objects/Money";
 
 export type PaymentStatus = "PENDING" | "PAID" | "WAITLIST" | "CANCELED";
@@ -16,6 +17,7 @@ export interface RegistrationProps {
   email: Email;
   phone: BrazilianPhone;
   cpf: Cpf;
+  birthDate?: BirthDate;
   modality: EnrollmentModality;
   missionId?: string;
   shirtSize: ShirtSize;
@@ -53,6 +55,10 @@ export class Registration extends Entity<RegistrationProps> {
 
   get cpf(): Cpf {
     return this.props.cpf;
+  }
+
+  get birthDate(): BirthDate | undefined {
+    return this.props.birthDate;
   }
 
   get modality(): EnrollmentModality {
@@ -219,6 +225,7 @@ export class Registration extends Entity<RegistrationProps> {
     missionId?: string;
     amount?: Money;
     shirtSize?: ShirtSize;
+    birthDate?: BirthDate;
     status?: PaymentStatus;
   }): Result<void, Error> {
     if (params.modality) {
@@ -238,10 +245,25 @@ export class Registration extends Entity<RegistrationProps> {
       this.props.shirtSize = params.shirtSize;
     }
 
+    if (params.birthDate) {
+      this.props.birthDate = params.birthDate;
+    }
+
     if (params.status) {
       this.props.paymentStatus = params.status;
     }
 
+    this.props.updatedAt = new Date();
+    return Result.ok(undefined);
+  }
+
+  public changeBirthDate(birthDate: BirthDate): Result<void, Error> {
+    if (this.props.paymentStatus === "CANCELED") {
+      return Result.fail(
+        new Error("Não é possível atualizar uma inscrição cancelada.")
+      );
+    }
+    this.props.birthDate = birthDate;
     this.props.updatedAt = new Date();
     return Result.ok(undefined);
   }
@@ -279,6 +301,7 @@ export class Registration extends Entity<RegistrationProps> {
     email: Email;
     phone: BrazilianPhone;
     cpf: Cpf;
+    birthDate?: BirthDate;
     modality: EnrollmentModality;
     missionId?: string;
     shirtSize: ShirtSize;
@@ -307,6 +330,7 @@ export class Registration extends Entity<RegistrationProps> {
           email: params.email,
           phone: params.phone,
           cpf: params.cpf,
+          birthDate: params.birthDate,
           modality: params.modality,
           missionId: params.missionId,
           shirtSize: params.shirtSize,

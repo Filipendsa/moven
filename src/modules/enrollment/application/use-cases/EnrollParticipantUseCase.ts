@@ -15,6 +15,7 @@ import { BrazilianPhone } from "../../domain/value-objects/BrazilianPhone";
 import { EnrollmentModality } from "../../domain/value-objects/EnrollmentModality";
 import { LgpdConsent } from "../../domain/value-objects/LgpdConsent";
 import { ShirtSize } from "../../domain/value-objects/ShirtSize";
+import { BirthDate } from "../../domain/value-objects/BirthDate";
 import { DuplicateCpfEnrollmentError } from "../../domain/errors/DuplicateCpfEnrollmentError";
 import { EnrollmentPricingAndMissionResolver } from "../services/EnrollmentPricingAndMissionResolver";
 import { CheckoutResult } from "@/modules/billing/domain/ports/IPaymentGateway";
@@ -28,6 +29,7 @@ export interface EnrollParticipantInput {
   email: string;
   phone: string;
   cpf: string;
+  birthDate: string;
   modality: string;
   missionId?: string;
   shirtSize: string;
@@ -77,6 +79,9 @@ export class EnrollParticipantUseCase {
 
     const cpfResult = Cpf.create(input.cpf);
     if (!cpfResult.success) return Result.fail(cpfResult.error);
+
+    const birthDateResult = BirthDate.create(input.birthDate);
+    if (!birthDateResult.success) return Result.fail(birthDateResult.error);
 
     const modalityResult = EnrollmentModality.create(input.modality);
     if (!modalityResult.success) return Result.fail(modalityResult.error);
@@ -176,6 +181,7 @@ export class EnrollParticipantUseCase {
       email: emailResult.value,
       phone: phoneResult.value,
       cpf: cpfResult.value,
+      birthDate: birthDateResult.value,
       modality: modalityResult.value,
       missionId: targetMissionId,
       shirtSize: shirtSizeResult.value,

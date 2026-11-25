@@ -20,6 +20,9 @@ export interface ParticipantRegistrationDto {
   email: string;
   phoneFormatted: string;
   cpfMasked: string;
+  birthDate: string | null;
+  birthDateFormatted: string | null;
+  age: number | null;
   modality: ModalityType;
   modalityTitle: string;
   missionId?: string;
@@ -71,6 +74,11 @@ export async function buildParticipantRegistrationDto(
     email: registration.email.value,
     phoneFormatted: registration.phone.formatted,
     cpfMasked: `***.***.***-${registration.cpf.value.slice(-2)}`,
+    birthDate: registration.birthDate ? registration.birthDate.value : null,
+    birthDateFormatted: registration.birthDate
+      ? registration.birthDate.formattedPtBr
+      : null,
+    age: registration.birthDate ? registration.birthDate.getAge() : null,
     modality: registration.modality.type,
     modalityTitle: registration.modality.title,
     missionId: registration.missionId,
