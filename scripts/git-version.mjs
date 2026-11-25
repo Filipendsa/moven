@@ -1,4 +1,5 @@
 import { execSync } from "node:child_process";
+import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { resolve } from "node:path";
 
@@ -16,6 +17,17 @@ function runGit(command, cwd) {
   } catch {
     return null;
   }
+}
+
+function parseVersionString(ver) {
+  const m = String(ver || "").match(/^(\d+)\.(\d+)\.(\d+)\.(\d+)$/);
+  if (!m) return null;
+  return {
+    major: Number(m[1]),
+    minor: Number(m[2]),
+    patch: Number(m[3]),
+    build: Number(m[4]),
+  };
 }
 
 function applyCommitBump(version, subject, body = "") {
@@ -69,23 +81,31 @@ function computeSemanticVersionFromRange(baseVersion, fromRef, cwd) {
   }
 
   return {
+    ...current,
     version: `${current.major}.${current.minor}.${current.patch}.${current.build}`,
     commitsSinceTag: entries.length,
   };
 }
 
+function readVersionManifest(cwd) {
+  const manifestPath = resolve(cwd, "version.json");
+  if (!existsSync(manifestPath)) return null;
+  try {
+    const parsed = JSON.parse(readFileSync(manifestPath, "utf8"));
+    const nums = parseVersionString(parsed.version);
+    if (!nums) return null;
+    return { ...nums, version: parsed.version };
+  } catch {
+    return null;
+  }
+}
+
 /**
  * Resolves a 4-segment Semantic Git-based version (`MAJOR.MINOR.PATCH.BUILD`).
- *
- * - Tag `v1.0.0.0` at `c30ed3497c23704b05f580898957f14c14381cbb` represents the first release (`1.0.0.0`).
- * - Analyzes every commit since the latest release tag (or baseline commit):
- *   - Breaking change (`feat!:`, `fix!:`, `BREAKING CHANGE`): increments MAJOR, resets MINOR & PATCH.
- *   - `feat:` / `feat(...)`: increments MINOR, resets PATCH.
- *   - `fix:`, `refactor:`, `chore:`, etc.: increments PATCH.
- *   - Every commit increments BUILD (4th segment).
  */
 export function resolveGitVersion(cwd = process.cwd()) {
-  const isShallow = runGit("git rev-parse --is-shallow-repository", cwd) === "true";
+  const isShallow =
+    runGit("git rev-parse --is-shallow-repository", cwd) === "true";
   if (isShallow) {
     runGit("git fetch --unshallow --tags", cwd);
   }
@@ -105,75 +125,132 @@ export function resolveGitVersion(cwd = process.cwd()) {
       /^v(\d+)\.(\d+)\.(\d+)\.(\d+)-(\d+)-g([0-9a-f]+)$/i
     );
     if (match) {
-        const [, majorStr, minorStr, patchStr, baseBuildStr, , sha] = match;
-        const baseTag = `v${majorStr}.${minorStr}.${patchStr}.${baseBuildStr}`;
-        const baseVersion = {
-          major: Number(majorStr),
-          minor: Number(minorStr),
-          patch: Number(patchStr),
-          build: Number(baseBuildStr),
-        };
+      const [, majorStr, minorStr, patchStr, baseBuildStr, , sha] = match;
+      const baseTag = `v${majorStr}.${minorStr}.${patchStr}.${baseBuildStr}`;
+      const baseVersion = {
+        major: Number(majorStr),
+        minor: Number(minorStr),
+        patch: Number(patchStr),
+        build: Number(baseBuildStr),
+      };
 
-        const computed = computeSemanticVersionFromRange(baseVersion, baseTag, cwd);
-        if(computed) {
-          return {
-            version: computed.version,
-            commit: sha,
-            tag: baseTag,
-            commitsSinceTag: computed.commitsSinceTag,
-            label: `v${computed.version} (${sha})`,
-          };
-        }
-      }
-    }
-
-    // Fallback when tags are absent (e.g., shallow fetch without tags)
-    const isBaselineAncestor =
-      runGit(
-        `git merge-base --is-ancestor ${BASELINE_RELEASE_COMMIT} HEAD && echo yes`,
-        cwd
-      ) === "yes";
-
-    if (isBaselineAncestor) {
-    const computed = computeSemanticVersionFromRange(
-          { major: 1, minor: 0, patch: 0, build: 0 },
-          BASELINE_RELEASE_COMMIT,
-          cwd
-        );
+      const computed = computeSemanticVersionFromRange(baseVersion, baseTag, cwd);
       if (computed) {
         return {
-          version: computed.version,
-          commit: shortSha,
-          tag: "v1.0.0.0",
-          commitsSinceTag: computed.commitsSinceTag,
-          label: shortSha
-            ? `v${computed.version} (${shortSha})`
-            : `v${computed.version}`,
+          ...computed,
+          commit: sha,
+          tag: baseTag,
+          label: `v${computed.version} (${sha})`,
         };
       }
     }
+  }
 
-    const fallbackVersion =
-      process.env.NEXT_PUBLIC_APP_VERSION?.trim() ||
-      (shortSha ? FALLBACK_BASE_VERSION : INITIAL_VERSION);
+  // Fallback when tags are absent (e.g., shallow fetch without tags)
+  const isBaselineAncestor =
+    runGit(
+      `git merge-base --is-ancestor ${BASELINE_RELEASE_COMMIT} HEAD && echo yes`,
+      cwd
+    ) === "yes";
 
+  if (isBaselineAncestor) {
+    const computed = computeSemanticVersionFromRange(
+      { major: 1, minor: 0, patch: 0, build: 0 },
+      BASELINE_RELEASE_COMMIT,
+      cwd
+    );
+    if (computed) {
+      return {
+        ...computed,
+        commit: shortSha,
+        tag: "v1.0.0.0",
+        label: shortSha
+          ? `v${computed.version} (${shortSha})`
+          : `v${computed.version}`,
+      };
+    }
+  }
+
+  // Shallow clone / Vercel fallback: read committed version.json manifest
+  const manifest = readVersionManifest(cwd);
+  if (manifest) {
     return {
-      version: fallbackVersion,
+      ...manifest,
       commit: shortSha,
-      tag: `v${fallbackVersion}`,
+      tag: `v${manifest.version}`,
       commitsSinceTag: 0,
-      label: shortSha ? `v${fallbackVersion} (${shortSha})` : `v${fallbackVersion}`,
+      label: shortSha
+        ? `v${manifest.version} (${shortSha})`
+        : `v${manifest.version}`,
     };
   }
 
-  const currentFilePath = fileURLToPath(import.meta.url);
-  const invokedPath = process.argv[1] ? resolve(process.argv[1]) : "";
+  const fallbackVersion =
+    process.env.NEXT_PUBLIC_APP_VERSION?.trim() ||
+    (shortSha ? FALLBACK_BASE_VERSION : INITIAL_VERSION);
+  const fallbackNums = parseVersionString(fallbackVersion) || {
+    major: 1,
+    minor: 16,
+    patch: 0,
+    build: 18,
+  };
 
-  if (invokedPath === currentFilePath) {
-    const info = resolveGitVersion();
-    if (process.argv.includes("--json")) {
-      console.log(JSON.stringify(info, null, 2));
-    } else {
-      console.log(info.label);
-    }
+  return {
+    ...fallbackNums,
+    version: fallbackVersion,
+    commit: shortSha,
+    tag: `v${fallbackVersion}`,
+    commitsSinceTag: 0,
+    label: shortSha
+      ? `v${fallbackVersion} (${shortSha})`
+      : `v${fallbackVersion}`,
+  };
+}
+
+export function writeVersionFiles(cwd = process.cwd()) {
+  const info = resolveGitVersion(cwd);
+
+  const manifestPath = resolve(cwd, "version.json");
+  const manifestContent =
+    JSON.stringify(
+      {
+        version: info.version,
+        major: info.major,
+        minor: info.minor,
+        patch: info.patch,
+        build: info.build,
+      },
+      null,
+      2
+    ) + "\n";
+  writeFileSync(manifestPath, manifestContent, "utf8");
+
+  const versionTsPath = resolve(cwd, "src/shared/config/version.ts");
+  const versionTsContent = `export const APP_VERSION =
+  process.env.NEXT_PUBLIC_APP_VERSION?.trim() || "${info.version}";
+
+export const APP_COMMIT = process.env.NEXT_PUBLIC_APP_COMMIT?.trim() || "";
+
+export const APP_VERSION_LABEL = APP_COMMIT
+  ? \`v\${APP_VERSION} (\${APP_COMMIT})\`
+  : \`v\${APP_VERSION}\`;
+`;
+  writeFileSync(versionTsPath, versionTsContent, "utf8");
+
+  return info;
+}
+
+const currentFilePath = fileURLToPath(import.meta.url);
+const invokedPath = process.argv[1] ? resolve(process.argv[1]) : "";
+
+if (invokedPath === currentFilePath) {
+  const info = process.argv.includes("--write")
+    ? writeVersionFiles()
+    : resolveGitVersion();
+
+  if (process.argv.includes("--json")) {
+    console.log(JSON.stringify(info, null, 2));
+  } else {
+    console.log(info.label);
   }
+}

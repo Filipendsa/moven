@@ -4,10 +4,13 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "prebuild": "node scripts/git-version.mjs --write",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "version:check": "node scripts/git-version.mjs"
+    "prepare": "git config core.hooksPath .githooks",
+    "version:check": "node scripts/git-version.mjs",
+    "version:sync": "node scripts/git-version.mjs --write"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.119.0",

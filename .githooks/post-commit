@@ -1,0 +1,15 @@
+#!/bin/sh
+LOCK_FILE=".git/.version_hook_running"
+if [ -f "$LOCK_FILE" ]; then
+  exit 0
+fi
+
+touch "$LOCK_FILE"
+trap 'rm -f "$LOCK_FILE"' EXIT
+
+node scripts/git-version.mjs --write >/dev/null 2>&1 || exit 0
+
+if ! git diff --quiet -- version.json src/shared/config/version.ts; then
+  git add version.json src/shared/config/version.ts
+  git commit --amend --no-edit --no-verify >/dev/null 2>&1
+fi
