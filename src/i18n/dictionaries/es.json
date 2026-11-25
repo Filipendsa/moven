@@ -413,5 +413,19 @@
     ],
     "s3Title": "3. Cancelación y Reembolso",
     "s3Body": "Las cancelaciones solicitadas con hasta 60 días de anticipación al inicio de la expedición tendrán reembolso conforme a las políticas de costos fijos ya contratados de la embarcación y seguro. Las comisiones administrativas de procesamiento de tarjeta o boleto no son reembolsables."
+  },
+  "forms": {
+    "requiredNotice": "Obligatoria",
+    "shortAnswerPlaceholder": "Tu respuesta",
+    "paragraphPlaceholder": "Escribe tu respuesta...",
+    "otherLabel": "Otro",
+    "selectPlaceholder": "Seleccionar...",
+    "submit": "Enviar respuesta",
+    "submitting": "Enviando...",
+    "submitError": "Error al enviar la respuesta.",
+    "notFoundTitle": "Formulario no encontrado.",
+    "pausedDesc": "Este formulario está pausado temporalmente. Inténtalo de nuevo más tarde.",
+    "closedDesc": "Este formulario ya no acepta más respuestas.",
+    "backHome": "Volver al sitio de MOVEN"
   }
 }

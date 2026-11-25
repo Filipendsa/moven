@@ -26,6 +26,7 @@ import {
   UserCheck,
   Ticket,
   AlertCircle,
+  FileSpreadsheet,
 } from "lucide-react";
 import { supabaseBrowser } from "@/shared/infrastructure/supabase/client";
 import { publicEnv } from "@/shared/config/env";
@@ -33,6 +34,7 @@ import { APP_VERSION, APP_VERSION_LABEL } from "@/shared/config/version";
 import AdminMissionsPanel from "@/components/admin/AdminMissionsPanel";
 import AdminTutorialPanel from "@/components/admin/AdminTutorialPanel";
 import AdminCouponsPanel from "@/components/admin/AdminCouponsPanel";
+import AdminFormsPanel from "@/components/admin/forms/AdminFormsPanel";
 import ActionIconTooltip from "@/components/admin/ActionIconTooltip";
 import ModalityBadges from "@/components/admin/ModalityBadges";
 import {
@@ -84,7 +86,7 @@ interface Metrics {
   pendingRevenueCents: number;
 }
 
-type AdminTab = "registrations" | "missions" | "coupons" | "tutorial";
+type AdminTab = "registrations" | "missions" | "coupons" | "forms" | "tutorial";
 
 export default function AdminDashboardPage() {
   const router = useRouter();
@@ -363,6 +365,18 @@ export default function AdminDashboardPage() {
           </button>
 
           <button
+            onClick={() => setActiveTab("forms")}
+            className={`inline-flex items-center gap-1.5 px-3.5 py-2 min-h-[40px] rounded-full text-xs font-heading font-semibold transition-colors ${
+              activeTab === "forms"
+                ? "bg-[#8fa66a] text-[#072119]"
+                : "text-[#cfc9b8] bg-white/5 hover:bg-white/10"
+            }`}
+          >
+            <FileSpreadsheet className="w-4 h-4 flex-shrink-0" />
+            <span>Formulários</span>
+          </button>
+
+          <button
             onClick={() => setActiveTab("tutorial")}
             className={`inline-flex items-center gap-1.5 px-3.5 py-2 min-h-[40px] rounded-full text-xs font-heading font-semibold transition-colors ${
               activeTab === "tutorial"
@@ -381,6 +395,8 @@ export default function AdminDashboardPage() {
         {activeTab === "missions" && <AdminMissionsPanel />}
 
         {activeTab === "coupons" && <AdminCouponsPanel />}
+
+        {activeTab === "forms" && <AdminFormsPanel />}
 
         {activeTab === "tutorial" && <AdminTutorialPanel />}
 
