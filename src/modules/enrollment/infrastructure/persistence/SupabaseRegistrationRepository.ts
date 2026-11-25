@@ -99,7 +99,7 @@ export class SupabaseRegistrationRepository implements IRegistrationRepository {
         const { data, error } = await supabaseServer
           .from("registrations")
           .select("*")
-          .eq("email", normalizedEmail)
+          .ilike("email", normalizedEmail)
           .order("created_at", { ascending: false });
 
         if (!error && data) {
@@ -119,7 +119,9 @@ export class SupabaseRegistrationRepository implements IRegistrationRepository {
         );
     }
 
-    const matched = rows.find((r) => r.cpf.slice(-4) === cleanLast4);
+    const matched = rows.find(
+      (r) => r.cpf.replace(/\D/g, "").slice(-4) === cleanLast4
+    );
     return matched ? RegistrationMapper.toDomain(matched) : null;
   }
 
