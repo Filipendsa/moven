@@ -14,6 +14,8 @@ import {
   Lock,
   Shirt,
   UserCheck,
+  Ticket,
+  X,
 } from "lucide-react";
 import { PublicMissionDto } from "@/components/missions/MissionsShowcase";
 import { useDictionary } from "@/i18n/DictionaryContext";
@@ -64,6 +66,15 @@ export default function EnrollmentForm() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [duplicateCpfDetected, setDuplicateCpfDetected] = useState(false);
 
+  const [couponInput, setCouponInput] = useState("");
+  const [appliedCoupon, setAppliedCoupon] = useState<{
+    code: string;
+    discountCents: number;
+    finalAmountCents: number;
+  } | null>(null);
+  const [validatingCoupon, setValidatingCoupon] = useState(false);
+  const [couponError, setCouponError] = useState<string | null>(null);
+
   useEffect(() => {
     fetch("/api/missions")
       .then((res) => res.json())
@@ -96,6 +107,54 @@ export default function EnrollmentForm() {
   );
 
   const effectivePaymentMethod = isFormFilled ? paymentMethod : "";
+
+  const baseAmountCents =
+    modality === "SCHOOL"
+      ? 17000
+      : modality === "MISSION"
+      ? activeMission
+        ? activeMission.priceCents
+        : 250000
+      : 17000 + (activeMission ? activeMission.priceCents : 250000);
+
+  useEffect(() => {
+    setAppliedCoupon(null);
+    setCouponError(null);
+  }, [modality, effectivePaymentMethod, cpf]);
+
+  const handleApplyCoupon = async () => {
+    if (!couponInput.trim()) return;
+    setValidatingCoupon(true);
+    setCouponError(null);
+    try {
+      const res = await fetch("/api/coupons/validate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          code: couponInput,
+          cpf,
+          modality,
+          paymentMethod: effectivePaymentMethod,
+          baseAmountCents,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setAppliedCoupon(null);
+        setCouponError(data.error || "Cupom inválido.");
+        return;
+      }
+      setAppliedCoupon({
+        code: data.code,
+        discountCents: data.discountCents,
+        finalAmountCents: data.finalAmountCents,
+      });
+    } catch {
+      setCouponError("Erro ao validar cupom.");
+    } finally {
+      setValidatingCoupon(false);
+    }
+  };
 
   const handleCpfChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setCpf(Cpf.formatMask(e.target.value));
@@ -155,6 +214,10 @@ export default function EnrollmentForm() {
           missionId: includesMission ? activeMission?.id : undefined,
           shirtSize,
           paymentMethod: isWaitlist ? "CARD" : effectivePaymentMethod,
+          couponCode:
+            !isWaitlist && effectivePaymentMethod === "PIX" && appliedCoupon
+              ? appliedCoupon.code
+              : undefined,
           termsAccepted,
           locale,
         }),
@@ -582,6 +645,70 @@ export default function EnrollmentForm() {
                   </div>
                 </label>
               </div>
+
+              {/* Pix Discount Coupon */}
+              {effectivePaymentMethod === "PIX" && (
+                <div className="mt-3 p-4 rounded-2xl bg-[#8fa66a]/10 border border-[#8fa66a]/30 space-y-2.5">
+                  <label className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-[var(--ink)]">
+                    <Ticket className="w-4 h-4 text-[#8fa66a]" />
+                    <span>{t.couponLabel}</span>
+                  </label>
+
+                  {appliedCoupon ? (
+                    <div className="flex items-center justify-between gap-2 bg-emerald-500/15 border border-emerald-500/30 rounded-xl px-3.5 py-2.5 text-xs">
+                      <div>
+                        <div className="font-bold text-emerald-800 dark:text-emerald-300">
+                          {t.couponAppliedPrefix}{" "}
+                          <span className="font-mono">{appliedCoupon.code}</span> (-
+                          {formatBrl(appliedCoupon.discountCents, locale)})
+                        </div>
+                        <div className="text-[var(--ink)] mt-0.5">
+                          {t.couponFinalTotalLabel}{" "}
+                          <strong>
+                            {formatBrl(appliedCoupon.finalAmountCents, locale)}
+                          </strong>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setAppliedCoupon(null);
+                          setCouponInput("");
+                          setCouponError(null);
+                        }}
+                        className="inline-flex items-center gap-1 text-xs font-semibold text-red-600 hover:underline"
+                      >
+                        <X className="w-3.5 h-3.5" />
+                        {t.couponRemove}
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        placeholder={t.couponPlaceholder}
+                        value={couponInput}
+                        onChange={(e) => setCouponInput(e.target.value.toUpperCase())}
+                        className="flex-1 bg-white/80 dark:bg-black/30 border border-black/15 dark:border-white/15 rounded-xl px-3.5 py-2 text-base sm:text-sm font-mono uppercase focus:outline-none focus:border-[#8fa66a]"
+                      />
+                      <button
+                        type="button"
+                        onClick={handleApplyCoupon}
+                        disabled={validatingCoupon || !couponInput.trim()}
+                        className="bg-[#072119] text-[#e9e1d0] font-heading font-semibold text-xs px-4 py-2 rounded-xl hover:bg-[var(--terra)] transition-colors disabled:opacity-50"
+                      >
+                        {validatingCoupon ? t.couponApplying : t.couponApply}
+                      </button>
+                    </div>
+                  )}
+
+                  {couponError && (
+                    <p className="text-xs text-red-600 dark:text-red-400">
+                      {couponError}
+                    </p>
+                  )}
+                </div>
+              )}
             </div>
           )}
 

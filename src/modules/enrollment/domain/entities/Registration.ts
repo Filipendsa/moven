@@ -20,6 +20,10 @@ export interface RegistrationProps {
   missionId?: string;
   shirtSize: ShirtSize;
   amount: Money;
+  originalAmount?: Money;
+  discountCents?: number;
+  couponId?: string;
+  couponCode?: string;
   paymentProvider: PaymentProvider;
   paymentStatus: PaymentStatus;
   externalTxId?: string;
@@ -65,6 +69,22 @@ export class Registration extends Entity<RegistrationProps> {
 
   get amount(): Money {
     return this.props.amount;
+  }
+
+  get originalAmount(): Money | undefined {
+    return this.props.originalAmount;
+  }
+
+  get discountCents(): number {
+    return this.props.discountCents ?? 0;
+  }
+
+  get couponId(): string | undefined {
+    return this.props.couponId;
+  }
+
+  get couponCode(): string | undefined {
+    return this.props.couponCode;
   }
 
   get paymentProvider(): PaymentProvider {
@@ -263,6 +283,10 @@ export class Registration extends Entity<RegistrationProps> {
     missionId?: string;
     shirtSize: ShirtSize;
     amount: Money;
+    originalAmount?: Money;
+    discountCents?: number;
+    couponId?: string;
+    couponCode?: string;
     paymentProvider: PaymentProvider;
     lgpdConsent: LgpdConsent;
     initialStatus?: "PENDING" | "WAITLIST";
@@ -287,6 +311,10 @@ export class Registration extends Entity<RegistrationProps> {
           missionId: params.missionId,
           shirtSize: params.shirtSize,
           amount: params.amount,
+          originalAmount: params.originalAmount,
+          discountCents: params.discountCents ?? 0,
+          couponId: params.couponId,
+          couponCode: params.couponCode,
           paymentProvider: params.paymentProvider,
           paymentStatus: params.initialStatus || "PENDING",
           lgpdConsent: params.lgpdConsent,

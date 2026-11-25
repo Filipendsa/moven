@@ -25,12 +25,15 @@ export class PixDirectGateway implements IPaymentGateway {
     const pixKey = publicEnv.pixKey;
     const offerMessage = this.buildOfferMessage(registration);
 
-    const payload = PixPayload.create({
-      pixKey,
-      amountCents: registration.amount.amountCents,
-      description: offerMessage,
-      txId: `MOVEN${registration.id.slice(0, 12)}`,
-    });
+    const isFree = registration.amount.amountCents === 0;
+    const payload = !isFree
+      ? PixPayload.create({
+          pixKey,
+          amountCents: registration.amount.amountCents,
+          description: offerMessage,
+          txId: `MOVEN${registration.id.slice(0, 12)}`,
+        })
+      : null;
 
     const params = new URLSearchParams({
       pix: "true",
@@ -40,8 +43,23 @@ export class PixDirectGateway implements IPaymentGateway {
       modality: offering.title,
       name: registration.fullName,
       pix_message: offerMessage,
-      pix_code: payload.copyPasteCode,
+      pix_code: payload ? payload.copyPasteCode : "",
     });
+
+    if (registration.couponCode && registration.discountCents > 0) {
+      params.set("coupon_code", registration.couponCode);
+      params.set(
+        "original_amount",
+        registration.originalAmount?.formatted || registration.amount.formatted
+      );
+      params.set(
+        "discount_amount",
+        (registration.discountCents / 100).toLocaleString("pt-BR", {
+          style: "currency",
+          currency: "BRL",
+        })
+      );
+    }
 
     return {
       checkoutUrl: `/enrollment/success?${params.toString()}`,

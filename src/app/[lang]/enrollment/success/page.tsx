@@ -46,6 +46,10 @@ function SuccessContent() {
   const isMulti = searchParams.get("multi") === "true";
   const schoolUrl = searchParams.get("school_url") || searchParams.get("escola_url");
   const missionUrl = searchParams.get("mission_url") || searchParams.get("missao_url");
+  const couponCode = searchParams.get("coupon_code") || "";
+  const originalAmount = searchParams.get("original_amount") || "";
+  const discountAmount = searchParams.get("discount_amount") || "";
+  const isFreeCoupon = amountCents === "0";
 
   const [copiedKey, setCopiedKey] = useState(false);
   const [copiedCode, setCopiedCode] = useState(false);
@@ -58,12 +62,14 @@ function SuccessContent() {
 
   const staticQrUrl =
     STATIC_PIX_QR_MAP[amountCents] ||
-    (pixAmount.includes("2.670")
-      ? pix2670.src
-      : pixAmount.includes("2.500")
-      ? pix2500.src
-      : pixAmount.includes("170")
-      ? pix170.src
+    (!amountCents
+      ? pixAmount.includes("2.670")
+        ? pix2670.src
+        : pixAmount.includes("2.500")
+        ? pix2500.src
+        : pixAmount.includes("170")
+        ? pix170.src
+        : ""
       : "");
 
   useEffect(() => {
@@ -98,6 +104,9 @@ function SuccessContent() {
       `• Descrição: ${pixMessage}\n` +
       `• Nome: ${participantName}\n` +
       `• Modalidade: ${pixModality}\n` +
+      (couponCode
+        ? `• Cupom aplicado: ${couponCode} (-${discountAmount})\n`
+        : "") +
       `• Valor: ${pixAmount}\n` +
       `• Protocolo: ${orderId?.slice(0, 8) || ""}\n` +
       `Comprovante em anexo:`
@@ -179,6 +188,21 @@ function SuccessContent() {
 
             {/* Step 2: QR Code + Valor + Pix Copia e Cola */}
             <div className="bg-black/5 dark:bg-white/5 p-5 rounded-2xl border border-[#8fa66a]/40 space-y-4">
+              {couponCode && (
+                <div className="space-y-1 text-xs border-b border-black/10 dark:border-white/10 pb-2.5">
+                  <div className="flex items-center justify-between text-[var(--mut)]">
+                    <span>{t.originalAmountLabel}</span>
+                    <span className="line-through">{originalAmount}</span>
+                  </div>
+                  <div className="flex items-center justify-between text-emerald-700 dark:text-emerald-400 font-semibold">
+                    <span>
+                      {t.couponDiscountLabel} ({couponCode}):
+                    </span>
+                    <span>-{discountAmount}</span>
+                  </div>
+                </div>
+              )}
+
               <div className="flex items-center justify-between text-sm border-b border-black/10 dark:border-white/10 pb-3">
                 <span className="text-[var(--mut)]">{t.exactAmount}</span>
                 <span className="font-heading font-bold text-xl text-[#8fa66a]">
@@ -186,7 +210,14 @@ function SuccessContent() {
                 </span>
               </div>
 
-              {activeQrUrl && (
+              {isFreeCoupon && (
+                <div className="p-4 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-xs text-emerald-900 dark:text-emerald-200 space-y-1">
+                  <div className="font-bold">{t.freeCouponTitle}</div>
+                  <p>{t.freeCouponDesc}</p>
+                </div>
+              )}
+
+              {!isFreeCoupon && activeQrUrl && (
                 <div className="flex flex-col items-center py-2">
                   <div className="bg-white p-3 rounded-2xl shadow-md border border-black/10">
                     <img
@@ -229,31 +260,33 @@ function SuccessContent() {
                 </div>
               )}
 
-              <div>
-                <span className="block text-xs text-[var(--mut)] mb-1">
-                  {t.pixKeyLabel}
-                </span>
-                <div className="flex items-center justify-between gap-2 bg-white/80 dark:bg-black/30 p-2.5 rounded-xl border border-black/10 dark:border-white/10">
-                  <span className="font-mono text-xs font-semibold truncate">
-                    {pixKey}
+              {!isFreeCoupon && (
+                <div>
+                  <span className="block text-xs text-[var(--mut)] mb-1">
+                    {t.pixKeyLabel}
                   </span>
-                  <button
-                    onClick={() => handleCopy(pixKey, setCopiedKey)}
-                    type="button"
-                    className="inline-flex items-center gap-1 text-xs font-semibold bg-black/10 dark:bg-white/10 text-[var(--ink)] px-3 py-1.5 rounded-lg hover:bg-black/20 transition-colors flex-shrink-0"
-                  >
-                    {copiedKey ? (
-                      <>
-                        <Check className="w-3.5 h-3.5" /> {t.copied}
-                      </>
-                    ) : (
-                      <>
-                        <Copy className="w-3.5 h-3.5" /> {t.copyKey}
-                      </>
-                    )}
-                  </button>
+                  <div className="flex items-center justify-between gap-2 bg-white/80 dark:bg-black/30 p-2.5 rounded-xl border border-black/10 dark:border-white/10">
+                    <span className="font-mono text-xs font-semibold truncate">
+                      {pixKey}
+                    </span>
+                    <button
+                      onClick={() => handleCopy(pixKey, setCopiedKey)}
+                      type="button"
+                      className="inline-flex items-center gap-1 text-xs font-semibold bg-black/10 dark:bg-white/10 text-[var(--ink)] px-3 py-1.5 rounded-lg hover:bg-black/20 transition-colors flex-shrink-0"
+                    >
+                      {copiedKey ? (
+                        <>
+                          <Check className="w-3.5 h-3.5" /> {t.copied}
+                        </>
+                      ) : (
+                        <>
+                          <Copy className="w-3.5 h-3.5" /> {t.copyKey}
+                        </>
+                      )}
+                    </button>
+                  </div>
                 </div>
-              </div>
+              )}
 
               <a
                 href={`https://wa.me/${receiptWhatsapp}?text=${receiptMessage}`}

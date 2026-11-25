@@ -2,6 +2,8 @@ import { Result } from "@/shared/domain/Result";
 import { IRegistrationRepository } from "../../domain/repositories/IRegistrationRepository";
 import { IEventOfferingRepository } from "@/modules/mission-catalog/domain/repositories/IEventOfferingRepository";
 import { IMissionRepository } from "@/modules/mission-catalog/domain/repositories/IMissionRepository";
+import { ICouponRepository } from "@/modules/coupons/domain/repositories/ICouponRepository";
+import { DiscountCoupon } from "@/modules/coupons/domain/entities/DiscountCoupon";
 import {
   PaymentGatewayResolver,
   PaymentMethodPreference,
@@ -30,6 +32,7 @@ export interface EnrollParticipantInput {
   missionId?: string;
   shirtSize: string;
   paymentMethod?: PaymentMethodPreference;
+  couponCode?: string;
   termsAccepted: boolean;
   locale?: Locale;
 }
@@ -47,7 +50,8 @@ export class EnrollParticipantUseCase {
     private registrationRepo: IRegistrationRepository,
     private offeringRepo: IEventOfferingRepository,
     private missionRepo?: IMissionRepository,
-    private notificationGateway?: INotificationGateway
+    private notificationGateway?: INotificationGateway,
+    private couponRepo?: ICouponRepository
   ) {}
 
   private resolveMissionaryAreaUrl(email: string, locale: Locale): string {
@@ -119,6 +123,54 @@ export class EnrollParticipantUseCase {
 
     const gateway = PaymentGatewayResolver.resolve(input.paymentMethod);
 
+    let finalAmount = effectivePrice;
+    let originalAmount = undefined;
+    let discountCents = 0;
+    let appliedCoupon: DiscountCoupon | undefined;
+
+    const normalizedCouponCode = input.couponCode
+      ? DiscountCoupon.normalizeCode(input.couponCode)
+      : "";
+
+    if (!isWaitlist && normalizedCouponCode) {
+      if (!this.couponRepo) {
+        return Result.fail(
+          new Error("Sistema de cupons indisponível no momento.")
+        );
+      }
+
+      const coupon = await this.couponRepo.findByCode(normalizedCouponCode);
+      if (!coupon) {
+        return Result.fail(new Error("Cupom de desconto não encontrado."));
+      }
+
+      const eligibility = coupon.validateEligibility({
+        modality: modalityResult.value.type,
+        paymentMethod: input.paymentMethod,
+      });
+      if (!eligibility.success) {
+        return Result.fail(eligibility.error);
+      }
+
+      const alreadyRedeemed = await this.couponRepo.hasCpfRedeemed(
+        cpfResult.value.value
+      );
+      if (alreadyRedeemed) {
+        return Result.fail(
+          new Error("Este CPF já utilizou um cupom de desconto anteriormente.")
+        );
+      }
+
+      const calc = coupon.calculateDiscount(
+        effectivePrice,
+        modalityResult.value.type
+      );
+      originalAmount = calc.originalAmount;
+      discountCents = calc.discountAmount.amountCents;
+      finalAmount = calc.finalAmount;
+      appliedCoupon = coupon;
+    }
+
     const registrationResult = Registration.enroll({
       fullName,
       email: emailResult.value,
@@ -127,7 +179,11 @@ export class EnrollParticipantUseCase {
       modality: modalityResult.value,
       missionId: targetMissionId,
       shirtSize: shirtSizeResult.value,
-      amount: effectivePrice,
+      amount: finalAmount,
+      originalAmount,
+      discountCents,
+      couponId: appliedCoupon?.id,
+      couponCode: appliedCoupon?.code,
       paymentProvider: gateway.providerName,
       lgpdConsent: lgpdResult.value,
       initialStatus: isWaitlist ? "WAITLIST" : "PENDING",
@@ -139,6 +195,25 @@ export class EnrollParticipantUseCase {
 
     const registration = registrationResult.value;
     await this.registrationRepo.save(registration);
+
+    if (appliedCoupon && this.couponRepo) {
+      const redeemed = await this.couponRepo.redeemAtomically({
+        couponId: appliedCoupon.id,
+        registrationId: registration.id,
+        cpfDigits: cpfResult.value.value,
+        originalAmountCents: (originalAmount || finalAmount).amountCents,
+        discountCents,
+        finalAmountCents: finalAmount.amountCents,
+      });
+
+      if (!redeemed) {
+        return Result.fail(
+          new Error(
+            "Não foi possível aplicar o cupom (ele pode ter esgotado ou já ter sido usado por este CPF)."
+          )
+        );
+      }
+    }
 
     // Send welcome notification non-blockingly
     try {

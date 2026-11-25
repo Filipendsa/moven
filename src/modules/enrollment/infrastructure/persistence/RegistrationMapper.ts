@@ -22,6 +22,10 @@ export interface RegistrationPersistenceRow {
   mission_id?: string | null;
   shirt_size?: string | null;
   amount_cents: number;
+  original_amount_cents?: number | null;
+  discount_cents?: number | null;
+  coupon_id?: string | null;
+  coupon_code?: string | null;
   payment_provider: string;
   payment_status: string;
   external_tx_id: string | null;
@@ -47,6 +51,12 @@ export class RegistrationMapper {
       mission_id: registration.missionId || null,
       shirt_size: registration.shirtSize.value,
       amount_cents: registration.amount.amountCents,
+      original_amount_cents: registration.originalAmount
+        ? registration.originalAmount.amountCents
+        : null,
+      discount_cents: registration.discountCents,
+      coupon_id: registration.couponId || null,
+      coupon_code: registration.couponCode || null,
       payment_provider: registration.paymentProvider,
       payment_status: registration.paymentStatus,
       external_tx_id: registration.externalTxId || null,
@@ -86,6 +96,12 @@ export class RegistrationMapper {
       throw new Error(`Erro ao reconstituir Registration id: ${row.id}`);
     }
 
+    const originalAmountResult =
+      row.original_amount_cents !== undefined &&
+      row.original_amount_cents !== null
+        ? Money.fromCents(row.original_amount_cents)
+        : null;
+
     const props: RegistrationProps = {
       fullName: row.full_name,
       email: emailResult.value,
@@ -95,6 +111,13 @@ export class RegistrationMapper {
       missionId: row.mission_id || undefined,
       shirtSize: ShirtSize.createOrDefault(row.shirt_size, "M"),
       amount: amountResult.value,
+      originalAmount:
+        originalAmountResult && originalAmountResult.success
+          ? originalAmountResult.value
+          : undefined,
+      discountCents: row.discount_cents ?? 0,
+      couponId: row.coupon_id || undefined,
+      couponCode: row.coupon_code || undefined,
       paymentProvider: row.payment_provider as PaymentProvider,
       paymentStatus: row.payment_status as PaymentStatus,
       externalTxId: row.external_tx_id || undefined,

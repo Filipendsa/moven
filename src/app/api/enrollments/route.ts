@@ -5,15 +5,19 @@ import { DuplicateCpfEnrollmentError } from "@/modules/enrollment/domain/errors/
 import { SupabaseRegistrationRepository } from "@/modules/enrollment/infrastructure/persistence/SupabaseRegistrationRepository";
 import { SupabaseEventOfferingRepository } from "@/modules/mission-catalog/infrastructure/SupabaseEventOfferingRepository";
 import { SupabaseMissionRepository } from "@/modules/mission-catalog/infrastructure/SupabaseMissionRepository";
+import { SupabaseCouponRepository } from "@/modules/coupons/infrastructure/persistence/SupabaseCouponRepository";
 
 const registrationRepo = new SupabaseRegistrationRepository();
 const offeringRepo = new SupabaseEventOfferingRepository();
 const missionRepo = new SupabaseMissionRepository();
+const couponRepo = new SupabaseCouponRepository();
 
 const enrollUseCase = new EnrollParticipantUseCase(
   registrationRepo,
   offeringRepo,
-  missionRepo
+  missionRepo,
+  undefined,
+  couponRepo
 );
 
 export async function POST(request: Request) {
@@ -35,6 +39,7 @@ export async function POST(request: Request) {
       missionId: body.missionId,
       shirtSize: body.shirtSize,
       paymentMethod,
+      couponCode: body.couponCode ? String(body.couponCode) : undefined,
       termsAccepted: Boolean(body.termsAccepted),
       locale: isValidLocale(body.locale) ? body.locale : "pt",
     });

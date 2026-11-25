@@ -24,12 +24,14 @@ import {
   Mail,
   RotateCcw,
   UserCheck,
+  Ticket,
 } from "lucide-react";
 import { supabaseBrowser } from "@/shared/infrastructure/supabase/client";
 import { publicEnv } from "@/shared/config/env";
 import { APP_VERSION, APP_VERSION_LABEL } from "@/shared/config/version";
 import AdminMissionsPanel from "@/components/admin/AdminMissionsPanel";
 import AdminTutorialPanel from "@/components/admin/AdminTutorialPanel";
+import AdminCouponsPanel from "@/components/admin/AdminCouponsPanel";
 import ActionIconTooltip from "@/components/admin/ActionIconTooltip";
 import ModalityBadges from "@/components/admin/ModalityBadges";
 import {
@@ -50,6 +52,8 @@ interface RegistrationItem {
   missionId: string | null;
   missionTitle: string | null;
   amountFormatted: string;
+  discountCents?: number;
+  couponCode?: string | null;
   paymentProvider: string;
   paymentStatus: "PENDING" | "PAID" | "WAITLIST" | "CANCELED";
   createdAt: string;
@@ -75,7 +79,7 @@ interface Metrics {
   pendingRevenueCents: number;
 }
 
-type AdminTab = "registrations" | "missions" | "tutorial";
+type AdminTab = "registrations" | "missions" | "coupons" | "tutorial";
 
 export default function AdminDashboardPage() {
   const router = useRouter();
@@ -339,6 +343,18 @@ export default function AdminDashboardPage() {
           </button>
 
           <button
+            onClick={() => setActiveTab("coupons")}
+            className={`inline-flex items-center gap-1.5 px-3.5 py-2 min-h-[40px] rounded-full text-xs font-heading font-semibold transition-colors ${
+              activeTab === "coupons"
+                ? "bg-[#8fa66a] text-[#072119]"
+                : "text-[#cfc9b8] bg-white/5 hover:bg-white/10"
+            }`}
+          >
+            <Ticket className="w-4 h-4 flex-shrink-0" />
+            <span>Cupons Pix</span>
+          </button>
+
+          <button
             onClick={() => setActiveTab("tutorial")}
             className={`inline-flex items-center gap-1.5 px-3.5 py-2 min-h-[40px] rounded-full text-xs font-heading font-semibold transition-colors ${
               activeTab === "tutorial"
@@ -355,6 +371,8 @@ export default function AdminDashboardPage() {
       {/* Main Content */}
       <main className="max-w-7xl mx-auto w-full px-5 py-8 flex-1 flex flex-col gap-8">
         {activeTab === "missions" && <AdminMissionsPanel />}
+
+        {activeTab === "coupons" && <AdminCouponsPanel />}
 
         {activeTab === "tutorial" && <AdminTutorialPanel />}
 
@@ -651,6 +669,11 @@ export default function AdminDashboardPage() {
                         <span className="font-bold text-[var(--ink)]">
                           {item.amountFormatted}
                         </span>
+                        {item.couponCode && (
+                          <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-700 dark:text-emerald-400">
+                            {item.couponCode}
+                          </span>
+                        )}
                       </div>
                     </div>
 
@@ -757,7 +780,16 @@ export default function AdminDashboardPage() {
                             />
                           </td>
                           <td className="py-3 px-4 font-semibold text-xs whitespace-nowrap">
-                            {item.amountFormatted}
+                            <div>{item.amountFormatted}</div>
+                            {item.couponCode && (
+                              <span className="inline-block mt-0.5 text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-700 dark:text-emerald-400">
+                                {item.couponCode} (-R${" "}
+                                {((item.discountCents || 0) / 100)
+                                  .toFixed(2)
+                                  .replace(".", ",")}
+                                )
+                              </span>
+                            )}
                           </td>
                           <td className="py-3 px-4 whitespace-nowrap">
                             {item.paymentStatus === "PAID" && (
