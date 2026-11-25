@@ -50,3 +50,35 @@ h4,
 .font-heading {
   font-family: var(--font-h);
 }
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) select,
+  :root:not([data-theme="light"]) input[type="date"] {
+    color-scheme: dark;
+  }
+
+  :root:not([data-theme="light"]) select option {
+    background-color: #0b241d;
+    color: #e9e1d0;
+  }
+}
+
+:root[data-theme="dark"] select,
+:root[data-theme="dark"] input[type="date"] {
+  color-scheme: dark;
+}
+
+:root[data-theme="dark"] select option {
+  background-color: #0b241d;
+  color: #e9e1d0;
+}
+
+:root[data-theme="light"] select,
+:root[data-theme="light"] input[type="date"] {
+  color-scheme: light;
+}
+
+:root[data-theme="light"] select option {
+  background-color: #ffffff;
+  color: #12261d;
+}
