@@ -25,8 +25,8 @@ function parseVersionString(ver) {
   return {
     major: Number(m[1]),
     minor: Number(m[2]),
-    patch: Number(m[3]),
-    build: Number(m[4]),
+    build: Number(m[3]),
+    revision: Number(m[4]),
   };
 }
 
@@ -40,8 +40,8 @@ function applyCommitBump(version, subject, body = "") {
     return {
       major: version.major + 1,
       minor: 0,
-      patch: 0,
-      build: version.build + 1,
+      build: 0,
+      revision: 0,
     };
   }
 
@@ -49,16 +49,25 @@ function applyCommitBump(version, subject, body = "") {
     return {
       major: version.major,
       minor: version.minor + 1,
-      patch: 0,
-      build: version.build + 1,
+      build: 0,
+      revision: 0,
+    };
+  }
+
+  if (/^(fix|hotfix|patch)(\([^)]+\))?:/i.test(subject)) {
+    return {
+      major: version.major,
+      minor: version.minor,
+      build: version.build,
+      revision: version.revision + 1,
     };
   }
 
   return {
     major: version.major,
     minor: version.minor,
-    patch: version.patch + 1,
     build: version.build + 1,
+    revision: 0,
   };
 }
 
@@ -82,7 +91,7 @@ function computeSemanticVersionFromRange(baseVersion, fromRef, cwd) {
 
   return {
     ...current,
-    version: `${current.major}.${current.minor}.${current.patch}.${current.build}`,
+    version: `${current.major}.${current.minor}.${current.build}.${current.revision}`,
     commitsSinceTag: entries.length,
   };
 }
@@ -130,8 +139,8 @@ export function resolveGitVersion(cwd = process.cwd()) {
       const baseVersion = {
         major: Number(majorStr),
         minor: Number(minorStr),
-        patch: Number(patchStr),
-        build: Number(baseBuildStr),
+        build: Number(patchStr),
+        revision: Number(baseBuildStr),
       };
 
       const computed = computeSemanticVersionFromRange(baseVersion, baseTag, cwd);
@@ -155,7 +164,7 @@ export function resolveGitVersion(cwd = process.cwd()) {
 
   if (isBaselineAncestor) {
     const computed = computeSemanticVersionFromRange(
-      { major: 1, minor: 0, patch: 0, build: 0 },
+      { major: 1, minor: 0, build: 0, revision: 0 },
       BASELINE_RELEASE_COMMIT,
       cwd
     );
@@ -191,8 +200,8 @@ export function resolveGitVersion(cwd = process.cwd()) {
   const fallbackNums = parseVersionString(fallbackVersion) || {
     major: 1,
     minor: 16,
-    patch: 0,
-    build: 18,
+    build: 0,
+    revision: 18,
   };
 
   return {
@@ -217,8 +226,8 @@ export function writeVersionFiles(cwd = process.cwd()) {
         version: info.version,
         major: info.major,
         minor: info.minor,
-        patch: info.patch,
         build: info.build,
+        revision: info.revision,
       },
       null,
       2
