@@ -12,10 +12,12 @@ import {
   Trash2,
   BarChart3,
   Edit3,
+  Sparkles,
 } from "lucide-react";
 import FormBuilder from "./FormBuilder";
 import FormResultsView, { AdminFormDto } from "./FormResultsView";
 import FormQrModal from "./FormQrModal";
+import { buildMovenChallengeTemplate } from "@/modules/forms/application/templates/movenChallengeTemplate";
 
 const STATUS_BADGE: Record<
   AdminFormDto["status"],
@@ -174,17 +176,40 @@ export default function AdminFormsPanel() {
           </p>
         </div>
 
-        <button
-          type="button"
-          onClick={() => {
-            setActiveForm(null);
-            setView("builder");
-          }}
-          className="inline-flex items-center gap-2 bg-[#8fa66a] text-[#072119] font-heading font-bold text-xs sm:text-sm px-4 py-2.5 rounded-full hover:bg-[#e9e1d0] transition-colors shadow-sm"
-        >
-          <Plus className="w-4 h-4" />
-          Novo Formulário
-        </button>
+        <div className="flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            onClick={async () => {
+              const tpl = buildMovenChallengeTemplate();
+              const res = await fetch("/api/admin/forms", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(tpl),
+              });
+              if (res.ok) {
+                const data = await res.json();
+                setActiveForm(data.form);
+                setView("builder");
+              }
+            }}
+            className="inline-flex items-center gap-2 bg-[#072119] text-[#e9e1d0] font-heading font-semibold text-xs sm:text-sm px-4 py-2.5 rounded-full hover:bg-[var(--terra)] transition-colors shadow-sm"
+          >
+            <Sparkles className="w-4 h-4 text-[#8fa66a]" />
+            Usar Modelo: Desafio Escola
+          </button>
+
+          <button
+            type="button"
+            onClick={() => {
+              setActiveForm(null);
+              setView("builder");
+            }}
+            className="inline-flex items-center gap-2 bg-[#8fa66a] text-[#072119] font-heading font-bold text-xs sm:text-sm px-4 py-2.5 rounded-full hover:bg-[#e9e1d0] transition-colors shadow-sm"
+          >
+            <Plus className="w-4 h-4" />
+            Novo Formulário
+          </button>
+        </div>
       </div>
 
       {loading ? (

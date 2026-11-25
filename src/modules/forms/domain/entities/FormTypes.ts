@@ -9,7 +9,8 @@ export type QuestionType =
   | "LINEAR_SCALE"
   | "DATE"
   | "EMAIL"
-  | "PHONE";
+  | "PHONE"
+  | "SECTION_BREAK";
 
 export interface FormQuestion {
   id: string;
@@ -19,6 +20,10 @@ export interface FormQuestion {
   required: boolean;
   options?: string[];
   allowOther?: boolean;
+  isQuiz?: boolean;
+  correctOption?: string;
+  explanation?: string;
+  lockOnSelect?: boolean;
   scaleMin?: number;
   scaleMax?: number;
   scaleMinLabel?: string;
@@ -49,6 +54,8 @@ export interface QuestionSummary {
   title: string;
   type: QuestionType;
   totalAnswers: number;
+  correctOption?: string;
+  correctPercentage?: number;
   optionCounts?: Array<{ label: string; count: number; percentage: number }>;
   scaleAverage?: number;
   scaleDistribution?: Array<{ value: number; count: number; percentage: number }>;

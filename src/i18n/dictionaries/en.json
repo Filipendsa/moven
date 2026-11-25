@@ -426,6 +426,16 @@
     "notFoundTitle": "Form not found.",
     "pausedDesc": "This form is temporarily paused. Please try again later.",
     "closedDesc": "This form is no longer accepting responses.",
-    "backHome": "Back to MOVEN website"
+    "backHome": "Back to MOVEN website",
+    "sectionLabel": "Section",
+    "ofLabel": "of",
+    "nextButton": "Next",
+    "prevButton": "Back",
+    "correctBadge": "Correct!",
+    "correctAnswerLabel": "Answer:",
+    "explanationLabel": "Explanation:",
+    "requiredFieldError": "Please answer the required question:",
+    "invalidEmailError": "Please enter a valid email in:",
+    "invalidPhoneError": "Please enter a valid phone number in:"
   }
 }

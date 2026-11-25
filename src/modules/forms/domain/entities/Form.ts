@@ -220,6 +220,7 @@ export class Form extends Entity<FormProps> {
     const sanitized: FormAnswersMap = {};
 
     for (const q of this.props.questions) {
+      if (q.type === "SECTION_BREAK") continue;
       const raw = rawAnswers[q.id];
 
       if (q.type === "CHECKBOXES") {
@@ -286,7 +287,9 @@ export class Form extends Entity<FormProps> {
   }
 
   public computeSummaries(responses: FormResponseRecord[]): QuestionSummary[] {
-    return this.props.questions.map((q) => {
+    return this.props.questions
+      .filter((q) => q.type !== "SECTION_BREAK")
+      .map((q) => {
       if (
         q.type === "MULTIPLE_CHOICE" ||
         q.type === "DROPDOWN" ||
@@ -324,11 +327,20 @@ export class Form extends Entity<FormProps> {
           })
         );
 
+        const correctCount =
+          q.isQuiz && q.correctOption ? counts.get(q.correctOption) || 0 : 0;
+        const correctPercentage =
+          q.isQuiz && q.correctOption && totalAnswered > 0
+            ? Math.round((correctCount / totalAnswered) * 100)
+            : undefined;
+
         return {
           questionId: q.id,
           title: q.title,
           type: q.type,
           totalAnswers: totalAnswered,
+          correctOption: q.isQuiz ? q.correctOption : undefined,
+          correctPercentage,
           optionCounts,
         };
       }
@@ -423,9 +435,22 @@ export class Form extends Entity<FormProps> {
         type: q.type,
         title,
         description: q.description?.trim() || undefined,
-        required: Boolean(q.required),
+        required: q.type === "SECTION_BREAK" ? false : Boolean(q.required),
         options: cleanOptions,
         allowOther: Boolean(q.allowOther),
+        isQuiz: q.type === "MULTIPLE_CHOICE" ? Boolean(q.isQuiz) : false,
+        correctOption:
+          q.type === "MULTIPLE_CHOICE" && q.isQuiz
+            ? q.correctOption?.trim() || undefined
+            : undefined,
+        explanation:
+          q.type === "MULTIPLE_CHOICE" && q.isQuiz
+            ? q.explanation?.trim() || undefined
+            : undefined,
+        lockOnSelect:
+          q.type === "MULTIPLE_CHOICE" && q.isQuiz
+            ? q.lockOnSelect !== false
+            : undefined,
         scaleMin: q.type === "LINEAR_SCALE" ? q.scaleMin ?? 1 : undefined,
         scaleMax: q.type === "LINEAR_SCALE" ? q.scaleMax ?? 5 : undefined,
         scaleMinLabel:

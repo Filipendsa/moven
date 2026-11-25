@@ -426,6 +426,16 @@
     "notFoundTitle": "Formulário não encontrado.",
     "pausedDesc": "Este formulário está temporariamente pausado. Tente novamente mais tarde.",
     "closedDesc": "Este formulário não aceita mais respostas.",
-    "backHome": "Voltar ao site do MOVEN"
+    "backHome": "Voltar ao site do MOVEN",
+    "sectionLabel": "Seção",
+    "ofLabel": "de",
+    "nextButton": "Próxima",
+    "prevButton": "Voltar",
+    "correctBadge": "Você acertou!",
+    "correctAnswerLabel": "Resposta:",
+    "explanationLabel": "Explicação:",
+    "requiredFieldError": "Preencha a pergunta obrigatória:",
+    "invalidEmailError": "Informe um e-mail válido em:",
+    "invalidPhoneError": "Informe um telefone válido em:"
   }
 }

@@ -33,7 +33,18 @@ const QUESTION_TYPE_LABELS: Record<QuestionType, string> = {
   DATE: "Data",
   EMAIL: "E-mail",
   PHONE: "Telefone",
+  SECTION_BREAK: "Divisor de Seção (nova etapa)",
 };
+
+function createEmptySection(): FormQuestion {
+  return {
+    id: `sec_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 5)}`,
+    type: "SECTION_BREAK",
+    title: "Nova Seção",
+    description: "",
+    required: false,
+  };
+}
 
 function createEmptyQuestion(): FormQuestion {
   return {
@@ -320,8 +331,8 @@ export default function FormBuilder({
             <label className="block text-xs font-semibold uppercase tracking-wider mb-1">
               Mensagem de Agradecimento após Envio
             </label>
-            <input
-              type="text"
+            <textarea
+              rows={4}
               value={settings.thankYouMessage}
               onChange={(e) =>
                 setSettings((s) => ({ ...s, thankYouMessage: e.target.value }))
@@ -392,10 +403,16 @@ export default function FormBuilder({
               q.type === "CHECKBOXES" ||
               q.type === "DROPDOWN";
 
+            const isSection = q.type === "SECTION_BREAK";
+
             return (
               <div
                 key={q.id}
-                className="bg-[var(--card)] border border-[var(--terra)]/20 rounded-2xl p-5 space-y-3 shadow-sm"
+                className={`rounded-2xl p-5 space-y-3 shadow-sm ${
+                  isSection
+                    ? "bg-[#072119]/90 text-[#e9e1d0] border-2 border-[#8fa66a]"
+                    : "bg-[var(--card)] border border-[var(--terra)]/20"
+                }`}
               >
                 <div className="grid grid-cols-1 sm:grid-cols-12 gap-3">
                   <input
@@ -507,7 +524,77 @@ export default function FormBuilder({
                           Permitir &quot;Outro&quot;
                         </label>
                       )}
+
+                      {q.type === "MULTIPLE_CHOICE" && (
+                        <label className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#8fa66a] cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={Boolean(q.isQuiz)}
+                            onChange={(e) =>
+                              updateQuestion(idx, {
+                                isQuiz: e.target.checked,
+                                correctOption:
+                                  e.target.checked && !q.correctOption
+                                    ? q.options?.[0] || ""
+                                    : q.correctOption,
+                                lockOnSelect: e.target.checked ? true : undefined,
+                              })
+                            }
+                            className="accent-[#8fa66a]"
+                          />
+                          Modo Quiz (mostrar resposta + explicação ao clicar)
+                        </label>
+                      )}
                     </div>
+
+                    {q.type === "MULTIPLE_CHOICE" && q.isQuiz && (
+                      <div className="mt-2 p-3.5 rounded-xl bg-[#8fa66a]/10 border border-[#8fa66a]/30 space-y-2.5 text-xs">
+                        <div>
+                          <label className="block font-semibold uppercase tracking-wider mb-1 text-[10px]">
+                            Resposta Correta *
+                          </label>
+                          <select
+                            value={q.correctOption || ""}
+                            onChange={(e) =>
+                              updateQuestion(idx, { correctOption: e.target.value })
+                            }
+                            className="w-full bg-white/80 dark:bg-black/30 border border-black/15 dark:border-white/15 rounded-lg px-2.5 py-1.5"
+                          >
+                            <option value="">Selecione a opção correta...</option>
+                            {(q.options || []).map((opt, optIdx) => (
+                              <option key={optIdx} value={opt}>
+                                {opt}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                        <div>
+                          <label className="block font-semibold uppercase tracking-wider mb-1 text-[10px]">
+                            Explicação exibida ao clicar
+                          </label>
+                          <textarea
+                            rows={2}
+                            placeholder="Explique o porquê da resposta correta..."
+                            value={q.explanation || ""}
+                            onChange={(e) =>
+                              updateQuestion(idx, { explanation: e.target.value })
+                            }
+                            className="w-full bg-white/80 dark:bg-black/30 border border-black/15 dark:border-white/15 rounded-lg px-2.5 py-1.5"
+                          />
+                        </div>
+                        <label className="inline-flex items-center gap-1.5 text-[11px] cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={q.lockOnSelect !== false}
+                            onChange={(e) =>
+                              updateQuestion(idx, { lockOnSelect: e.target.checked })
+                            }
+                            className="accent-[#8fa66a]"
+                          />
+                          Travar alternativa após clicar (evita trocar resposta depois de ver o gabarito)
+                        </label>
+                      </div>
+                    )}
                   </div>
                 )}
 
@@ -570,17 +657,23 @@ export default function FormBuilder({
 
                 {/* Card Footer */}
                 <div className="flex flex-wrap items-center justify-between gap-2 pt-3 border-t border-black/10 dark:border-white/10">
-                  <label className="inline-flex items-center gap-2 text-xs font-semibold cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={q.required}
-                      onChange={(e) =>
-                        updateQuestion(idx, { required: e.target.checked })
-                      }
-                      className="accent-[#8fa66a] w-4 h-4"
-                    />
-                    Obrigatória
-                  </label>
+                  {isSection ? (
+                    <span className="text-[11px] font-semibold text-[#8fa66a]">
+                      Quebra de Página / Nova Seção
+                    </span>
+                  ) : (
+                    <label className="inline-flex items-center gap-2 text-xs font-semibold cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={q.required}
+                        onChange={(e) =>
+                          updateQuestion(idx, { required: e.target.checked })
+                        }
+                        className="accent-[#8fa66a] w-4 h-4"
+                      />
+                      Obrigatória
+                    </label>
+                  )}
 
                   <div className="flex items-center gap-1">
                     <button
@@ -624,13 +717,22 @@ export default function FormBuilder({
             );
           })}
 
-          <button
-            type="button"
-            onClick={() => setQuestions((prev) => [...prev, createEmptyQuestion()])}
-            className="w-full py-3 rounded-2xl border-2 border-dashed border-[#8fa66a]/50 text-[#8fa66a] font-heading font-bold text-sm hover:bg-[#8fa66a]/10 transition-colors inline-flex items-center justify-center gap-2"
-          >
-            <Plus className="w-4 h-4" /> Adicionar Pergunta
-          </button>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <button
+              type="button"
+              onClick={() => setQuestions((prev) => [...prev, createEmptyQuestion()])}
+              className="py-3 rounded-2xl border-2 border-dashed border-[#8fa66a]/50 text-[#8fa66a] font-heading font-bold text-sm hover:bg-[#8fa66a]/10 transition-colors inline-flex items-center justify-center gap-2"
+            >
+              <Plus className="w-4 h-4" /> Adicionar Pergunta
+            </button>
+            <button
+              type="button"
+              onClick={() => setQuestions((prev) => [...prev, createEmptySection()])}
+              className="py-3 rounded-2xl border-2 border-dashed border-[var(--terra)]/50 text-[var(--terra)] font-heading font-bold text-sm hover:bg-[var(--terra)]/10 transition-colors inline-flex items-center justify-center gap-2"
+            >
+              <Plus className="w-4 h-4" /> Adicionar Seção
+            </button>
+          </div>
         </div>
 
         {/* Live Preview Column */}
@@ -651,7 +753,18 @@ export default function FormBuilder({
           </div>
 
           <div className="space-y-3 max-h-[60vh] overflow-y-auto pr-1">
-            {questions.map((q) => (
+            {questions.map((q) =>
+              q.type === "SECTION_BREAK" ? (
+                <div
+                  key={q.id}
+                  className="bg-[#072119] text-[#e9e1d0] rounded-xl p-4 border-l-4 border-[#8fa66a] space-y-1 text-xs"
+                >
+                  <div className="font-heading font-bold">{q.title}</div>
+                  {q.description && (
+                    <p className="text-[11px] text-[#cfc9b8]">{q.description}</p>
+                  )}
+                </div>
+              ) : (
               <div
                 key={q.id}
                 className="bg-[var(--card)] rounded-xl p-4 border border-black/10 dark:border-white/10 space-y-2 text-xs"
@@ -717,7 +830,8 @@ export default function FormBuilder({
                   </div>
                 )}
               </div>
-            ))}
+              )
+            )}
           </div>
         </div>
       </div>

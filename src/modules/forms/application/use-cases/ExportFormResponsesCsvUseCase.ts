@@ -8,18 +8,22 @@ export class ExportFormResponsesCsvUseCase {
       return `"${String(val).replace(/"/g, '""')}"`;
     };
 
+    const answerableQuestions = form.questions.filter(
+      (q) => q.type !== "SECTION_BREAK"
+    );
+
     const headers = [
       "ID Resposta",
       "Data/Hora Envio",
       "Idioma",
-      ...form.questions.map((q) => q.title),
+      ...answerableQuestions.map((q) => q.title),
     ];
 
     const rows = responses.map((r) => [
       escapeCsv(r.id),
       escapeCsv(r.submittedAt.toLocaleString("pt-BR")),
       escapeCsv(r.locale),
-      ...form.questions.map((q) => {
+      ...answerableQuestions.map((q) => {
         const val = r.answers[q.id];
         if (Array.isArray(val)) return escapeCsv(val.join(", "));
         return escapeCsv(val ?? "");

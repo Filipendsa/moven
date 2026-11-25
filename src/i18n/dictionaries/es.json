@@ -426,6 +426,16 @@
     "notFoundTitle": "Formulario no encontrado.",
     "pausedDesc": "Este formulario está pausado temporalmente. Inténtalo de nuevo más tarde.",
     "closedDesc": "Este formulario ya no acepta más respuestas.",
-    "backHome": "Volver al sitio de MOVEN"
+    "backHome": "Volver al sitio de MOVEN",
+    "sectionLabel": "Sección",
+    "ofLabel": "de",
+    "nextButton": "Siguiente",
+    "prevButton": "Volver",
+    "correctBadge": "¡Acertaste!",
+    "correctAnswerLabel": "Respuesta:",
+    "explanationLabel": "Explicación:",
+    "requiredFieldError": "Completa la pregunta obligatoria:",
+    "invalidEmailError": "Ingresa un correo válido en:",
+    "invalidPhoneError": "Ingresa un teléfono válido en:"
   }
 }

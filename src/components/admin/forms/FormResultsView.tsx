@@ -351,9 +351,16 @@ export default function FormResultsView({
               className="bg-[var(--card)] border border-[var(--terra)]/20 rounded-2xl p-5 space-y-3"
             >
               <div className="flex items-start justify-between gap-2">
-                <h4 className="font-heading font-bold text-sm sm:text-base">
-                  {s.title}
-                </h4>
+                <div>
+                  <h4 className="font-heading font-bold text-sm sm:text-base">
+                    {s.title}
+                  </h4>
+                  {s.correctOption && (
+                    <span className="inline-flex items-center gap-1 mt-1 text-[11px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-700 dark:text-emerald-400">
+                      ✓ Quiz · {s.correctPercentage ?? 0}% acertaram
+                    </span>
+                  )}
+                </div>
                 <span className="text-xs text-[var(--mut)] whitespace-nowrap">
                   {s.totalAnswers}{" "}
                   {s.totalAnswers === 1 ? "resposta" : "respostas"}
@@ -362,22 +369,30 @@ export default function FormResultsView({
 
               {s.optionCounts && (
                 <div className="space-y-2">
-                  {s.optionCounts.map((opt) => (
-                    <div key={opt.label} className="space-y-1 text-xs">
-                      <div className="flex justify-between gap-2">
-                        <span>{opt.label}</span>
-                        <span className="font-semibold">
-                          {opt.count} ({opt.percentage}%)
-                        </span>
+                  {s.optionCounts.map((opt) => {
+                    const isCorrect = s.correctOption === opt.label;
+                    return (
+                      <div key={opt.label} className="space-y-1 text-xs">
+                        <div className="flex justify-between gap-2">
+                          <span className={isCorrect ? "font-bold text-emerald-700 dark:text-emerald-400" : ""}>
+                            {isCorrect ? "✓ " : ""}
+                            {opt.label}
+                          </span>
+                          <span className="font-semibold">
+                            {opt.count} ({opt.percentage}%)
+                          </span>
+                        </div>
+                        <div className="w-full h-2.5 rounded-full bg-black/10 dark:bg-white/10 overflow-hidden">
+                          <div
+                            className={`h-full rounded-full transition-all ${
+                              isCorrect ? "bg-emerald-500" : "bg-[#8fa66a]"
+                            }`}
+                            style={{ width: `${opt.percentage}%` }}
+                          />
+                        </div>
                       </div>
-                      <div className="w-full h-2.5 rounded-full bg-black/10 dark:bg-white/10 overflow-hidden">
-                        <div
-                          className="h-full bg-[#8fa66a] rounded-full transition-all"
-                          style={{ width: `${opt.percentage}%` }}
-                        />
-                      </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
 
@@ -475,7 +490,9 @@ export default function FormResultsView({
               </div>
 
               <div className="space-y-3">
-                {form.questions.map((q) => {
+                {form.questions
+                  .filter((q) => q.type !== "SECTION_BREAK")
+                  .map((q) => {
                   const val = currentResponse.answers[q.id];
                   const display = Array.isArray(val)
                     ? val.join(", ")
