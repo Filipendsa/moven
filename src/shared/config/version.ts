@@ -1,5 +1,5 @@
 export const APP_VERSION =
-  process.env.NEXT_PUBLIC_APP_VERSION?.trim() || "1.24.0.0";
+  process.env.NEXT_PUBLIC_APP_VERSION?.trim() || "1.27.0.0";
 
 export const APP_COMMIT = process.env.NEXT_PUBLIC_APP_COMMIT?.trim() || "";
 

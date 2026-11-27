@@ -1,5 +1,7 @@
+import { Suspense } from "react";
 import type { Metadata } from "next";
 import "./globals.css";
+import ObservatoryBridge from "@/components/common/ObservatoryBridge";
 
 export const metadata: Metadata = {
   title: "MOVEN · Núcleo de Missões · Igreja UNASP-HT",
@@ -37,6 +39,9 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-screen flex flex-col antialiased selection:bg-[#8fa66a] selection:text-[#072119]">
+        <Suspense fallback={null}>
+          <ObservatoryBridge />
+        </Suspense>
         {children}
       </body>
     </html>

@@ -6,6 +6,7 @@ import { SupabaseRegistrationRepository } from "@/modules/enrollment/infrastruct
 import { SupabaseEventOfferingRepository } from "@/modules/mission-catalog/infrastructure/SupabaseEventOfferingRepository";
 import { SupabaseMissionRepository } from "@/modules/mission-catalog/infrastructure/SupabaseMissionRepository";
 import { SupabaseCouponRepository } from "@/modules/coupons/infrastructure/persistence/SupabaseCouponRepository";
+import { reportObservatoryServerError } from "@/shared/infrastructure/observatory/observatoryServer";
 
 const registrationRepo = new SupabaseRegistrationRepository();
 const offeringRepo = new SupabaseEventOfferingRepository();
@@ -65,6 +66,13 @@ export async function POST(request: Request) {
     return NextResponse.json(result.value, { status: 201 });
   } catch (err: unknown) {
     console.error("API /api/enrollments error:", err);
+    await reportObservatoryServerError({
+      errorName: err instanceof Error ? err.name : "EnrollmentApiError",
+      message: err instanceof Error ? err.message : "Erro interno em /api/enrollments",
+      stack: err instanceof Error ? err.stack || null : null,
+      route: "/api/enrollments",
+      severity: "critical",
+    });
     return NextResponse.json(
       { error: "Erro interno ao processar inscrição." },
       { status: 500 }

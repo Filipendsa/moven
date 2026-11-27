@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { ConfirmRegistrationPaymentUseCase } from "@/modules/enrollment/application/use-cases/ConfirmRegistrationPaymentUseCase";
 import { SupabaseRegistrationRepository } from "@/modules/enrollment/infrastructure/persistence/SupabaseRegistrationRepository";
+import { reportObservatoryServerError } from "@/shared/infrastructure/observatory/observatoryServer";
 
 const registrationRepo = new SupabaseRegistrationRepository();
 const confirmPaymentUseCase = new ConfirmRegistrationPaymentUseCase(
@@ -49,6 +50,13 @@ export async function POST(request: Request) {
     });
   } catch (err: any) {
     console.error("Webhook InfinitePay error:", err);
+    await reportObservatoryServerError({
+      errorName: err?.name || "InfinitePayWebhookError",
+      message: err?.message || "Erro interno no webhook InfinitePay",
+      stack: err?.stack || null,
+      route: "/api/webhooks/infinitepay",
+      severity: "critical",
+    });
     return NextResponse.json(
       { error: "Erro interno no processamento do webhook." },
       { status: 500 }
